@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>จองคิว</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai+Looped:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+  :root{
+    --paper:#F4F7F6; --surface:#FFFFFF; --ink:#1D2A2E; --muted:#5A686B;
+    --line:#D6DFDD; --teal:#1F6F68; --gum:#F7E0DD; --rose:#9C3D53;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{margin:0;background:var(--paper)}
+  body{color:var(--ink);font-family:"Noto Sans Thai Looped",system-ui,sans-serif;font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%}
+  button{font:inherit;color:inherit;cursor:pointer}
+  button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+
+  .top{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line);padding:14px 20px 0}
+  .top h1{margin:0 0 6px;font-size:1.2rem;font-weight:700;letter-spacing:.01em}
+  .tabs{display:flex;gap:24px}
+  .tabs button{background:none;border:0;padding:6px 0 10px;color:var(--muted);border-bottom:3px solid transparent}
+  .tabs button[aria-selected="true"]{color:var(--ink);font-weight:600;border-color:var(--teal)}
+
+  main{max-width:560px;margin:0 auto;padding:4px 20px 96px}
+  .block{margin-top:24px}
+  h2{margin:0 0 10px;font-size:1rem;font-weight:600}
+
+  .services{display:grid;gap:10px}
+  .opt{display:block;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:14px 16px}
+  .opt strong{display:block;font-size:1.08rem;font-weight:600}
+  .opt span{display:block;color:var(--muted);font-size:.9rem}
+
+  .dates{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x proximity}
+  .day{flex:0 0 66px;scroll-snap-align:start;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px 2px;text-align:center}
+  .day small{display:block;font-size:.75rem;line-height:1.3;color:var(--muted)}
+  .day b{display:block;font-size:1.65rem;line-height:1.15;font-weight:700}
+  .day:disabled{opacity:.4;cursor:not-allowed}
+
+  .period{margin:10px 0 6px;font-size:.85rem;color:var(--muted)}
+  .times{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .time{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:10px 0;font-weight:500}
+
+  .opt[aria-pressed="true"],.day[aria-pressed="true"],.time[aria-pressed="true"]{background:var(--gum);border-color:var(--rose);color:var(--rose)}
+  .opt[aria-pressed="true"] span,.day[aria-pressed="true"] small{color:var(--rose)}
+
+  .ticket{display:flex;align-items:center;gap:16px;background:var(--surface);border:1.5px solid var(--line);border-left:6px solid var(--teal);border-radius:14px;padding:14px 16px}
+  .ticket .num{min-width:58px;text-align:center;font-size:2.6rem;font-weight:700;line-height:1}
+  .ticket .num small{display:block;margin-top:6px;font-size:.8rem;font-weight:500;color:var(--muted)}
+  .ticket .info strong{display:block;font-weight:600}
+  .ticket .info span{display:block;font-size:.92rem;color:var(--muted)}
+
+  label.field{display:block;margin-top:14px;font-size:.95rem;font-weight:500}
+  input[type=text],input[type=tel],textarea{display:block;width:100%;margin-top:6px;padding:12px 14px;font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px}
+  input:focus,textarea:focus{border-color:var(--teal)}
+  textarea{resize:vertical}
+  .consent{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:.9rem;color:var(--muted)}
+  .consent input{flex:none;width:22px;height:22px;margin:2px 0 0;accent-color:var(--teal)}
+
+  .primary{display:block;width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;background:var(--teal);color:#fff;font-size:1.05rem;font-weight:600}
+  .primary:disabled{opacity:.5;cursor:default}
+  .secondary{display:block;width:100%;margin-top:10px;padding:13px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);font-weight:500}
+  .text-btn{background:none;border:0;padding:6px 0;color:var(--rose);text-decoration:underline}
+  .error{min-height:1em;margin:12px 0 0;color:var(--rose);font-size:.92rem}
+  .hint{display:block;margin-top:6px;font-size:.85rem;color:var(--muted)}
+  .empty{margin:28px 0 0;color:var(--muted)}
+  .item{margin-top:14px}
+
+  .done{margin-top:28px}
+  .done h2{font-size:1.3rem;margin-bottom:14px}
+  .done p{color:var(--muted)}
+
+  .loading{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(244,247,246,.85);font-weight:500}
+  @media (prefers-reduced-motion:no-preference){
+    .pop{animation:pop .35s ease-out}
+    @keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1 id="clinic"></h1>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="book" aria-selected="true">จองคิว</button>
+    <button role="tab" data-tab="mine" aria-selected="false">นัดของฉัน</button>
+  </nav>
+</header>
+
+<main>
+  <section id="view-book">
+    <div class="block">
+      <h2>เลือกบริการ</h2>
+      <div id="services" class="services"></div>
+    </div>
+    <div class="block" id="date-block" hidden>
+      <h2>เลือกวัน</h2>
+      <div id="dates" class="dates"></div>
+    </div>
+    <div class="block" id="time-block" hidden>
+      <h2>เลือกเวลา</h2>
+      <div id="times"></div>
+    </div>
+    <div class="block" id="form-block" hidden>
+      <h2>ข้อมูลผู้จอง</h2>
+      <div id="summary"></div>
+      <label class="field">ชื่อ-นามสกุล
+        <input type="text" id="f-name" autocomplete="name" maxlength="60">
+      </label>
+      <label class="field">เบอร์โทร
+        <input type="tel" id="f-phone" inputmode="numeric" autocomplete="tel" maxlength="12" placeholder="0812345678">
+      </label>
+      <label class="field">หมายเหตุถึงคลินิก (ไม่บังคับ)
+        <textarea id="f-note" rows="2" maxlength="200"></textarea>
+      </label>
+      <label class="consent">
+        <input type="checkbox" id="f-consent">
+        <span>ยินยอมให้คลินิกเก็บชื่อ เบอร์โทร และบัญชี LINE ไว้ใช้นัดหมายและแจ้งเตือนนัดเท่านั้น</span>
+      </label>
+      <p id="form-error" class="error" role="alert"></p>
+      <button id="submit" class="primary">ยืนยันการจอง</button>
+    </div>
+  </section>
+
+  <section id="view-done" class="done" hidden>
+    <h2>จองคิวแล้ว</h2>
+    <div id="done-ticket"></div>
+    <p>คลินิกจะส่งข้อความเตือนทาง LINE ในวันก่อนนัด</p>
+    <button class="primary" id="go-mine">ดูนัดของฉัน</button>
+    <button class="secondary" id="close">ปิดหน้านี้</button>
+  </section>
+
+  <section id="view-mine" hidden>
+    <div id="mine"></div>
+  </section>
+</main>
+
+<div id="loading" class="loading">กำลังโหลด…</div>
+
+<script>
+/* ============ ตั้งค่า (แก้ 3 บรรทัดนี้) ============ */
+const LIFF_ID     = 'ใส่_LIFF_ID';
+const API_URL     = 'ใส่_URL_Web_app_ของ_Apps_Script';
+const CLINIC_NAME = 'คลินิกทันตกรรม';
+/* ================================================= */
+
+const $ = id => document.getElementById(id);
+const WD_SHORT = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+const WD_FULL  = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+const MON = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+let idToken = null, services = [], minHours = 3;
+const st = { svc: null, days: [], date: null, time: null };
+
+/* ---------- ตัวช่วย ---------- */
+function parts(ds){ const [y,m,d] = ds.split('-').map(Number); return { y, m, d, w: new Date(Date.UTC(y,m-1,d)).getUTCDay() }; }
+function fullDate(ds){ const p = parts(ds); return `วัน${WD_FULL[p.w]}ที่ ${p.d} ${MON[p.m-1]} ${p.y+543}`; }
+function endTime(t, min){ const [h,m] = t.split(':').map(Number); const n = h*60+m+min; return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0'); }
+
+function el(tag, props = {}, ...kids){
+  const n = document.createElement(tag);
+  for (const [k,v] of Object.entries(props)){
+    if (k === 'class') n.className = v;
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else if (v === true) n.setAttribute(k, '');
+    else if (v !== false && v != null) n.setAttribute(k, v);
+  }
+  kids.flat().forEach(c => c != null && n.append(c));
+  return n;
+}
+
+function loading(on){ $('loading').hidden = !on; }
+async function withLoading(fn){ loading(true); try { return await fn(); } finally { loading(false); } }
+
+async function api(action, data = {}){
+  let res;
+  try {
+    res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action, idToken, ...data })
+    });
+  } catch (_) {
+    throw new Error('เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+  }
+  const json = await res.json().catch(() => ({ ok:false, error:'ระบบขัดข้อง กรุณาลองใหม่อีกครั้ง' }));
+  if (!json.ok) throw new Error(json.error);
+  return json.data;
+}
+
+function ticket(b, extraClass = ''){
+  const p = parts(b.date);
+  return el('div', { class: 'ticket ' + extraClass },
+    el('div', { class: 'num' }, String(p.d), el('small', {}, MON[p.m-1])),
+    el('div', { class: 'info' },
+      el('strong', {}, b.service),
+      el('span', {}, fullDate(b.date)),
+      el('span', {}, `เวลา ${b.time}–${endTime(b.time, b.minutes)} น.`)));
+}
+
+/* ---------- ขั้นตอนจอง ---------- */
+function renderServices(){
+  $('services').replaceChildren(...services.map(s =>
+    el('button', { class: 'opt', 'aria-pressed': String(st.svc?.id === s.id), onclick: () => pickService(s) },
+      el('strong', {}, s.name),
+      el('span', {}, `${s.desc} คิวละ ${s.minutes} นาที`))));
+}
+
+async function pickService(s){
+  Object.assign(st, { svc: s, date: null, time: null, days: [] });
+  renderServices();
+  $('time-block').hidden = true;
+  $('form-block').hidden = true;
+  try {
+    st.days = await withLoading(() => api('slots', { service: s.id }));
+  } catch (e) { alert(e.message); return; }
+  renderDates();
+  $('date-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderDates(){
+  $('date-block').hidden = false;
+  if (!st.days.length){
+    $('dates').replaceChildren(el('p', { class: 'empty' }, 'ช่วงนี้ยังไม่เปิดรับคิว ทักแชทสอบถามคลินิกได้'));
+    return;
+  }
+  $('dates').replaceChildren(...st.days.map(d => {
+    const p = parts(d.date), full = !d.times.length;
+    return el('button', {
+        class: 'day', disabled: full, 'aria-pressed': String(st.date === d.date),
+        'aria-label': fullDate(d.date) + (full ? ' คิวเต็ม' : ` ว่าง ${d.times.length} คิว`),
+        onclick: () => pickDate(d.date)
+      },
+      el('small', {}, WD_SHORT[p.w]),
+      el('b', {}, String(p.d)),
+      el('small', {}, full ? 'เต็ม' : MON[p.m-1]));
+  }));
+}
+
+function pickDate(ds){
+  st.date = ds; st.time = null;
+  renderDates(); renderTimes();
+  $('form-block').hidden = true;
+  $('time-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderTimes(){
+  const day = st.days.find(d => d.date === st.date);
+  if (!day) { $('time-block').hidden = true; return; }
+  $('time-block').hidden = false;
+  const btn = t => el('button', { class: 'time', 'aria-pressed': String(st.time === t), onclick: () => pickTime(t) }, t);
+  const morning = day.times.filter(t => t < '12:00'), afternoon = day.times.filter(t => t >= '12:00');
+  const group = (label, list) => list.length ? [el('p', { class: 'period' }, label), el('div', { class: 'times' }, list.map(btn))] : [];
+  $('times').replaceChildren(...group('ช่วงเช้า', morning), ...group('ช่วงบ่าย', afternoon));
+}
+
+function pickTime(t){
+  st.time = t;
+  renderTimes();
+  $('summary').replaceChildren(ticket({ date: st.date, time: t, minutes: st.svc.minutes, service: st.svc.name }));
+  $('form-error').textContent = '';
+  $('form-block').hidden = false;
+  $('form-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function submit(){
+  const err = m => { $('form-error').textContent = m; };
+  err('');
+  const name = $('f-name').value.trim();
+  const phone = $('f-phone').value.replace(/\D/g, '');
+  const note = $('f-note').value.trim();
+  const consent = $('f-consent').checked;
+  if (!name) return err('กรอกชื่อ-นามสกุล');
+  if (!/^0\d{8,9}$/.test(phone)) return err('กรอกเบอร์โทรให้ถูกต้อง เช่น 0812345678');
+  if (!consent) return err('กดยินยอมการเก็บข้อมูลก่อนยืนยัน');
+
+  $('submit').disabled = true;
+  try {
+    const b = await withLoading(() => api('book', { service: st.svc.id, date: st.date, time: st.time, name, phone, note, consent }));
+    showDone(b);
+    try {
+      if (liff.isInClient()) await liff.sendMessages([{ type: 'text',
+        text: `จองคิวแล้ว\n${b.service}\n${fullDate(b.date)}\nเวลา ${b.time}–${endTime(b.time, b.minutes)} น.` }]);
+    } catch (_) {}
+  } catch (e) {
+    err(e.message);
+    if (e.message.includes('ถูกจอง')) {
+      st.days = await api('slots', { service: st.svc.id }).catch(() => st.days);
+      st.time = null; renderDates(); renderTimes();
+    }
+  } finally {
+    $('submit').disabled = false;
+  }
+}
+
+function showDone(b){
+  $('done-ticket').replaceChildren(ticket(b, 'pop'));
+  $('view-book').hidden = true;
+  $('view-done').hidden = false;
+  window.scrollTo(0, 0);
+}
+
+function resetBooking(){
+  Object.assign(st, { svc: null, days: [], date: null, time: null });
+  ['f-name','f-phone','f-note'].forEach(id => $(id).value = '');
+  $('f-consent').checked = false;
+  ['date-block','time-block','form-block'].forEach(id => $(id).hidden = true);
+  renderServices();
+}
+
+/* ---------- นัดของฉัน ---------- */
+async function loadMine(){
+  const box = $('mine');
+  let list;
+  try { list = await withLoading(() => api('mine')); }
+  catch (e) { box.replaceChildren(el('p', { class: 'empty' }, e.message)); return; }
+
+  if (!list.length){
+    box.replaceChildren(
+      el('p', { class: 'empty' }, 'ยังไม่มีนัดที่จะถึง'),
+      el('button', { class: 'primary', onclick: () => switchTab('book') }, 'จองคิว'));
+    return;
+  }
+  box.replaceChildren(el('div', { class: 'block' }, el('h2', {}, 'นัดที่จะถึง'),
+    list.map(b => el('div', { class: 'item' }, ticket(b),
+      b.canCancel
+        ? el('button', { class: 'text-btn', onclick: () => cancel(b) }, 'ยกเลิกนัดนี้')
+        : el('span', { class: 'hint' }, `ยกเลิกออนไลน์ได้ก่อนนัด ${minHours} ชม. หากต้องการเลื่อนหรือยกเลิก ทักแชทคลินิก`)))));
+}
+
+async function cancel(b){
+  if (!confirm(`ยกเลิกนัด ${b.service}\n${fullDate(b.date)} เวลา ${b.time} น.?`)) return;
+  try { await withLoading(() => api('cancel', { id: b.id })); }
+  catch (e) { alert(e.message); }
+  loadMine();
+}
+
+/* ---------- แท็บ ---------- */
+function switchTab(tab){
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  $('view-mine').hidden = tab !== 'mine';
+  $('view-done').hidden = true;
+  $('view-book').hidden = tab !== 'book';
+  if (tab === 'book') resetBooking();
+  if (tab === 'mine') loadMine();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- เริ่มต้น ---------- */
+async function init(){
+  $('clinic').textContent = CLINIC_NAME;
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+  $('submit').addEventListener('click', submit);
+  $('go-mine').addEventListener('click', () => switchTab('mine'));
+  $('close').addEventListener('click', () => liff.isInClient() ? liff.closeWindow() : switchTab('book'));
+
+  try {
+    if (LIFF_ID.startsWith('ใส่') || API_URL.startsWith('ใส่')) throw new Error('ยังไม่ได้ใส่ LIFF_ID และ API_URL ในไฟล์ index.html');
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
+    idToken = liff.getIDToken();
+    const data = await api('services');
+    services = data.services;
+    minHours = data.minHoursBefore;
+    renderServices();
+  } catch (e) {
+    $('view-book').replaceChildren(el('p', { class: 'empty' }, e.message));
+  } finally {
+    loading(false);
+  }
+}
+init();
+</script>
+</body>
+</html>
