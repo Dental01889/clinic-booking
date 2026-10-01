@@ -116,6 +116,8 @@
   .movebar .danger{color:var(--rose)}
   #services .opt{text-align:center;display:flex;align-items:center;justify-content:center;min-height:64px}
   .ticket .info span{white-space:pre-line}
+  .tnote{margin:8px 0 0;padding:10px 14px;border-radius:10px;background:#FFF6E3;border:1px solid #F1DDB0;
+         color:#6E4E0E;font-size:.9rem;line-height:1.6;white-space:pre-line}
   .f-addr{margin:0 0 14px;color:var(--ink)}
   .day.full{opacity:.55}
   .day.full i{color:var(--rose);font-weight:600}
@@ -367,6 +369,10 @@
     #form-block:not([hidden]),#view-done:not([hidden]){animation:booking-reveal .24s ease-out}
     @keyframes booking-reveal{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
   }
+
+  /* การ์ดนัด: ช่องวันที่กว้างเท่ากันทุกใบ ตัวเลขอยู่กลางช่อง ข้อความเริ่มตรงกัน */
+  .ticket .num{flex:0 0 64px;width:64px;min-width:64px;text-align:center}
+  .tnote{text-align:center}
 </style>
 </head>
 <body>
@@ -524,7 +530,7 @@ const svcOf = name => services.find(s => s.name === name) || {};
 /* บอกเวลา — ถอนฟันลงชื่อรายวัน ไม่บอกเวลา */
 function whenText(b){
   const s = svcOf(b.service);
-  return (b.noTime || s.noTime) ? (b.noTimeText || s.noTimeText || 'มาถึงก่อน 09.00 น.\nใครมาก่อนได้ทำก่อน')
+  return (b.noTime || s.noTime) ? (b.noTimeText || s.noTimeText || 'มาถึงก่อน 09.00 น.\nรับคิวที่เคาน์เตอร์')
                                 : `เวลา ${b.time}–${endTime(b.time, b.minutes)} น.`;
 }
 function endTime(t, min){ const [h,m] = t.split(':').map(Number); const n = h*60+m+min; return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0'); }
@@ -603,13 +609,18 @@ async function api(action, data = {}, retried = false){
 
 function ticket(b, extraClass = ''){
   const p = parts(b.date);
-  return el('div', { class: 'ticket ' + extraClass },
+  // ถอนฟัน: ในการ์ดบอกแค่บรรทัดแรก (มาถึงก่อน 09.00 น.) ที่เหลือย้ายไปกล่องใต้การ์ด ให้การ์ดสูงเท่ากัน
+  const lines = whenText(b).split('\n');
+  const more = lines.slice(1).join(' ').replace(' รับคิว', '\nรับคิว');
+  const card = el('div', { class: 'ticket ' + (more ? '' : extraClass) },
     el('div', { class: 'num' }, String(p.d), el('small', {}, MON[p.m-1])),
     el('div', { class: 'info' },
       el('strong', {}, b.service),
       b.name ? el('span', { style: 'color:var(--ink);font-weight:500' }, b.name) : null,
       el('span', {}, fullDate(b.date)),
-      el('span', {}, whenText(b))));
+      el('span', {}, lines[0])));
+  if (!more) return card;
+  return el('div', { class: extraClass }, card, el('p', { class: 'tnote' }, more));
 }
 
 /* ---------- ขั้นตอนจอง ---------- */
