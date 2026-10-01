@@ -373,6 +373,9 @@
   /* การ์ดนัด: ช่องวันที่กว้างเท่ากันทุกใบ ตัวเลขอยู่กลางช่อง ข้อความเริ่มตรงกัน */
   .ticket .num{flex:0 0 64px;width:64px;min-width:64px;text-align:center}
   .tnote{text-align:center}
+  .treat-pick{margin-top:10px}
+  .tp-label{display:block;font-size:.92rem;font-weight:500;color:var(--ink);margin-bottom:2px}
+  #names .person + .person{margin-top:18px;padding-top:4px;border-top:1px dashed var(--line)}
 </style>
 </head>
 <body>
@@ -555,7 +558,7 @@ const DRAFT_KEY = 'booking-draft';
 function saveDraft(){
   try {
     sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
-      svc: st.svc?.id, date: st.date, time: st.time,
+      svc: st.svc?.id, date: st.date, time: st.time, treats: st.treats,
       names: [...document.querySelectorAll('#names input')].map(i => i.value), phone: $('f-phone').value,
       note: $('f-note').value, consent: $('f-consent').checked
     }));
@@ -615,7 +618,7 @@ function ticket(b, extraClass = ''){
   const card = el('div', { class: 'ticket ' + (more ? '' : extraClass) },
     el('div', { class: 'num' }, String(p.d), el('small', {}, MON[p.m-1])),
     el('div', { class: 'info' },
-      el('strong', {}, b.service),
+      el('strong', {}, b.treat || b.service),
       b.name ? el('span', { style: 'color:var(--ink);font-weight:500' }, b.name) : null,
       el('span', {}, fullDate(b.date)),
       el('span', {}, lines[0])));
@@ -776,17 +779,28 @@ function renderParty(){
 function renderNames(){
   const slots = st.party > 1 ? consecutiveFree(st.party) : [st.time];
   const keep = [...document.querySelectorAll('#names input')].map(i => i.value);
+  const tr = st.svc.treatments || [];
+  st.treats = st.treats || [];
   $('names').replaceChildren(...(slots || [st.time]).map((t, i) =>
-    el('label', { class: 'field' },
-      st.party > 1 ? `ชื่อ-นามสกุล คนที่ ${i+1}` + (st.svc.noTime ? '' : ` (${t} น.)`) : 'ชื่อ-นามสกุล',
-      el('input', { type: 'text', maxlength: '60', autocomplete: i ? 'off' : 'name',
-                    value: keep[i] || '' }))));
+    el('div', { class: 'person' },
+      el('label', { class: 'field' },
+        st.party > 1 ? `ชื่อ-นามสกุล คนที่ ${i+1}` + (st.svc.noTime ? '' : ` (${t} น.)`) : 'ชื่อ-นามสกุล',
+        el('input', { type: 'text', maxlength: '60', autocomplete: i ? 'off' : 'name',
+                      value: keep[i] || '' })),
+      // อุดฟัน / ขูดหินปูน — เลือกได้อย่างเดียว
+      tr.length ? el('div', { class: 'treat-pick' },
+        el('span', { class: 'tp-label' }, st.party > 1 ? `คนที่ ${i+1} มาทำ` : 'มาทำอะไร'),
+        el('div', { class: 'chips', role: 'radiogroup' }, tr.map(x =>
+          el('button', { type: 'button', class: 'chip', role: 'radio',
+            'aria-checked': String(st.treats[i] === x), 'aria-pressed': String(st.treats[i] === x),
+            onclick: () => { st.treats[i] = x; renderNames(); } }, x)))) : null)));
 }
 
 function pickTime(t){
   if (st.moving){ doMove(t); return; }
   st.time = t;
   st.party = 1;
+  st.treats = [];
   renderTimes(); markSteps();
   $('summary').replaceChildren(ticket({ date: st.date, time: t, minutes: st.svc.minutes, service: st.svc.name,
                                         noTime: st.svc.noTime, startText: st.svc.startText, noTimeText: st.svc.noTimeText }));
@@ -805,13 +819,16 @@ async function submit(){
   const note = $('f-note').value.trim();
   const consent = $('f-consent').checked;
   if (names.some(n => !n)) return err('กรอกชื่อ-นามสกุลให้ครบทุกคน');
+  const treats = names.map((_, i) => (st.treats || [])[i] || '');
+  if ((st.svc.treatments || []).length && treats.some(x => !x))
+    return err(names.length > 1 ? 'เลือกว่าแต่ละคนมาอุดฟัน หรือขูดหินปูน' : 'เลือกว่ามาอุดฟัน หรือขูดหินปูน');
   if (!/^0\d{8,9}$/.test(phone)) return err('กรอกเบอร์โทรให้ถูกต้อง เช่น 0812345678');
   if (!consent) return err('กดยินยอมการเก็บข้อมูลก่อนยืนยัน');
 
   $('submit').disabled = true;
   try {
     const list = await withLoading(() => api('book',
-      { service: st.svc.id, date: st.date, time: st.time, names, phone, note, consent }));
+      { service: st.svc.id, date: st.date, time: st.time, names, treats, phone, note, consent }));
     const made = [].concat(list);
     showDone(made);
     try {
@@ -977,6 +994,7 @@ async function restoreDraft(){
     const day = st.days.find(x => x.date === d.date);
     if (d.time && day.times.includes(d.time)) pickTime(d.time);
   }
+  if (d.treats && $('names').children.length){ st.treats = d.treats; renderNames(); }
   document.querySelectorAll('#names input').forEach((inp, i) => { inp.value = (d.names || [])[i] || ''; });
   $('f-phone').value = d.phone || '';
   $('f-note').value  = d.note  || '';
