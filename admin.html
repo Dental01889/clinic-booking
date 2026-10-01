@@ -676,14 +676,21 @@ function toast(msg){
 
 async function api(action, data = {}){
   let res;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 25000);
   try {
     res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action, idToken, adminToken, ...data })
+      body: JSON.stringify({ action, idToken, adminToken, ...data }),
+      signal: ctrl.signal
     });
-  } catch (_) {
-    throw new Error('เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+  } catch (e) {
+    throw new Error(e.name === 'AbortError'
+      ? 'ระบบตอบช้ากว่าปกติ กรุณาลองใหม่อีกครั้ง'
+      : 'เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+  } finally {
+    clearTimeout(timer);
   }
   const json = await res.json().catch(() => ({ ok:false, error:'ระบบขัดข้อง ลองใหม่อีกครั้ง' }));
   if (!json.ok) {
