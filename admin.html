@@ -560,6 +560,15 @@
   @media (max-width:479px){ .mv{padding:5px 9px;font-size:.8rem} }
   @media print{ .mv{display:none!important} }
   .mv-auto{margin:10px 0 0;padding:10px 12px;border-radius:9px;background:#E4F1ED;color:#1F6F68;font-size:.92rem}
+
+  /* อุดฟัน / ขูดหินปูน */
+  #ad-people .person{grid-template-areas:'nm when x' 'ph ph x' 'tr tr x'}
+  @media screen and (max-width:479px){ #ad-people .person{grid-template-areas:'nm x' 'when x' 'ph ph' 'tr tr'} }
+  #ad-people .person .tr{grid-area:tr;margin-top:0}
+  .treat{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:999px;font-size:.78rem;font-weight:700;vertical-align:2px;white-space:nowrap}
+  .treat.t-fill{background:#E3EEFB;color:#1E4E86}
+  .treat.t-scale{background:#FBEFD8;color:#7A4E0B}
+  @media print{ .treat{border:1px solid #000;background:none!important;color:#000!important} }
 </style>
 </head>
 <body>
@@ -853,6 +862,11 @@ function renderDay(data){
     data.capacity.forEach((c, i) => {
       if (i) counts.push(' · ');
       counts.push(`${c.name} `, el('b', {}, `${c.booked}/${c.total}`), ' คิว' + (c.noTime ? ' (นัดมาถึงก่อน 09.00 น. รับคิวที่เคาน์เตอร์)' : ''));
+      if ((c.treatments || []).length){
+        const mine = live.filter(b => b.service === c.name);
+        const parts = c.treatments.map(t => [t, mine.filter(b => b.treat === t).length]).filter(x => x[1]);
+        if (parts.length) counts.push(' — ', ...parts.flatMap((x, j) => [j ? ' · ' : '', `${x[0]} `, el('b', {}, String(x[1]))]));
+      }
     });
   } else {
     counts.push(el('b', {}, String(live.length)), ' นัด (นอกวันให้บริการปกติ)');
@@ -926,7 +940,9 @@ function slotRow(t, b, free){
 
     return el('div', { class: 'slot taken' },
       el('div', { class: 't' }, slotNum(t)),
-      el('div', { class: 'n' }, el('b', {}, b.name || '—'), el('small', {}, line)),
+      el('div', { class: 'n' }, el('b', {}, b.name || '—',
+        b.treat ? el('span', { class: 'treat ' + (b.treat === 'อุดฟัน' ? 't-fill' : 't-scale') }, b.treat) : null),
+        el('small', {}, line)),
       el('div', { class: 'side' },
         el('button', { class: 'mv', 'aria-label': `เลื่อนนัดของ ${b.name || 'คนไข้'}`,
           title: 'เลื่อนนัดนี้', onclick: () => openMove(b) }, 'เลื่อน'),
@@ -997,7 +1013,12 @@ function renderPeople(){
           : el('span', { class: 'x' }),
         el('input', { class: 'ph', type: 'tel', inputmode: 'numeric', maxlength: '12',
           placeholder: i ? 'เบอร์โทร (เว้นว่าง = ใช้เบอร์คนแรก)' : 'เบอร์โทร (ไม่บังคับ) ใช้เบอร์ญาติได้',
-          'aria-label': `เบอร์โทรคนที่ ${i+1}` })))));
+          'aria-label': `เบอร์โทรคนที่ ${i+1}` }),
+        (svc.treatments || []).length
+          ? el('select', { class: 'tr', 'aria-label': `งานที่ทำ คนที่ ${i+1}` },
+              el('option', { value: '' }, '— มาทำอะไร (ไม่บังคับ) —'),
+              svc.treatments.map(x => el('option', { value: x }, x)))
+          : null))));
 
   const next = svc.free.find(t => !picked.includes(t));
   const more = $('ad-more');
@@ -1011,17 +1032,19 @@ function renderPeople(){
 }
 
 const currentNames = () => [...document.querySelectorAll('#ad-people .person')]
-  .map(r => ({ name: r.querySelector('.nm').value, phone: r.querySelector('.ph').value }));
+  .map(r => ({ name: r.querySelector('.nm').value, phone: r.querySelector('.ph').value,
+               treat: r.querySelector('.tr') ? r.querySelector('.tr').value : '' }));
 const restoreNames = v => document.querySelectorAll('#ad-people .person').forEach((r, i) => {
   if (!v[i]) return;
   r.querySelector('.nm').value = v[i].name; r.querySelector('.ph').value = v[i].phone;
+  if (r.querySelector('.tr')) r.querySelector('.tr').value = v[i].treat || '';
 });
 
 async function submitAdd(){
   const err = m => { $('ad-err').textContent = m; };
   err('');
   const svc = dayData.capacity.find(c => c.id === svcId);
-  const people = currentNames().map(x => ({ name: x.name.trim(), phone: x.phone.replace(/\D/g, '') }));
+  const people = currentNames().map(x => ({ name: x.name.trim(), phone: x.phone.replace(/\D/g, ''), treat: x.treat }));
   if (people.some(x => !x.name)) return err('กรอกชื่อคนไข้ให้ครบทุกคน');
   const bad = people.findIndex(x => x.phone && !/^0\d{8,9}$/.test(x.phone));
   if (bad >= 0) return err(`เบอร์โทรของคนที่ ${bad+1} ไม่ถูกต้อง เช่น 0812345678`);
@@ -1033,7 +1056,7 @@ async function submitAdd(){
     const r = await api('adminAdd', {
       date: dayData.date, service: svc.id,
       note: $('ad-note').value.trim(), channel: 'แอดมิน',
-      people: picked.map((t, i) => ({ time: t, name: people[i].name, phone: people[i].phone }))
+      people: picked.map((t, i) => ({ time: t, name: people[i].name, phone: people[i].phone, treat: people[i].treat }))
     });
     $('adlg').close();
     toast(`เพิ่ม ${r.added} นัดเรียบร้อย`);
@@ -1286,7 +1309,7 @@ async function runSearch(){
     const tag = b.cancelled ? el('span', { class: 'tag off' }, 'ยกเลิก')
       : b.date >= r.today ? el('span', { class: 'tag up' }, 'จะถึง')
       : el('span', { class: 'tag past' }, 'ผ่านแล้ว');
-    const sub = [b.phone, b.service, b.note].filter(Boolean).join(' · ');
+    const sub = [b.phone, b.treat || b.service, b.note].filter(Boolean).join(' · ');
     return el('button', { class: 'hit', onclick: () => { clearSearch(); openDay(b.date); } },
       el('div', { class: 'when' }, shortDate(b.date), el('small', {}, b.time + ' น.')),
       el('div', { class: 'who' }, el('b', {}, b.name || '—'), tag, el('small', {}, sub)));
