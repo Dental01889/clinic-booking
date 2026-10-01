@@ -393,7 +393,7 @@ function saveDraft(){
   try {
     sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
       svc: st.svc?.id, date: st.date, time: st.time,
-      name: $('f-name').value, phone: $('f-phone').value,
+      names: [...document.querySelectorAll('#names input')].map(i => i.value), phone: $('f-phone').value,
       note: $('f-note').value, consent: $('f-consent').checked
     }));
   } catch (_) {}
@@ -632,7 +632,8 @@ function showDone(list){
 function resetBooking(){
   Object.assign(st, { svc: null, days: [], date: null, time: null, party: 1 });
   if (!st.moving) $('move-note').hidden = true;
-  ['f-name','f-phone','f-note'].forEach(id => $(id).value = '');
+  ['f-phone','f-note'].forEach(id => $(id).value = '');
+  $('names').replaceChildren();
   $('f-consent').checked = false;
   ['date-block','time-block','form-block'].forEach(id => $(id).hidden = true);
   renderServices();
@@ -725,7 +726,7 @@ async function restoreDraft(){
     const day = st.days.find(x => x.date === d.date);
     if (d.time && day.times.includes(d.time)) pickTime(d.time);
   }
-  $('f-name').value  = d.name  || '';
+  document.querySelectorAll('#names input').forEach((inp, i) => { inp.value = (d.names || [])[i] || ''; });
   $('f-phone').value = d.phone || '';
   $('f-note').value  = d.note  || '';
   $('f-consent').checked = !!d.consent;
