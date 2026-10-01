@@ -805,8 +805,8 @@ async function submit(){
     showDone(made);
     try {
       if (liff.isInClient()) await liff.sendMessages([{ type: 'text',
-        text: 'จองคิวแล้ว\n' + made.map(b =>
-          `${b.service} · ${b.name || ''}\n${fullDate(b.date)}\n${whenText(b)}`
+        text: '✅ จองคิวแล้ว\n\n' + made.map(b =>
+          `${b.name ? 'คุณ' + b.name + ' · ' : ''}${b.service}\n${fullDate(b.date)}\n${whenText(b)}`
         ).join('\n\n') }]);
     } catch (_) {}
   } catch (e) {
