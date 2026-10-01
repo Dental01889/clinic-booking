@@ -850,7 +850,7 @@ function renderDay(data){
   if (data.capacity.length){
     data.capacity.forEach((c, i) => {
       if (i) counts.push(' · ');
-      counts.push(`${c.name} `, el('b', {}, `${c.booked}/${c.total}`), ' คิว');
+      counts.push(`${c.name} `, el('b', {}, `${c.booked}/${c.total}`), ' คิว' + (c.noTime ? ' (เริ่ม 9 โมงเช้า ใครมาก่อนได้ทำก่อน)' : ''));
     });
   } else {
     counts.push(el('b', {}, String(live.length)), ' นัด (นอกวันให้บริการปกติ)');
@@ -907,6 +907,10 @@ function renderSlots(){
   renderSelbar();
 }
 
+/* ป้ายเวลา — บริการลงชื่อรายวัน (ถอนฟัน) แสดงเป็น "คิว 1–8" */
+const capLabel = (cap, t) => cap && cap.noTime ? `คิว ${cap.times.indexOf(t) + 1}` : t;
+const slotLabel = t => capLabel(dayData && dayData.capacity.find(c => c.id === svcId), t);
+
 function slotRow(t, b, free){
   if (b && !b.cancelled){
     const bits = [];
@@ -917,7 +921,7 @@ function slotRow(t, b, free){
     bits.forEach((x, i) => { if (i) line.push(' · '); line.push(x); });
 
     return el('div', { class: 'slot taken' },
-      el('div', { class: 't' }, t),
+      el('div', { class: 't' }, slotLabel(t)),
       el('div', { class: 'n' }, el('b', {}, b.name || '—'), el('small', {}, line)),
       el('div', { class: 'side' },
         el('button', { class: 'mv', 'aria-label': `เลื่อนนัดของ ${b.name || 'คนไข้'}`,
@@ -927,13 +931,13 @@ function slotRow(t, b, free){
   }
   if (b && b.cancelled && !free){
     return el('div', { class: 'slot off' },
-      el('div', { class: 't' }, t),
+      el('div', { class: 't' }, slotLabel(t)),
       el('div', { class: 'n' }, el('b', {}, b.name || '—'), el('small', {}, 'ยกเลิกแล้ว')),
       el('div', { class: 'side' }));
   }
   if (!free){
     return el('div', { class: 'slot blocked' },
-      el('div', { class: 't' }, t),
+      el('div', { class: 't' }, slotLabel(t)),
       el('div', { class: 'n' }, el('b', {}, 'ไม่ว่าง')),
       el('div', { class: 'side' }));
   }
@@ -945,7 +949,7 @@ function slotRow(t, b, free){
         renderSlots();
       }
     },
-    el('div', { class: 't' }, t),
+    el('div', { class: 't' }, slotLabel(t)),
     el('div', { class: 'n' }, el('b', {}, on ? 'เลือกไว้' : 'ว่าง')),
     el('div', { class: 'side' }, on ? '✓' : '+'));
 }
@@ -953,7 +957,7 @@ function slotRow(t, b, free){
 function renderSelbar(){
   if (!picked.length){ $('selbar').replaceChildren(); return; }
   $('selbar').replaceChildren(el('div', { class: 'selbar' },
-    el('span', {}, `เลือก ${picked.length} คิว · ${picked.join(' , ')}`),
+    el('span', {}, `เลือก ${picked.length} คิว · ${picked.map(slotLabel).join(' , ')}`),
     el('button', { onclick: openAdd }, 'เพิ่มนัด')));
 }
 
@@ -977,7 +981,7 @@ function renderPeople(){
       el('label', {}, picked.length > 1 ? `คนไข้คนที่ ${i+1}` : 'คนไข้'),
       el('div', { class: 'person' },
         el('input', { class: 'nm', type: 'text', maxlength: '60', placeholder: 'ชื่อ-นามสกุล', 'aria-label': `ชื่อคนไข้คนที่ ${i+1}` }),
-        el('div', { class: 'when' }, `${t} – ${endOf(t, svc.minutes)}`),
+        el('div', { class: 'when' }, svc.noTime ? slotLabel(t) : `${t} – ${endOf(t, svc.minutes)}`),
         picked.length > 1
           ? el('button', { class: 'x', type: 'button', 'aria-label': `เอาคิว ${t} ออก`,
               onclick: () => {
@@ -1103,7 +1107,7 @@ async function loadTarget(){
         el('small', {}, `เดิม ${b.time} · ${b.service}` + (b.hasLine ? '' : ' · ไม่มี LINE'))),
       el('select', { 'data-id': b.id, 'aria-label': `เวลาใหม่ของ ${b.name || 'คนไข้'}` },
         el('option', { value: '' }, cap ? '— เลือกเวลา —' : 'ไม่มีรอบนี้'),
-        free.map(t => el('option', { value: t, selected: t === pick }, t))));
+        free.map(t => el('option', { value: t, selected: t === pick }, capLabel(cap, t)))));
   }));
 }
 
@@ -1180,7 +1184,7 @@ async function loadMoveTimes(){
     $('mv-time').replaceChildren(el('option', { value: '' }, cap ? 'วันนี้คิวเต็มแล้ว' : `วันนี้ไม่มีรอบ${b.service}`));
     return;
   }
-  $('mv-time').replaceChildren(el('option', { value: '' }, '— เลือกเวลา —'), ...free.map(t => el('option', { value: t }, t + ' น.')));
+  $('mv-time').replaceChildren(el('option', { value: '' }, '— เลือกเวลา —'), ...free.map(t => el('option', { value: t }, cap.noTime ? capLabel(cap, t) : t + ' น.')));
   $('mv-yes').disabled = false;
 }
 
