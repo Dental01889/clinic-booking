@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ตารางคิว (ผู้ดูแล)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+  :root{
+    --bg:#EEF1F0; --card:#FFFFFF; --ink:#16211F; --muted:#5E6B69;
+    --rule:#D3DCDA; --teal:#17635C; --teal-soft:#E3EFED;
+    --rose:#9A2F46; --rose-soft:#FBE7EB; --amber:#8A5B10; --amber-soft:#FBEFD8;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{margin:0;background:var(--bg)}
+  body{color:var(--ink);font-family:"IBM Plex Sans Thai",system-ui,sans-serif;font-size:16px;line-height:1.55;-webkit-text-size-adjust:100%}
+  button{font:inherit;color:inherit;cursor:pointer}
+  button:focus-visible,input:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+  .wrap{max-width:620px;margin:0 auto;padding:0 20px 80px}
+
+  /* header + date strip */
+  .top{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--rule)}
+  .top .wrap{padding-top:14px;padding-bottom:0}
+  .eyebrow{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+  .eyebrow h1{margin:0;font-size:1.1rem;font-weight:700}
+  .eyebrow span{font-size:.85rem;color:var(--muted)}
+  .strip{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x proximity}
+  .d{position:relative;flex:0 0 58px;scroll-snap-align:center;background:var(--card);border:1.5px solid var(--rule);border-radius:10px;padding:7px 2px 6px;text-align:center}
+  .d small{display:block;font-size:.72rem;line-height:1.2;color:var(--muted)}
+  .d b{display:block;font-size:1.45rem;font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums}
+  .d i{display:block;height:5px;margin:3px auto 0;border-radius:3px;background:var(--rule);width:26px;font-style:normal}
+  .d i.has{background:var(--teal)}
+  .d.shut b,.d.shut small{color:var(--amber)}
+  .d.shut i{background:var(--amber)}
+  .d[aria-current="date"]{border-color:var(--teal);background:var(--teal-soft)}
+  .d.today::after{content:"";position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--rose)}
+
+  /* day head */
+  .dayhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:22px 0 4px}
+  .dayhead h2{margin:0;flex:1 1 auto;font-size:1.15rem;font-weight:700}
+  .counts{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+  .counts b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+
+  .shutbtn{border:1.5px solid var(--rule);background:var(--card);border-radius:999px;padding:7px 15px;font-size:.9rem;font-weight:500}
+  .shutbtn.on{background:var(--amber-soft);border-color:var(--amber);color:var(--amber)}
+
+  .banner{display:flex;gap:10px;align-items:flex-start;background:var(--amber-soft);border-left:4px solid var(--amber);border-radius:8px;padding:11px 14px;margin-bottom:18px;color:var(--amber);font-size:.92rem}
+
+  /* timeline */
+  .row{display:grid;grid-template-columns:58px 1fr;gap:12px;align-items:start;padding:12px 0;border-top:1px solid var(--rule)}
+  .row:last-child{border-bottom:1px solid var(--rule)}
+  .clock{padding-top:1px;font-weight:600;font-variant-numeric:tabular-nums}
+  .clock span{display:block;font-size:.76rem;font-weight:400;color:var(--muted)}
+  .who{font-weight:600}
+  .meta{color:var(--muted);font-size:.9rem}
+  .meta a{color:inherit}
+  .tagline{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .tag{border:1px solid var(--rule);border-radius:999px;padding:1px 9px;font-size:.78rem;color:var(--muted)}
+  .tag.note{background:var(--teal-soft);border-color:var(--teal-soft);color:var(--teal)}
+  .row.off .clock,.row.off .who,.row.off .meta{color:var(--muted)}
+  .row.off .who{text-decoration:line-through}
+  .drop{margin-top:7px;background:none;border:0;padding:3px 0;color:var(--rose);font-size:.88rem;text-decoration:underline}
+  .empty{margin:26px 0;color:var(--muted)}
+
+  /* dialog */
+  dialog{width:min(420px,calc(100vw - 40px));border:0;border-radius:14px;padding:22px;background:var(--card);color:var(--ink)}
+  dialog::backdrop{background:rgba(16,30,28,.5)}
+  dialog h3{margin:0 0 6px;font-size:1.05rem}
+  dialog p{margin:0 0 16px;color:var(--muted);font-size:.93rem}
+  dialog input{width:100%;padding:11px 13px;font:inherit;border:1.5px solid var(--rule);border-radius:9px;background:#fff;color:var(--ink)}
+  .acts{display:flex;gap:10px;margin-top:18px}
+  .acts button{flex:1;padding:11px;border-radius:9px;border:1.5px solid var(--rule);background:var(--card);font-weight:500}
+  .acts .go{border:0;background:var(--rose);color:#fff;font-weight:600}
+  .acts .go.safe{background:var(--teal)}
+
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);max-width:calc(100vw - 40px);z-index:30;background:#16211F;color:#fff;border-radius:10px;padding:11px 16px;font-size:.92rem;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+  .loading{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(238,241,240,.85);font-weight:500}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow"><h1 id="clinic">ตารางคิว</h1><span>หน้าผู้ดูแล</span></div>
+    <div id="strip" class="strip"></div>
+  </div>
+</header>
+
+<main class="wrap" id="main" hidden>
+  <div class="dayhead">
+    <h2 id="dayname"></h2>
+    <button id="shut" class="shutbtn"></button>
+  </div>
+  <p id="counts" class="counts"></p>
+  <div id="banner" class="banner" hidden><span>⚠</span><span id="bannertext"></span></div>
+  <div id="list"></div>
+</main>
+
+<p id="gate" class="wrap" hidden style="margin-top:40px;color:var(--muted)"></p>
+
+<dialog id="dlg">
+  <h3 id="dlg-title"></h3>
+  <p id="dlg-text"></p>
+  <input id="dlg-input" type="text" maxlength="100">
+  <div class="acts">
+    <button id="dlg-no">ย้อนกลับ</button>
+    <button id="dlg-yes" class="go"></button>
+  </div>
+</dialog>
+
+<div id="loading" class="loading">กำลังโหลด…</div>
+
+<script>
+/* ============ ตั้งค่า (แก้ 2 บรรทัดนี้) ============ */
+const LIFF_ID = 'ใส่_LIFF_ID_ของหน้าผู้ดูแล';
+const API_URL = 'ใส่_URL_Web_app_ของ_Apps_Script';
+/* ================================================= */
+
+const $ = id => document.getElementById(id);
+const WD_S = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+const WD_F = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+const MON  = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+let idToken = null, today = '', days = [], current = null;
+
+const parts = ds => { const [y,m,d] = ds.split('-').map(Number); return { y, m, d, w: new Date(Date.UTC(y,m-1,d)).getUTCDay() }; };
+const longDate = ds => { const p = parts(ds); return `วัน${WD_F[p.w]}ที่ ${p.d} ${MON[p.m-1]} ${p.y+543}`; };
+const endOf = (t, min) => { const [h,m] = t.split(':').map(Number); const n = h*60+m+min; return `${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`; };
+
+function el(tag, props = {}, ...kids){
+  const n = document.createElement(tag);
+  for (const [k,v] of Object.entries(props)){
+    if (k === 'class') n.className = v;
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else if (v === true) n.setAttribute(k, '');
+    else if (v !== false && v != null) n.setAttribute(k, v);
+  }
+  kids.flat().forEach(c => c != null && n.append(c));
+  return n;
+}
+
+function loading(on){ $('loading').hidden = !on; }
+let toastTimer;
+function toast(msg){
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const t = el('div', { class: 'toast', role: 'status' }, msg);
+  document.body.append(t);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.remove(), 4000);
+}
+
+async function api(action, data = {}){
+  let res;
+  try {
+    res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action, idToken, ...data })
+    });
+  } catch (_) {
+    throw new Error('เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+  }
+  const json = await res.json().catch(() => ({ ok:false, error:'ระบบขัดข้อง ลองใหม่อีกครั้ง' }));
+  if (!json.ok) throw new Error(json.error);
+  return json.data;
+}
+
+/* ---------- ถามยืนยัน ---------- */
+function ask({ title, text, confirm, placeholder, safe }){
+  return new Promise(resolve => {
+    const dlg = $('dlg');
+    $('dlg-title').textContent = title;
+    $('dlg-text').textContent = text;
+    $('dlg-yes').textContent = confirm;
+    $('dlg-yes').classList.toggle('safe', !!safe);
+    const input = $('dlg-input');
+    input.hidden = !placeholder;
+    input.placeholder = placeholder || '';
+    input.value = '';
+    const done = v => { dlg.close(); resolve(v); };
+    $('dlg-yes').onclick = () => done({ ok: true, text: input.value.trim() });
+    $('dlg-no').onclick = () => done(null);
+    dlg.onclose = () => resolve(null);
+    dlg.showModal();
+    if (placeholder) input.focus();
+  });
+}
+
+/* ---------- แถบวัน ---------- */
+function renderStrip(){
+  $('strip').replaceChildren(...days.map(d => {
+    const p = parts(d.date);
+    return el('button', {
+        class: 'd' + (d.holiday ? ' shut' : '') + (d.date === today ? ' today' : ''),
+        'aria-current': d.date === current ? 'date' : false,
+        'aria-label': longDate(d.date) + (d.holiday ? ' ปิดทำการ' : ` ${d.count} นัด`),
+        onclick: () => openDay(d.date)
+      },
+      el('small', {}, WD_S[p.w]),
+      el('b', {}, String(p.d)),
+      el('i', { class: d.count ? 'has' : '' }, ''),
+      el('small', {}, d.holiday ? 'ปิด' : (d.count ? `${d.count} นัด` : 'ว่าง')));
+  }));
+  const active = $('strip').querySelector('[aria-current="date"]');
+  if (active) active.scrollIntoView({ block: 'nearest', inline: 'center' });
+}
+
+/* ---------- ตารางของวัน ---------- */
+async function openDay(ds){
+  current = ds;
+  renderStrip();
+  let data;
+  try { loading(true); data = await api('adminDay', { date: ds }); }
+  catch (e) { toast(e.message); return; }
+  finally { loading(false); }
+  renderDay(data);
+  $('main').hidden = false;
+}
+
+function renderDay(data){
+  $('dayname').textContent = longDate(data.date);
+
+  const shut = $('shut');
+  shut.textContent = data.holiday ? 'เปิดทำการอีกครั้ง' : 'ปิดทำการวันนี้';
+  shut.classList.toggle('on', data.holiday);
+  shut.onclick = () => toggleHoliday(data);
+
+  const live = data.bookings.filter(b => !b.cancelled);
+  const counts = [];
+  if (data.capacity.length){
+    data.capacity.forEach((c, i) => {
+      if (i) counts.push(' · ');
+      counts.push(`${c.name} `, el('b', {}, `${c.booked}/${c.total}`), ' คิว');
+    });
+  } else {
+    counts.push(el('b', {}, String(live.length)), ' นัด (นอกวันให้บริการปกติ)');
+  }
+  $('counts').replaceChildren(...counts);
+
+  $('banner').hidden = !data.holiday;
+  $('bannertext').textContent = live.length
+    ? `ปิดทำการ แต่ยังมี ${live.length} นัดค้างอยู่ — ยกเลิกทีละรายการเพื่อแจ้งคนไข้`
+    : 'ปิดทำการ คนไข้จะไม่เห็นวันนี้ในหน้าจอง';
+
+  if (!data.bookings.length){
+    $('list').replaceChildren(el('p', { class: 'empty' },
+      data.holiday ? 'ไม่มีนัดในวันนี้' : 'ยังไม่มีใครจองคิววันนี้'));
+    return;
+  }
+
+  $('list').replaceChildren(...data.bookings.map(b => {
+    const tags = [
+      el('span', { class: 'tag' }, b.service),
+      el('span', { class: 'tag' }, b.channel === 'LINE' ? 'จองเอง' : (b.channel || 'แอดมินเพิ่ม')),
+      b.note ? el('span', { class: 'tag note' }, b.note) : null,
+      b.cancelled ? el('span', { class: 'tag' }, 'ยกเลิกแล้ว') : null
+    ].filter(Boolean);
+
+    return el('div', { class: 'row' + (b.cancelled ? ' off' : '') },
+      el('div', { class: 'clock' }, b.time, el('span', {}, endOf(b.time, b.minutes))),
+      el('div', {},
+        el('div', { class: 'who' }, b.name || '—'),
+        b.phone ? el('div', { class: 'meta' }, el('a', { href: 'tel:' + b.phone }, b.phone)) : null,
+        el('div', { class: 'tagline' }, tags),
+        b.cancelled ? null : el('button', { class: 'drop', onclick: () => cancelOne(b) }, 'ยกเลิกนัดนี้')));
+  }));
+}
+
+/* ---------- ปิด / เปิดวัน ---------- */
+async function toggleHoliday(data){
+  const on = !data.holiday;
+  const live = data.bookings.filter(b => !b.cancelled).length;
+  const r = await ask({
+    title: on ? 'ปิดทำการวันนี้?' : 'เปิดทำการอีกครั้ง?',
+    text: on
+      ? `คนไข้จะไม่เห็น ${longDate(data.date)} ในหน้าจอง` +
+        (live ? ` — นัดที่มีอยู่ ${live} รายการจะยังอยู่ ต้องยกเลิกเองทีละรายการ` : '')
+      : `คนไข้จะกลับมาจอง ${longDate(data.date)} ได้ตามปกติ`,
+    confirm: on ? 'ปิดทำการ' : 'เปิดทำการ',
+    placeholder: on ? 'เหตุผล เช่น หมอลา (ไม่บังคับ)' : '',
+    safe: !on
+  });
+  if (!r) return;
+  try {
+    loading(true);
+    await api('adminHoliday', { date: data.date, on, note: r.text });
+    toast(on ? 'ปิดทำการแล้ว' : 'เปิดทำการแล้ว');
+    days = await api('adminDays');
+    await openDay(data.date);
+  } catch (e) { toast(e.message); }
+  finally { loading(false); }
+}
+
+/* ---------- ยกเลิกนัด ---------- */
+async function cancelOne(b){
+  const r = await ask({
+    title: `ยกเลิกนัดของ ${b.name || 'คนไข้'}`,
+    text: `${b.service} เวลา ${b.time} น.` +
+          (b.hasLine ? ' — ระบบจะส่งข้อความแจ้งทาง LINE' : ' — คนไข้รายนี้ไม่มี LINE ต้องโทรแจ้งเอง'),
+    confirm: 'ยกเลิกนัด',
+    placeholder: 'เหตุผลที่แจ้งคนไข้ (ไม่บังคับ)'
+  });
+  if (!r) return;
+  try {
+    loading(true);
+    const res = await api('adminCancel', { id: b.id, reason: r.text });
+    toast(res.notified ? 'ยกเลิกแล้ว แจ้งคนไข้ทาง LINE เรียบร้อย'
+                       : 'ยกเลิกแล้ว — กรุณาโทรแจ้งคนไข้ด้วย');
+    days = await api('adminDays');
+    await openDay(b.date || current);
+  } catch (e) { toast(e.message); }
+  finally { loading(false); }
+}
+
+/* ---------- เริ่มต้น ---------- */
+async function init(){
+  try {
+    if (LIFF_ID.startsWith('ใส่') || API_URL.startsWith('ใส่'))
+      throw new Error('ยังไม่ได้ใส่ LIFF_ID และ API_URL ในไฟล์ admin.html');
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
+    idToken = liff.getIDToken();
+
+    const info = await api('adminInit');
+    $('clinic').textContent = info.clinicName;
+    today = info.today;
+    days = await api('adminDays');
+    renderStrip();
+    await openDay(days.some(d => d.date === today) ? today
+      : (days.find(d => d.date >= today) || days[0] || {}).date || today);
+  } catch (e) {
+    $('strip').replaceChildren();
+    $('gate').textContent = e.message;
+    $('gate').hidden = false;
+  } finally {
+    loading(false);
+  }
+}
+init();
+</script>
+</body>
+</html>
