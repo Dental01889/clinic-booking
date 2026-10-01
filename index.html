@@ -320,6 +320,52 @@
     .time{font-size:1.04rem;padding:10px 4px}
     .waititem{padding:12px}
   }
+
+  /* Booking progress and subtle feedback; driven by existing DOM state. */
+  @media screen{
+    .booking-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;list-style:none;margin:0 0 18px;padding:14px 8px;background:#FFF;border:1px solid var(--line);border-radius:14px}
+    .booking-steps li{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;font-size:.85rem;line-height:1.5;font-weight:500;color:#52675D;min-width:0}
+    .booking-steps li:not(:last-child)::after{content:"";position:absolute;top:17px;left:calc(50% + 22px);width:calc(100% - 38px);height:2px;background:#DDE8E1}
+    .step-number{display:grid;place-items:center;width:36px;height:36px;border:1px solid #C7D8CE;border-radius:50%;background:#F1F6F3;color:#4D625C;font-size:.94rem;font-weight:600;line-height:1}
+    #view-book:not(:has(#date-block:not([hidden]))) .step-service,
+    #view-book:has(#date-block:not([hidden])):not(:has(#time-block:not([hidden]))):not(:has(#form-block:not([hidden]))) .step-date,
+    #view-book:has(#time-block:not([hidden])):not(:has(#form-block:not([hidden]))) .step-time,
+    #view-book:has(#form-block:not([hidden])) .step-confirm{color:#145B4D;font-weight:700}
+    #view-book:not(:has(#date-block:not([hidden]))) .step-service .step-number,
+    #view-book:has(#date-block:not([hidden])):not(:has(#time-block:not([hidden]))):not(:has(#form-block:not([hidden]))) .step-date .step-number,
+    #view-book:has(#time-block:not([hidden])):not(:has(#form-block:not([hidden]))) .step-time .step-number,
+    #view-book:has(#form-block:not([hidden])) .step-confirm .step-number{background:#1F6F68;color:#FFF;border-color:#1F6F68;box-shadow:0 0 0 4px #E3F0E9}
+    #view-book:has(#date-block:not([hidden])) .step-service .step-number,
+    #view-book:has(#time-block:not([hidden])) .step-date .step-number,
+    #view-book:has(#form-block:not([hidden])) .step-date .step-number,
+    #view-book:has(#form-block:not([hidden])) .step-time .step-number{background:#DDEFE5;color:#165C4E;border-color:#ADCDBB}
+    .summary-label{margin:0 0 9px;color:#145B4D;font-size:.95rem;font-weight:600;line-height:1.6}
+    #summary .ticket{background:#EDF7F1;border-color:#BCD9C8;border-left-width:5px;padding:18px;border-radius:12px}
+    #summary .ticket .info strong{font-size:1.1rem;line-height:1.6}
+    #summary .ticket .info span{font-size:1rem;line-height:1.75;color:#17352F}
+    #form-block{border-color:#BDD8C8}
+    #view-done h2{display:flex;align-items:center;gap:12px}
+    #view-done h2::before{content:"✓";display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:50%;background:#DDEFE5;color:#1F6F68;font-size:28px;font-weight:700}
+    #done-ticket .ticket{background:#EDF7F1;border-color:#BCD9C8}
+    #done-ticket .ticket .info span{font-size:1.04rem;color:#17352F}
+    .opt[aria-pressed="true"]{border-color:#1F6F68;box-shadow:inset 0 0 0 2px #1F6F68;background:#E2F1E8}
+    .time[aria-pressed="true"]{box-shadow:0 0 0 3px #D4E9DD;background:#1F6F68;color:#FFF}
+  }
+  @media screen and (min-width:960px){
+    #view-book>.booking-steps{grid-column:1/-1;margin-bottom:0}
+  }
+  @media screen and (max-width:479px){
+    .booking-steps{padding:13px 6px;gap:3px}
+    .booking-steps li{font-size:.78rem}
+    #summary .ticket{padding:14px 12px}
+  }
+  @media screen and (prefers-reduced-motion:no-preference){
+    .opt,.day,.time,.chip{transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+    .opt:active,.day:enabled:active,.time:active,.chip:enabled:active{transform:scale(.98)}
+    .step-number{transition:background-color .2s ease,color .2s ease,box-shadow .2s ease}
+    #form-block:not([hidden]),#view-done:not([hidden]){animation:booking-reveal .24s ease-out}
+    @keyframes booking-reveal{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  }
 </style>
 </head>
 <body>
@@ -336,6 +382,12 @@
 
 <main>
   <section id="view-book">
+    <ol class="booking-steps" aria-label="ขั้นตอนการจองคิว">
+      <li class="step-service"><span class="step-number" aria-hidden="true">1</span><span>บริการ</span></li>
+      <li class="step-date"><span class="step-number" aria-hidden="true">2</span><span>วัน</span></li>
+      <li class="step-time"><span class="step-number" aria-hidden="true">3</span><span>เวลา</span></li>
+      <li class="step-confirm"><span class="step-number" aria-hidden="true">4</span><span>ข้อมูลผู้จอง</span></li>
+    </ol>
     <div id="move-note" class="block" hidden></div>
     <div class="block">
       <h2><em>1</em>เลือกบริการ</h2>
@@ -381,6 +433,7 @@
     </div>
     <div class="block" id="form-block" hidden>
       <h2><em>4</em>ข้อมูลผู้จอง</h2>
+      <p class="summary-label">ตรวจสอบนัดก่อนยืนยัน</p>
       <div id="summary"></div>
       <div id="count-block" hidden>
         <label class="field">จองให้กี่คน (มาพร้อมกัน)</label>
