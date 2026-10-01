@@ -566,14 +566,21 @@ async function renewSession(){
 
 async function api(action, data = {}, retried = false){
   let res;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 25000);     // รอไม่เกิน 25 วินาที
   try {
     res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action, idToken, ...data })
+      body: JSON.stringify({ action, idToken, ...data }),
+      signal: ctrl.signal
     });
-  } catch (_) {
-    throw new Error('เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+  } catch (e) {
+    throw new Error(e.name === 'AbortError'
+      ? 'ระบบตอบช้ากว่าปกติ กรุณาลองใหม่อีกครั้ง'
+      : 'เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+  } finally {
+    clearTimeout(timer);
   }
   const json = await res.json().catch(() => ({ ok:false, error:'ระบบขัดข้อง กรุณาลองใหม่อีกครั้ง' }));
   if (!json.ok) {
@@ -838,6 +845,7 @@ async function loadMine(){
   let list, waits;
   try {
     [list, waits] = await withLoading(() => Promise.all([api('mine'), api('waits').catch(() => [])]));
+    list = list || []; waits = Array.isArray(waits) ? waits : [];
   } catch (e) { box.replaceChildren(el('p', { class: 'empty' }, e.message)); return; }
 
   const waitBlock = waits.length ? el('div', { class: 'block' }, el('h2', {}, 'กำลังรอคิว'),
@@ -975,12 +983,21 @@ async function init(){
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
     idToken = liff.getIDToken();
+    // แสดงบริการทันทีจากที่จำไว้ครั้งก่อน แล้วค่อยอัปเดตจากเซิร์ฟเวอร์
+    const SVC_KEY = 'clinic-services';
+    let cached = null;
+    try { cached = JSON.parse(localStorage.getItem(SVC_KEY) || 'null'); } catch (_) {}
+    const apply = d => {
+      services = d.services;
+      minHours = d.minHoursBefore;
+      moveHours = d.moveMinHours || 24;
+      maxParty = d.maxPerBooking || 1;
+      visitNotes = d.visitNotes || [];
+    };
+    if (cached && cached.services && !st.svc){ apply(cached); renderServices(); loading(false); }
     const data = await api('services');
-    services = data.services;
-    minHours = data.minHoursBefore;
-    moveHours = data.moveMinHours || 24;
-    maxParty = data.maxPerBooking || 1;
-    visitNotes = data.visitNotes || [];
+    try { localStorage.setItem(SVC_KEY, JSON.stringify(data)); } catch (_) {}
+    apply(data);
     renderServices();
     await restoreDraft();
     // เปิดแท็บ "นัดของฉัน" ได้ตรงๆ ด้วยลิงก์ที่ลงท้าย ?tab=mine
@@ -988,8 +1005,10 @@ async function init(){
       || new URLSearchParams((liff.getContext()?.liffUrl || '').split('?')[1] || '').get('tab');
     if (wanted === 'mine') switchTab('mine');
   } catch (e) {
+    if (services.length && /ตอบช้า|เชื่อมต่อ/.test(e.message)) return;   // มีรายการบริการจากครั้งก่อนแล้ว ใช้ต่อได้
     $('view-book').replaceChildren(
       el('p', { class: 'empty' }, e.message),
+      el('button', { class: 'primary', onclick: () => location.reload() }, 'ลองใหม่'),
       el('a', { class: 'primary', href: CLINIC_CHAT, target: '_blank', rel: 'noopener',
         style: 'display:block;text-align:center;text-decoration:none' }, 'ทักแชทคลินิก'),
       CLINIC_TEL ? el('a', { class: 'secondary', href: 'tel:' + CLINIC_TEL.replace(/\D/g, ''),
