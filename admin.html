@@ -42,28 +42,46 @@
   /* day head */
   .dayhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:22px 0 4px}
   .dayhead h2{margin:0;flex:1 1 auto;font-size:1.15rem;font-weight:700}
-  .counts{margin:0 0 16px;color:var(--muted);font-size:.92rem}
+  .counts{margin:0 0 12px;color:var(--muted);font-size:.92rem}
   .counts b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
 
   .shutbtn{border:1.5px solid var(--rule);background:var(--card);border-radius:999px;padding:7px 15px;font-size:.9rem;font-weight:500}
+  .addbtn{border:0;background:var(--teal);color:#fff;border-radius:999px;padding:8px 17px;font-size:.9rem;font-weight:600}
+  .addbtn:disabled{opacity:.4;cursor:default}
   .shutbtn.on{background:var(--amber-soft);border-color:var(--amber);color:var(--amber)}
 
   .banner{display:flex;gap:10px;align-items:flex-start;background:var(--amber-soft);border-left:4px solid var(--amber);border-radius:8px;padding:11px 14px;margin-bottom:18px;color:var(--amber);font-size:.92rem}
 
-  /* timeline */
-  .row{display:grid;grid-template-columns:58px 1fr;gap:12px;align-items:start;padding:12px 0;border-top:1px solid var(--rule)}
-  .row:last-child{border-bottom:1px solid var(--rule)}
-  .clock{padding-top:1px;font-weight:600;font-variant-numeric:tabular-nums}
-  .clock span{display:block;font-size:.76rem;font-weight:400;color:var(--muted)}
-  .who{font-weight:600}
-  .meta{color:var(--muted);font-size:.9rem}
-  .meta a{color:inherit}
-  .tagline{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-  .tag{border:1px solid var(--rule);border-radius:999px;padding:1px 9px;font-size:.78rem;color:var(--muted)}
+  /* ตารางเวลา */
+  .svcpick{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:.92rem;color:var(--muted)}
+  .svcpick select{flex:1;padding:9px 12px;font:inherit;color:var(--ink);background:var(--card);
+    border:1.5px solid var(--rule);border-radius:10px}
+  .slots{border:1.5px solid var(--rule);border-radius:14px;overflow:hidden;background:var(--card)}
+  .slot{display:grid;grid-template-columns:86px 1fr;align-items:center;width:100%;
+        border:0;border-top:1px solid var(--rule);background:var(--card);text-align:left;
+        padding:0;font:inherit;color:inherit}
+  .slot:first-child{border-top:0}
+  .slot .t{padding:14px 12px;font-weight:600;font-variant-numeric:tabular-nums;
+           border-right:1px solid var(--rule);align-self:stretch;display:flex;align-items:center}
+  .slot .n{padding:12px 14px}
+  .slot .n b{display:block;font-weight:600}
+  .slot .n small{display:block;color:var(--muted);font-size:.86rem;margin-top:1px}
+  .slot.vacant .n{color:var(--muted)}
+  .slot.vacant{cursor:pointer}
+  .slot.vacant[aria-pressed="true"]{background:var(--teal-soft)}
+  .slot.vacant[aria-pressed="true"] .n{color:var(--teal);font-weight:600}
+  .slot.taken{cursor:default}
+  .slot.off .n b{text-decoration:line-through;color:var(--muted)}
+  .slot.blocked .n{color:#A9B5B3}
+  .tag{display:inline-block;border:1px solid var(--rule);border-radius:999px;padding:0 9px;
+       font-size:.76rem;color:var(--muted);margin:4px 5px 0 0}
   .tag.note{background:var(--teal-soft);border-color:var(--teal-soft);color:var(--teal)}
-  .row.off .clock,.row.off .who,.row.off .meta{color:var(--muted)}
-  .row.off .who{text-decoration:line-through}
-  .drop{margin-top:7px;background:none;border:0;padding:3px 0;color:var(--rose);font-size:.88rem;text-decoration:underline}
+  .drop{background:none;border:0;padding:4px 0 0;color:var(--rose);font-size:.86rem;text-decoration:underline}
+  .selbar{position:sticky;bottom:12px;margin-top:14px;display:flex;gap:10px;align-items:center;
+          background:var(--teal);color:#fff;border-radius:12px;padding:12px 14px;font-weight:600;
+          box-shadow:0 6px 18px rgba(0,0,0,.18)}
+  .selbar span{flex:1;font-weight:500;font-size:.94rem}
+  .selbar button{border:0;border-radius:999px;padding:9px 18px;background:#fff;color:var(--teal);font-weight:700}
   .empty{margin:26px 0;color:var(--muted)}
 
   /* dialog */
@@ -71,7 +89,18 @@
   dialog::backdrop{background:rgba(16,30,28,.5)}
   dialog h3{margin:0 0 6px;font-size:1.05rem}
   dialog p{margin:0 0 16px;color:var(--muted);font-size:.93rem}
+  dialog select{width:100%;margin-top:5px;padding:11px 13px;font:inherit;color:var(--ink);
+    background:var(--card);border:1.5px solid var(--rule);border-radius:9px}
+  .person{display:grid;grid-template-columns:1fr 132px;gap:9px;align-items:center;margin-top:9px}
+  .person .when{text-align:center;font-size:.84rem;white-space:nowrap;font-weight:600;color:var(--teal);
+    background:var(--teal-soft);border-radius:9px;padding:11px 0;font-variant-numeric:tabular-nums}
   dialog input{width:100%;padding:11px 13px;font:inherit;border:1.5px solid var(--rule);border-radius:9px;background:#fff;color:var(--ink)}
+  dialog label{display:block;margin-top:13px;font-size:.9rem;font-weight:500}
+  dialog label input{margin-top:5px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+  .chip{border:1.5px solid var(--rule);background:var(--card);border-radius:999px;padding:7px 14px;font-size:.92rem;font-variant-numeric:tabular-nums}
+  .chip[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
+  .err{min-height:1em;margin-top:12px;color:var(--rose);font-size:.9rem}
   .acts{display:flex;gap:10px;margin-top:18px}
   .acts button{flex:1;padding:11px;border-radius:9px;border:1.5px solid var(--rule);background:var(--card);font-weight:500}
   .acts .go{border:0;background:var(--rose);color:#fff;font-weight:600}
@@ -93,11 +122,14 @@
 <main class="wrap" id="main" hidden>
   <div class="dayhead">
     <h2 id="dayname"></h2>
+    <button id="add" class="addbtn">+ เพิ่มนัด</button>
     <button id="shut" class="shutbtn"></button>
   </div>
   <p id="counts" class="counts"></p>
+  <div id="svcpick"></div>
   <div id="banner" class="banner" hidden><span>⚠</span><span id="bannertext"></span></div>
   <div id="list"></div>
+  <div id="selbar"></div>
 </main>
 
 <p id="gate" class="wrap" hidden style="margin-top:40px;color:var(--muted)"></p>
@@ -109,6 +141,25 @@
   <div class="acts">
     <button id="dlg-no">ย้อนกลับ</button>
     <button id="dlg-yes" class="go"></button>
+  </div>
+</dialog>
+
+<dialog id="adlg">
+  <h3 id="ad-title"></h3>
+  <p id="ad-sub"></p>
+  <div id="ad-count"></div>
+  <div id="ad-people"></div>
+  <label>เบอร์ผู้ติดต่อ (ไม่บังคับ)<input id="ad-phone" type="tel" inputmode="numeric" maxlength="12" placeholder="ใช้เบอร์ลูกหรือญาติได้"></label>
+  <label>แหล่งที่มา
+    <select id="ad-channel">
+      <option>กระดาษ</option><option>โทรศัพท์</option><option>เดินมา</option><option>อื่นๆ</option>
+    </select>
+  </label>
+  <label>หมายเหตุ (ไม่บังคับ)<input id="ad-note" type="text" maxlength="100"></label>
+  <p id="ad-err" class="err" role="alert"></p>
+  <div class="acts">
+    <button id="ad-no">ยกเลิก</button>
+    <button id="ad-yes" class="go safe">บันทึกนัด</button>
   </div>
 </dialog>
 
@@ -229,13 +280,18 @@ async function openDay(ds){
   $('main').hidden = false;
 }
 
+let dayData = null, svcId = null, picked = [];
+
 function renderDay(data){
+  dayData = data;
+  picked = [];
   $('dayname').textContent = longDate(data.date);
 
   const shut = $('shut');
   shut.textContent = data.holiday ? 'เปิดทำการอีกครั้ง' : 'ปิดทำการวันนี้';
   shut.classList.toggle('on', data.holiday);
   shut.onclick = () => toggleHoliday(data);
+  $('add').hidden = true;
 
   const live = data.bookings.filter(b => !b.cancelled);
   const counts = [];
@@ -254,28 +310,151 @@ function renderDay(data){
     ? `ปิดทำการ แต่ยังมี ${live.length} นัดค้างอยู่ — ยกเลิกทีละรายการเพื่อแจ้งคนไข้`
     : 'ปิดทำการ คนไข้จะไม่เห็นวันนี้ในหน้าจอง';
 
-  if (!data.bookings.length){
-    $('list').replaceChildren(el('p', { class: 'empty' },
-      data.holiday ? 'ไม่มีนัดในวันนี้' : 'ยังไม่มีใครจองคิววันนี้'));
+  if (!svcId || !data.capacity.some(c => c.id === svcId))
+    svcId = (data.capacity[0] || {}).id || null;
+
+  $('svcpick').replaceChildren(...(data.capacity.length > 1
+    ? [el('label', { class: 'svcpick' }, 'บริการ',
+        el('select', { onchange: e => { svcId = e.target.value; renderDay(dayData); } },
+          data.capacity.map(c => el('option', { value: c.id, selected: c.id === svcId }, c.name))))]
+    : []));
+
+  renderSlots();
+}
+
+function renderSlots(){
+  const data = dayData;
+  const svc = data.capacity.find(c => c.id === svcId);
+  const byTime = {};
+  data.bookings.forEach(b => { if (!byTime[b.time] || b.cancelled === false) byTime[b.time] = b; });
+
+  if (!svc){
+    $('list').replaceChildren(...(data.bookings.length
+      ? [el('div', { class: 'slots' }, data.bookings.map(b => slotRow(b.time, b, false)))]
+      : [el('p', { class: 'empty' }, 'วันนี้ไม่เปิดให้บริการ และไม่มีนัดค้าง')]));
+    renderSelbar();
     return;
   }
 
-  $('list').replaceChildren(...data.bookings.map(b => {
-    const tags = [
-      el('span', { class: 'tag' }, b.service),
-      el('span', { class: 'tag' }, b.channel === 'LINE' ? 'จองเอง' : (b.channel || 'แอดมินเพิ่ม')),
-      b.note ? el('span', { class: 'tag note' }, b.note) : null,
-      b.cancelled ? el('span', { class: 'tag' }, 'ยกเลิกแล้ว') : null
-    ].filter(Boolean);
+  $('list').replaceChildren(el('div', { class: 'slots' },
+    svc.times.map(t => slotRow(t, byTime[t], svc.free.includes(t)))));
+  renderSelbar();
+}
 
-    return el('div', { class: 'row' + (b.cancelled ? ' off' : '') },
-      el('div', { class: 'clock' }, b.time, el('span', {}, endOf(b.time, b.minutes))),
-      el('div', {},
-        el('div', { class: 'who' }, b.name || '—'),
-        b.phone ? el('div', { class: 'meta' }, el('a', { href: 'tel:' + b.phone }, b.phone)) : null,
-        el('div', { class: 'tagline' }, tags),
-        b.cancelled ? null : el('button', { class: 'drop', onclick: () => cancelOne(b) }, 'ยกเลิกนัดนี้')));
-  }));
+function slotRow(t, b, free){
+  if (b && !b.cancelled){
+    return el('div', { class: 'slot taken' },
+      el('div', { class: 't' }, t),
+      el('div', { class: 'n' },
+        el('b', {}, b.name || '—'),
+        b.phone ? el('small', {}, el('a', { href: 'tel:' + b.phone, style: 'color:inherit' }, b.phone)) : null,
+        el('div', {},
+          el('span', { class: 'tag' }, b.channel === 'LINE' ? 'จองเอง' : (b.channel || 'แอดมิน')),
+          b.note ? el('span', { class: 'tag note' }, b.note) : null),
+        el('button', { class: 'drop', onclick: () => cancelOne(b) }, 'ยกเลิกนัดนี้')));
+  }
+  if (b && b.cancelled && !free){
+    return el('div', { class: 'slot off' },
+      el('div', { class: 't' }, t),
+      el('div', { class: 'n' }, el('b', {}, b.name || '—'), el('small', {}, 'ยกเลิกแล้ว')));
+  }
+  if (!free){
+    return el('div', { class: 'slot blocked' },
+      el('div', { class: 't' }, t),
+      el('div', { class: 'n' }, 'ไม่ว่าง'));
+  }
+  return el('button', {
+      class: 'slot vacant', 'aria-pressed': String(picked.includes(t)),
+      'aria-label': `เวลา ${t} ว่าง`,
+      onclick: () => {
+        picked = picked.includes(t) ? picked.filter(x => x !== t) : [...picked, t].sort();
+        renderSlots();
+      }
+    },
+    el('div', { class: 't' }, t),
+    el('div', { class: 'n' }, picked.includes(t) ? 'เลือกไว้' : 'ว่าง'));
+}
+
+function renderSelbar(){
+  if (!picked.length){ $('selbar').replaceChildren(); return; }
+  $('selbar').replaceChildren(el('div', { class: 'selbar' },
+    el('span', {}, `เลือก ${picked.length} คิว · ${picked.join(' , ')}`),
+    el('button', { onclick: openAdd }, 'เพิ่มนัด')));
+}
+
+/* ---------- เพิ่มนัดแทนคนไข้ ---------- */
+function openAdd(){
+  const svc = dayData.capacity.find(c => c.id === svcId);
+  if (!svc || !picked.length) return;
+  $('ad-title').textContent = 'เพิ่มนัดคนไข้';
+  $('ad-sub').textContent = `${longDate(dayData.date)} · ${svc.name}`;
+  $('ad-phone').value = '';
+  $('ad-note').value = '';
+  $('ad-err').textContent = '';
+  renderPeople();
+  $('adlg').showModal();
+}
+
+function renderPeople(){
+  const svc = dayData.capacity.find(c => c.id === svcId);
+  const free = svc.free;
+
+  $('ad-count').replaceChildren(
+    el('label', {}, 'จำนวนคนไข้ที่จอง'),
+    el('div', { class: 'chips' }, [1,2,3,4].map(n =>
+      el('button', {
+        class: 'chip', disabled: n > free.length,
+        'aria-pressed': String(picked.length === n),
+        onclick: () => {
+          const names = currentNames();
+          const start = free.indexOf(picked[0]);
+          picked = free.slice(start, start + n);
+          if (picked.length < n) picked = free.slice(Math.max(0, free.length - n));
+          renderPeople();
+          renderSlots();
+          restoreNames(names);
+        }
+      }, `${n} คน`))));
+
+  $('ad-people').replaceChildren(...picked.map((t, i) =>
+    el('div', {},
+      el('label', {}, picked.length > 1 ? `ชื่อคนไข้คนที่ ${i+1}` : 'ชื่อ-นามสกุล'),
+      el('div', { class: 'person' },
+        el('input', { type: 'text', maxlength: '60', 'data-p': String(i) }),
+        el('div', { class: 'when' }, `${t} – ${endOf(t, svc.minutes)}`)))));
+}
+
+const currentNames = () => [...document.querySelectorAll('#ad-people input')].map(i => i.value);
+const restoreNames = v => document.querySelectorAll('#ad-people input')
+  .forEach((inp, i) => { if (v[i]) inp.value = v[i]; });
+
+async function submitAdd(){
+  const err = m => { $('ad-err').textContent = m; };
+  err('');
+  const svc = dayData.capacity.find(c => c.id === svcId);
+  const names = currentNames();
+  const phone = $('ad-phone').value.replace(/\D/g, '');
+  if (names.some(n => !n.trim())) return err('กรอกชื่อคนไข้ให้ครบทุกคน');
+  if (phone && !/^0\d{8,9}$/.test(phone)) return err('เบอร์โทรไม่ถูกต้อง เช่น 0812345678');
+
+  $('ad-yes').disabled = true;
+  try {
+    loading(true);
+    const r = await api('adminAdd', {
+      date: dayData.date, service: svc.id, phone,
+      note: $('ad-note').value.trim(), channel: $('ad-channel').value,
+      people: picked.map((t, i) => ({ time: t, name: names[i] }))
+    });
+    $('adlg').close();
+    toast(`เพิ่ม ${r.added} นัดเรียบร้อย`);
+    days = await api('adminDays');
+    await openDay(dayData.date);
+  } catch (e) {
+    err(e.message);
+  } finally {
+    $('ad-yes').disabled = false;
+    loading(false);
+  }
 }
 
 /* ---------- ปิด / เปิดวัน ---------- */
@@ -319,12 +498,15 @@ async function cancelOne(b){
     toast(res.notified ? 'ยกเลิกแล้ว แจ้งคนไข้ทาง LINE เรียบร้อย'
                        : 'ยกเลิกแล้ว — กรุณาโทรแจ้งคนไข้ด้วย');
     days = await api('adminDays');
-    await openDay(b.date || current);
+    await openDay(current);
   } catch (e) { toast(e.message); }
   finally { loading(false); }
 }
 
 /* ---------- เริ่มต้น ---------- */
+$('ad-yes').addEventListener('click', submitAdd);
+$('ad-no').addEventListener('click', () => $('adlg').close());
+
 async function init(){
   try {
     if (LIFF_ID.startsWith('ใส่') || API_URL.startsWith('ใส่'))
