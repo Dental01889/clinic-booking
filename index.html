@@ -524,7 +524,7 @@ const svcOf = name => services.find(s => s.name === name) || {};
 /* บอกเวลา — ถอนฟันลงชื่อรายวัน ไม่บอกเวลา */
 function whenText(b){
   const s = svcOf(b.service);
-  return (b.noTime || s.noTime) ? (b.noTimeText || s.noTimeText || 'เริ่ม 9 โมงเช้า ใครมาก่อนได้ทำก่อน').replace(' ใคร', '\nใคร')
+  return (b.noTime || s.noTime) ? (b.noTimeText || s.noTimeText || 'มาถึงก่อน 09.00 น.\nใครมาก่อนได้ทำก่อน')
                                 : `เวลา ${b.time}–${endTime(b.time, b.minutes)} น.`;
 }
 function endTime(t, min){ const [h,m] = t.split(':').map(Number); const n = h*60+m+min; return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0'); }
