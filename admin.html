@@ -91,7 +91,12 @@
   dialog p{margin:0 0 16px;color:var(--muted);font-size:.93rem}
   dialog select{width:100%;margin-top:5px;padding:11px 13px;font:inherit;color:var(--ink);
     background:var(--card);border:1.5px solid var(--rule);border-radius:9px}
-  .person{display:grid;grid-template-columns:1fr 132px;gap:9px;align-items:center;margin-top:9px}
+  .person{display:grid;grid-template-columns:1fr 128px 34px;gap:8px;align-items:center;margin-top:9px}
+  .person .x{width:34px;height:40px;border:0;background:none;color:var(--muted);font-size:1.15rem;line-height:1}
+  .person .x:hover{color:var(--rose)}
+  .morebtn{margin-top:12px;width:100%;padding:11px;border:1.5px dashed var(--rule);border-radius:11px;
+    background:none;color:var(--teal);font-weight:600}
+  .morebtn:disabled{opacity:.4;cursor:default;color:var(--muted)}
   .person .when{text-align:center;font-size:.84rem;white-space:nowrap;font-weight:600;color:var(--teal);
     background:var(--teal-soft);border-radius:9px;padding:11px 0;font-variant-numeric:tabular-nums}
   dialog input{width:100%;padding:11px 13px;font:inherit;border:1.5px solid var(--rule);border-radius:9px;background:#fff;color:var(--ink)}
@@ -172,8 +177,8 @@
 <dialog id="adlg">
   <h3 id="ad-title"></h3>
   <p id="ad-sub"></p>
-  <div id="ad-count"></div>
   <div id="ad-people"></div>
+  <button id="ad-more" type="button" class="morebtn">+ เพิ่มคนไข้อีกคน</button>
   <label>เบอร์ผู้ติดต่อ (ไม่บังคับ)<input id="ad-phone" type="tel" inputmode="numeric" maxlength="12" placeholder="ใช้เบอร์ลูกหรือญาติได้"></label>
   <label>แหล่งที่มา
     <select id="ad-channel">
@@ -431,31 +436,32 @@ function openAdd(){
 
 function renderPeople(){
   const svc = dayData.capacity.find(c => c.id === svcId);
-  const free = svc.free;
-
-  $('ad-count').replaceChildren(
-    el('label', {}, 'จำนวนคนไข้ที่จอง'),
-    el('div', { class: 'chips' }, [1,2,3,4].map(n =>
-      el('button', {
-        class: 'chip', disabled: n > free.length,
-        'aria-pressed': String(picked.length === n),
-        onclick: () => {
-          const names = currentNames();
-          const start = free.indexOf(picked[0]);
-          picked = free.slice(start, start + n);
-          if (picked.length < n) picked = free.slice(Math.max(0, free.length - n));
-          renderPeople();
-          renderSlots();
-          restoreNames(names);
-        }
-      }, `${n} คน`))));
 
   $('ad-people').replaceChildren(...picked.map((t, i) =>
     el('div', {},
       el('label', {}, picked.length > 1 ? `ชื่อคนไข้คนที่ ${i+1}` : 'ชื่อ-นามสกุล'),
       el('div', { class: 'person' },
-        el('input', { type: 'text', maxlength: '60', 'data-p': String(i) }),
-        el('div', { class: 'when' }, `${t} – ${endOf(t, svc.minutes)}`)))));
+        el('input', { type: 'text', maxlength: '60' }),
+        el('div', { class: 'when' }, `${t} – ${endOf(t, svc.minutes)}`),
+        picked.length > 1
+          ? el('button', { class: 'x', type: 'button', 'aria-label': `เอาคิว ${t} ออก`,
+              onclick: () => {
+                const names = currentNames();
+                names.splice(i, 1);
+                picked = picked.filter(x => x !== t);
+                renderPeople(); renderSlots(); restoreNames(names);
+              } }, '✕')
+          : el('span')))));
+
+  const next = svc.free.find(t => !picked.includes(t));
+  const more = $('ad-more');
+  more.disabled = !next;
+  more.textContent = next ? '+ เพิ่มคนไข้อีกคน' : 'ไม่มีคิวว่างเหลือแล้ว';
+  more.onclick = () => {
+    const names = currentNames();
+    picked = [...picked, next].sort();
+    renderPeople(); renderSlots(); restoreNames(names);
+  };
 }
 
 const currentNames = () => [...document.querySelectorAll('#ad-people input')].map(i => i.value);
@@ -578,6 +584,8 @@ async function doLogin(){
 }
 
 async function init(){
+  $('ad-yes').addEventListener('click', submitAdd);
+  $('ad-no').addEventListener('click', () => $('adlg').close());
   $('lg-go').addEventListener('click', doLogin);
   $('lg-pw').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
   $('logout').addEventListener('click', () => {
