@@ -49,6 +49,17 @@
   .d[aria-current="date"]{background:var(--teal);color:#fff;font-weight:700}
   .d[aria-current="date"] i{color:#CFE3E0}
   .d.today::after{content:"";position:absolute;bottom:5px;width:4px;height:4px;border-radius:50%;background:currentColor}
+  .d.extra{box-shadow:inset 0 0 0 1.5px #D5DEDC}
+  .d.extra:not([aria-current]){color:#6E7F7C}
+  .banner.info{background:#EAF2F8;border-left-color:#2C6A93;color:#22516F}
+  #dlg-text{white-space:pre-line}
+  .rs-row{display:grid;grid-template-columns:1fr 120px;gap:10px;align-items:center;padding:10px 0;border-top:1px dashed var(--rule)}
+  .rs-row:first-child{border-top:0}
+  .rs-row b{display:block;font-weight:600}
+  .rs-row small{color:var(--muted);font-size:.84rem}
+  .rs-row select{margin-top:0}
+  .rs-list{margin-top:12px;max-height:46vh;overflow:auto}
+  .linkbtn{display:block;width:100%;margin-top:10px;border:0;background:none;color:var(--muted);font-size:.88rem;text-decoration:underline;padding:6px}
   .legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:.78rem;color:var(--muted)}
   .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 
@@ -204,7 +215,6 @@
   }
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);max-width:calc(100vw - 40px);z-index:30;background:#16211F;color:#fff;border-radius:10px;padding:11px 16px;font-size:.92rem;box-shadow:0 6px 20px rgba(0,0,0,.2)}
   .loading{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(238,241,240,.85);font-weight:500}
-
   /* Dashboard appearance. Screen-only to preserve the original print layout. */
   @media screen{
     :root{
@@ -383,6 +393,92 @@
   @media screen and (prefers-reduced-motion:no-preference){
     .nav,.drop,.slot.vacant,.shutbtn,.morebtn,#logout{transition:background-color .15s ease,border-color .15s ease}
   }
+
+  /* Compact, high-contrast admin schedule; screen only. */
+  @media screen{
+    :root{--ink:#17352F;--muted:#4D625C;--rule:#CADBD4}
+    .layout{gap:20px;max-width:1320px}
+    .eyebrow{margin-bottom:14px}
+    .search input{min-height:46px;padding-top:10px;padding-bottom:10px}
+    .cal{padding:16px 12px 14px;border-radius:14px}
+    .cal-top{margin-bottom:12px}
+    .cal-top b{font-size:1.05rem}
+    .wd span{color:#405B52;padding-bottom:7px;font-weight:600}
+    .d{color:#29473E;font-weight:500}
+    .d:disabled{color:#65766F}
+    .d.open{background:#EDF3F0;box-shadow:inset 0 0 0 1px #D8E4DE}
+    .d.has{background:#D6EBE3;color:#165B4E;box-shadow:inset 0 0 0 1px #BDD9CD}
+    .d.shut{color:#744D12;background:#FFF0D1}
+    .d i{color:#445F54;font-size:.76rem;font-weight:600}
+    .d[aria-current="date"]{background:#1F6F68;color:#FFF;box-shadow:inset 0 0 0 2px #14544E}
+    .d[aria-current="date"] i{color:#FFF}
+    .legend{color:#405B52;margin-top:13px;padding-top:11px}
+    .layout #main{padding:20px;border-radius:14px}
+    .layout #main .dayhead{margin-bottom:12px;align-items:center}
+    .dayhead h2{margin-bottom:0;font-size:1.25rem}
+    .counts{padding:8px 12px;margin-bottom:14px;background:#EDF4F0;color:#405B52;line-height:1.5}
+    .counts b{color:#145A4E;font-size:1.06em}
+    .slots{border-color:#BDD0C6;border-radius:10px}
+    .layout .slot{grid-template-columns:82px minmax(0,1fr) 52px;min-height:64px;border-top-color:#CBDCD3}
+    .slot .t{padding:8px;background:transparent;font-size:1.06rem;font-weight:700;color:#163D33;line-height:1.4;border-right-color:#CDDCD5}
+    .slot .n{padding:9px 14px;gap:2px}
+    .slot .n b{font-size:1.04rem;font-weight:600;line-height:1.45;color:#17352F}
+    .slot .n small{font-size:.875rem;line-height:1.5;color:#4D625C}
+    .slot .n small a{color:#165B4E}
+    .slot.taken{background:#E5F2EB}
+    .slot.taken .t{background:#D9EDE1;box-shadow:inset 4px 0 0 #287B5F}
+    .slot.vacant{background:#FFF}
+    .slot.vacant .n b{font-weight:500;color:#52665E}
+    .slot.vacant .side{font-size:1.4rem;color:#266B58;font-weight:600}
+    .slot.vacant:hover{background:#F0F7F3}
+    .slot.vacant[aria-pressed="true"]{background:#CFE9DD;box-shadow:inset 0 0 0 2px #1F6F68}
+    .slot.vacant[aria-pressed="true"] .n b{color:#14594D;font-weight:700}
+    .slot.off{background:#F5F6F5}
+    .slot.off .t{background:#EEF1EF}
+    .slot.blocked{background:#F0F2F1}
+    .slot.blocked .n b{color:#5D6A64}
+    .drop{width:44px;height:44px;font-weight:600;color:#96354C}
+  }
+  @media screen and (min-width:960px){
+    .layout{grid-template-columns:300px minmax(0,1fr);gap:22px;padding:24px 20px 40px}
+    .layout .d{aspect-ratio:1/1;min-height:36px;font-size:1rem;border-radius:8px}
+    .layout #main .dayhead h2{flex:1 1 260px}
+    .layout #main .dayhead .shutbtn,.layout #main .dayhead .addbtn{padding:8px 12px}
+  }
+  @media screen and (max-width:959px){
+    .layout .top{max-width:440px;width:100%;justify-self:center}
+  }
+  @media screen and (max-width:479px){
+    .layout{padding:14px 10px 24px;gap:16px}
+    .layout #main{padding:16px 10px}
+    .layout .slot{grid-template-columns:66px minmax(0,1fr) 44px;min-height:64px}
+    .slot .t{font-size:1rem;padding:8px 5px}
+    .slot .n{padding:9px 10px}
+    .slot .n b{font-size:1rem}
+    .slot .n small{font-size:.85rem}
+    .dayhead h2{font-size:1.13rem}
+    .counts{font-size:.92rem}
+    .cal{padding:14px 10px 12px}
+  }
+
+  /* Additional controls present in this uploaded version. */
+  @media screen{
+    .d.extra:not([aria-current]){color:#405B52;box-shadow:inset 0 0 0 1.5px #B8CFC4}
+    .d.extra.has:not([aria-current]){color:#165B4E}
+    .banner.info{background:#EDF5FB;border-left-color:#2C6A93;color:#22516F}
+    .rs-list{margin-top:14px;padding-right:3px;overscroll-behavior:contain}
+    .rs-row{grid-template-columns:minmax(0,1fr) 140px;gap:12px;padding:13px 0;border-color:#CADBD4}
+    .rs-row>div{min-width:0;overflow-wrap:anywhere}
+    .rs-row b{font-size:1rem;line-height:1.5;color:#17352F}
+    .rs-row small{display:block;font-size:.87rem;line-height:1.5;margin-top:3px;color:#4D625C}
+    .rs-row select{width:100%;min-height:46px;margin:0}
+    .linkbtn{min-height:44px;padding:10px 12px;margin-top:14px;border-radius:9px;font-size:.9rem;line-height:1.5;text-underline-offset:3px}
+    .linkbtn:hover{background:#F4F7F6;color:#17352F}
+  }
+  @media screen and (max-width:479px){
+    .rs-row{grid-template-columns:minmax(0,1fr) 112px;gap:10px}
+    .rs-row select{padding:9px 7px}
+  }
 </style>
 </head>
 <body>
@@ -448,6 +544,22 @@
     <button id="ad-no">ยกเลิก</button>
     <button id="ad-yes" class="go safe">บันทึกนัด</button>
   </div>
+</dialog>
+
+<dialog id="rdlg">
+  <h3>เลื่อนคิวก่อนปิดวัน</h3>
+  <p id="rs-sub"></p>
+  <label>ย้ายไปวัน
+    <select id="rs-date"></select>
+  </label>
+  <div id="rs-list" class="rs-list"></div>
+  <label>เหตุผลที่แจ้งคนไข้ (ไม่บังคับ)<input id="rs-note" type="text" maxlength="100" placeholder="เช่น หมอติดประชุม"></label>
+  <p id="rs-err" class="err" role="alert"></p>
+  <div class="acts">
+    <button id="rs-no" type="button">ย้อนกลับ</button>
+    <button id="rs-yes" type="button" class="go safe">เลื่อนคิวและปิดวัน</button>
+  </div>
+  <button id="rs-skip" type="button" class="linkbtn">ปิดวันโดยไม่เลื่อนคิว</button>
 </dialog>
 
 <div id="loading" class="loading">กำลังโหลด…</div>
@@ -571,12 +683,12 @@ function renderStrip(){
     const d = byDate[ds];
     const cls = ['d'];
     if (ds === today) cls.push('today');
-    if (d) cls.push(d.holiday ? 'shut' : (d.count ? 'has' : 'open'));
+    if (d) cls.push(d.holiday ? 'shut' : d.count ? 'has' : d.extra ? 'extra' : 'open');
     cells.push(el('button', {
         class: cls.join(' '), disabled: !d,
         'aria-current': ds === current ? 'date' : false,
         'aria-label': longDate(ds) + (!d ? ' ไม่เปิดบริการ'
-          : d.holiday ? ' ปิดทำการ' : d.count ? ` ${d.count} นัด` + (d.total ? ` จาก ${d.total} คิว` : '') : ' ยังไม่มีนัด'),
+          : d.holiday ? ' ปิดทำการ' : d.extra && !d.count ? ' วันนัดชดเชย (หมอลงคิวเอง)' : d.count ? ` ${d.count} นัด` + (d.total ? ` จาก ${d.total} คิว` : '') : ' ยังไม่มีนัด'),
         onclick: () => openDay(ds)
       },
       String(n),
@@ -597,7 +709,8 @@ function renderStrip(){
       el('div', { class: 'legend' },
         el('span', {}, el('i', { style: 'background:#E3EFED' }), 'มีนัด'),
         el('span', {}, el('i', { style: 'background:#F1F5F4' }), 'ยังไม่มีนัด'),
-        el('span', {}, el('i', { style: 'background:#FBEFD8' }), 'ปิดทำการ'))));
+        el('span', {}, el('i', { style: 'background:#FBEFD8' }), 'ปิดทำการ'),
+        el('span', {}, el('i', { style: 'box-shadow:inset 0 0 0 1.5px #D5DEDC' }), 'พฤหัส (หมอลงคิวเอง)'))));
 }
 
 /* ---------- ตารางของวัน ---------- */
@@ -624,6 +737,7 @@ function renderDay(data){
   shut.textContent = data.holiday ? 'เปิดทำการอีกครั้ง' : 'ปิดทำการวันนี้';
   shut.classList.toggle('on', data.holiday);
   shut.onclick = () => toggleHoliday(data);
+  shut.hidden = !!data.extra && !data.holiday;     // วันชดเชยคนไข้จองเองไม่ได้อยู่แล้ว
   $('add').hidden = true;
 
   const live = data.bookings.filter(b => !b.cancelled);
@@ -638,10 +752,12 @@ function renderDay(data){
   }
   $('counts').replaceChildren(...counts);
 
-  $('banner').hidden = !data.holiday;
-  $('bannertext').textContent = live.length
-    ? `ปิดทำการ แต่ยังมี ${live.length} นัดค้างอยู่ — ยกเลิกทีละรายการเพื่อแจ้งคนไข้`
-    : 'ปิดทำการ คนไข้จะไม่เห็นวันนี้ในหน้าจอง';
+  $('banner').hidden = !data.holiday && !data.extra;
+  $('banner').classList.toggle('info', !data.holiday && !!data.extra);
+  $('bannertext').textContent = data.holiday
+    ? (live.length ? `ปิดทำการ แต่ยังมี ${live.length} นัดค้างอยู่ — ยกเลิกทีละรายการเพื่อแจ้งคนไข้`
+                   : 'ปิดทำการ คนไข้จะไม่เห็นวันนี้ในหน้าจอง')
+    : 'วันนัดชดเชย — คนไข้จองเองไม่ได้ หมอลงคิวให้เท่านั้น';
 
   if (!svcId || !data.capacity.some(c => c.id === svcId))
     svcId = (data.capacity[0] || {}).id || null;
@@ -808,6 +924,7 @@ async function submitAdd(){
 async function toggleHoliday(data){
   const on = !data.holiday;
   const live = data.bookings.filter(b => !b.cancelled).length;
+  if (on && live && await openReschedule(data)) return;
   const r = await ask({
     title: on ? 'ปิดทำการวันนี้?' : 'เปิดทำการอีกครั้ง?',
     text: on
@@ -827,6 +944,88 @@ async function toggleHoliday(data){
     await openDay(data.date);
   } catch (e) { toast(e.message); }
   finally { loading(false); }
+}
+
+
+/* ---------- เลื่อนคิวทั้งวันไปวันพฤหัส ---------- */
+let rs = null;   // { from, bookings, target, resolve }
+
+function openReschedule(data){
+  const targets = days.filter(d => d.extra && !d.holiday && d.date > data.date && d.date >= today).slice(0, 4);
+  if (!targets.length) return Promise.resolve(false);       // ไม่มีวันชดเชยให้เลือก → ปิดแบบเดิม
+  return new Promise(resolve => {
+    rs = { from: data.date, bookings: data.bookings.filter(b => !b.cancelled), target: null, resolve };
+    $('rs-sub').textContent = `${longDate(data.date)} มี ${rs.bookings.length} คิว — เลือกเวลาใหม่ให้คนไข้ แล้วระบบจะส่ง LINE แจ้งให้`;
+    $('rs-date').replaceChildren(...targets.map(d =>
+      el('option', { value: d.date }, longDate(d.date) + (d.count ? ` (มีนัดแล้ว ${d.count})` : ''))));
+    $('rs-note').value = '';
+    $('rs-err').textContent = '';
+    $('rs-list').replaceChildren(el('p', { class: 'empty' }, 'กำลังโหลดคิวว่าง…'));
+    $('rdlg').showModal();
+    loadTarget();
+  });
+}
+
+async function loadTarget(){
+  const to = $('rs-date').value;
+  $('rs-err').textContent = '';
+  try { rs.target = await api('adminDay', { date: to }); }
+  catch (e) { $('rs-err').textContent = e.message; return; }
+  if ($('rs-date').value !== to) return;
+
+  const taken = new Set();
+  $('rs-list').replaceChildren(...rs.bookings.map(b => {
+    const cap = rs.target.capacity.find(c => c.name === b.service);
+    const free = cap ? cap.free : [];
+    const pick = free.includes(b.time) && !taken.has(b.time) ? b.time : (free.find(t => !taken.has(t)) || '');
+    if (pick) taken.add(pick);
+    return el('div', { class: 'rs-row' },
+      el('div', {}, el('b', {}, b.name || '—'),
+        el('small', {}, `เดิม ${b.time} · ${b.service}` + (b.hasLine ? '' : ' · ไม่มี LINE'))),
+      el('select', { 'data-id': b.id, 'aria-label': `เวลาใหม่ของ ${b.name || 'คนไข้'}` },
+        el('option', { value: '' }, cap ? '— เลือกเวลา —' : 'ไม่มีรอบนี้'),
+        free.map(t => el('option', { value: t, selected: t === pick }, t))));
+  }));
+}
+
+function closeReschedule(result){
+  if (!rs) return;
+  const r = rs; rs = null;
+  $('rdlg').close();
+  r.resolve(result);
+}
+
+async function submitReschedule(){
+  const err = m => { $('rs-err').textContent = m; };
+  const sel = [...$('rs-list').querySelectorAll('select')];
+  const moves = sel.map(x => ({ id: x.dataset.id, time: x.value }));
+  if (!moves.length || moves.some(m => !m.time)) return err('เลือกเวลาใหม่ให้ครบทุกคน');
+  if (new Set(moves.map(m => m.time)).size !== moves.length) return err('มีคนไข้ได้เวลาซ้ำกัน');
+
+  const to = $('rs-date').value, from = rs.from;
+  $('rs-yes').disabled = true;
+  try {
+    loading(true);
+    const r = await api('adminReschedule', { from, to, moves, close: true, note: $('rs-note').value.trim() });
+    closeReschedule(true);
+    days = await api('adminDays');
+    await openDay(r.to);
+    loading(false);
+    if (r.callList.length){
+      await ask({
+        title: `เลื่อน ${r.moved} คิวแล้ว — ต้องโทรแจ้ง ${r.callList.length} คน`,
+        text: 'คนไข้เหล่านี้ไม่มี LINE:\n' + r.callList.map(c => `• ${c.name || '—'}  ${c.phone || 'ไม่มีเบอร์'}  → ${c.time} น.`).join('\n'),
+        confirm: 'รับทราบ', safe: true
+      });
+    } else {
+      toast(`เลื่อน ${r.moved} คิวไป ${longDate(r.to)} แล้ว แจ้งทาง LINE ครบทุกคน`);
+    }
+  } catch (e) {
+    err(e.message);
+  } finally {
+    $('rs-yes').disabled = false;
+    loading(false);
+  }
 }
 
 /* ---------- ยกเลิกนัด ---------- */
@@ -936,6 +1135,11 @@ async function init(){
   $('ad-no').addEventListener('click', () => $('adlg').close());
   $('lg-go').addEventListener('click', doLogin);
   $('print').addEventListener('click', () => window.print());
+  $('rs-date').addEventListener('change', loadTarget);
+  $('rs-yes').addEventListener('click', submitReschedule);
+  $('rs-no').addEventListener('click', () => closeReschedule(true));      // ย้อนกลับ = ไม่ทำอะไร
+  $('rs-skip').addEventListener('click', () => closeReschedule(false));   // ไปทางปิดวันแบบเดิม
+  $('rdlg').addEventListener('cancel', e => { e.preventDefault(); closeReschedule(true); });
   $('q').addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 450); });
   $('q').addEventListener('keydown', e => {
     if (e.key === 'Enter'){ clearTimeout(searchTimer); runSearch(); }
