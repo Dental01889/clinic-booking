@@ -479,6 +479,12 @@
     .rs-row{grid-template-columns:minmax(0,1fr) 112px;gap:10px}
     .rs-row select{padding:9px 7px}
   }
+
+  /* ช่องวันในปฏิทิน: ตัวเลขกับจำนวนคิวชิดกันตรงกลาง */
+  .days .d{justify-content:center;gap:0;padding:0;line-height:1.1}
+  .days .d i{line-height:1.1;margin-top:3px}
+  .days .d i:empty{display:none}
+  .days .d.today::after{top:5px;right:5px;bottom:auto;width:5px;height:5px}
 </style>
 </head>
 <body>
