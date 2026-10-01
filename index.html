@@ -116,6 +116,16 @@
   .movebar .danger{color:var(--rose)}
   #services .opt{text-align:center;display:flex;align-items:center;justify-content:center;min-height:64px}
   .f-addr{margin:0 0 14px;color:var(--ink)}
+  .day.full{opacity:.55}
+  .day.full i{color:var(--rose);font-weight:600}
+  .day.full[aria-pressed="true"]{opacity:1;background:#FCEFF3;border-color:var(--rose);color:var(--rose);box-shadow:inset 0 0 0 1px var(--rose)}
+  .day.full[aria-pressed="true"] small{color:var(--rose)}
+  .full-hint{margin:6px 0 0;font-size:.86rem;color:var(--muted)}
+  .wait-lead{margin:0 0 4px;color:var(--muted)}
+  .wait-lead b{color:var(--ink)}
+  .waititem{display:flex;align-items:center;gap:12px;justify-content:space-between}
+  .waititem span{color:var(--muted);font-size:.92rem}
+  @media screen and (min-width:960px){ #view-book>#wait-block{grid-column:2;margin-top:0} }
   .f-btns{display:flex;gap:10px;flex-wrap:wrap}
   .f-btns .call{flex:1 1 140px;text-align:center}
   .foot .call.ghost{background:var(--surface);color:var(--teal);box-shadow:inset 0 0 0 1.5px var(--teal)}
@@ -260,6 +270,56 @@
   @media screen and (prefers-reduced-motion:no-preference){
     .tabs button,.opt,.day,.time,.primary,.secondary,.chip,.movebar button{transition:background-color .15s ease,border-color .15s ease}
   }
+
+  /* Clear Thai text and consistent booking/waitlist cards. */
+  @media screen{
+    :root{--ink:#17352F;--muted:#4D625C;--line:#CADBD4}
+    .block{padding:20px;border-radius:14px}
+    h2{color:#17352F;font-weight:700;margin-bottom:14px}
+    .opt{padding:14px 16px;border-color:#CADBD4}
+    .opt strong{font-weight:700}
+    .day{flex-basis:80px;min-height:102px;border-color:#C7D8CF}
+    .day b{font-size:1.8rem}
+    .day:disabled{opacity:1;background:#F1F3F2;color:#64736C;border-color:#E0E6E2}
+    .day:disabled small,.day:disabled i{color:#64736C}
+    .day.full{opacity:1;background:#FCF1F3;border-color:#E9CDD5}
+    .day.full i{color:#96354C;font-weight:600}
+    .day.full[aria-pressed="true"]{background:#F7E1E8;border-color:#96354C;color:#96354C;box-shadow:inset 0 0 0 1px #96354C}
+    .day:not(.full)[aria-pressed="true"]{background:#1F6F68;color:#FFF;border-color:#1F6F68}
+    .day:not(.full)[aria-pressed="true"] small,.day:not(.full)[aria-pressed="true"] i{color:#FFF}
+    .time{min-height:50px;padding:10px 7px;background:#F5FAF7;border-color:#C4D9CD;color:#17352F}
+    .time[aria-pressed="true"]{background:#1F6F68;color:#FFF;border-color:#1F6F68}
+    .full-hint{font-size:.9rem;line-height:1.7;padding:10px 12px;margin-top:10px;background:#FCF1F3;border:1px solid #ECD9DF;border-radius:9px;color:#794150}
+    .wait-lead{font-size:.96rem;line-height:1.7;margin-bottom:12px;color:#4D625C}
+    #wait-block{border-color:#C7DCCF;background:#FCFEFC}
+    .waititem{gap:12px;flex-wrap:wrap;padding:14px;border:1px solid #D5E3DA;border-radius:11px;background:#F6FAF7;margin-top:12px}
+    .waititem>div{min-width:0;flex:1 1 180px;overflow-wrap:anywhere}
+    .waititem span{color:#4D625C;line-height:1.65}
+    .waititem button{min-height:44px}
+    .consent{color:#405A4D;line-height:1.7}
+    .notes{padding:15px 16px}
+    .ticket .info strong{font-weight:700}
+    .f-note{font-size:.9rem;color:#4D625C;line-height:1.7}
+    .f-addr{line-height:1.75;overflow-wrap:anywhere}
+    .f-btns .call{display:flex;align-items:center;justify-content:center}
+    .foot .call.ghost{background:#FFF;color:#1F6F68}
+  }
+  @media screen and (min-width:960px){
+    #view-book{grid-template-columns:minmax(0,.44fr) minmax(0,.56fr);gap:20px}
+    #view-book>#date-block{grid-column:1}
+    #view-book>#time-block,#view-book>#wait-block{grid-column:2;margin-top:0}
+    #view-book>#form-block{grid-column:1/-1}
+    .block{padding:22px}
+  }
+  @media screen and (max-width:959px){
+    #view-book{display:block}
+  }
+  @media screen and (max-width:479px){
+    .block{padding:18px 14px}
+    .day{flex-basis:74px;min-height:98px}
+    .time{font-size:1.04rem;padding:10px 4px}
+    .waititem{padding:12px}
+  }
 </style>
 </head>
 <body>
@@ -288,6 +348,36 @@
     <div class="block" id="time-block" hidden>
       <h2><em>3</em>เลือกเวลา</h2>
       <div id="times"></div>
+    </div>
+    <div class="block" id="wait-block" hidden>
+      <h2><em>3</em>ลงชื่อรอคิว</h2>
+      <div id="wait-form">
+        <p class="wait-lead" id="wait-lead"></p>
+        <label class="field">ชื่อ-นามสกุล
+          <input type="text" id="w-name" maxlength="60" autocomplete="name">
+        </label>
+        <label class="field">เบอร์โทร
+          <input type="tel" id="w-phone" inputmode="numeric" autocomplete="tel" maxlength="12" placeholder="เบอร์ที่ติดต่อได้">
+        </label>
+        <label class="consent">
+          <input type="checkbox" id="w-any">
+          <span>วันอื่นก็ได้ — แจ้งเมื่อมีคิวว่างวันไหนก็ได้</span>
+        </label>
+        <label class="consent">
+          <input type="checkbox" id="w-consent">
+          <span>ยินยอมให้คลินิกเก็บชื่อ เบอร์โทร และบัญชี LINE ไว้ใช้แจ้งคิวว่างเท่านั้น</span>
+        </label>
+        <p id="w-error" class="error" role="alert"></p>
+        <button id="w-submit" class="primary">ลงชื่อรอคิว</button>
+      </div>
+      <div id="wait-done" hidden>
+        <div class="notes">
+          <h3>ลงชื่อรอคิวแล้ว</h3>
+          <ul><li id="wait-done-text"></li>
+              <li>ถ้ามีคนยกเลิก ระบบจะส่ง LINE บอกทันที ใครจองก่อนได้ก่อน</li></ul>
+        </div>
+        <button class="secondary" id="w-mine">ดูรายการรอคิวของฉัน</button>
+      </div>
     </div>
     <div class="block" id="form-block" hidden>
       <h2><em>4</em>ข้อมูลผู้จอง</h2>
@@ -474,6 +564,7 @@ async function pickService(s){
   markSteps();
   $('time-block').hidden = true;
   $('form-block').hidden = true;
+  $('wait-block').hidden = true;
   try {
     st.days = await withLoading(() => api('slots', { service: s.id }));
   } catch (e) { alert(e.message); return; }
@@ -491,10 +582,10 @@ function renderDates(){
   $('dates').replaceChildren(...st.days.map(d => {
     const p = parts(d.date), full = !d.times.length;
     return el('button', {
-        class: 'day' + (d.date === today ? ' today' : ''),
-        disabled: full, 'aria-pressed': String(st.date === d.date),
-        'aria-label': fullDate(d.date) + (full ? ' คิวเต็ม' : ` ว่าง ${d.times.length} คิว`),
-        onclick: () => pickDate(d.date)
+        class: 'day' + (d.date === today ? ' today' : '') + (full ? ' full' : ''),
+        disabled: full && !!st.moving, 'aria-pressed': String(st.date === d.date),
+        'aria-label': fullDate(d.date) + (full ? ' คิวเต็ม กดเพื่อลงชื่อรอคิว' : ` ว่าง ${d.times.length} คิว`),
+        onclick: () => full ? pickFull(d.date) : pickDate(d.date)
       },
       el('small', {}, WD_SHORT[p.w]),
       el('b', {}, String(p.d)),
@@ -503,10 +594,53 @@ function renderDates(){
   }));
   const active = $('dates').querySelector('[aria-pressed="true"]');
   if (active) active.scrollIntoView({ block: 'nearest', inline: 'center' });
+
+  // บอกวิธีลงชื่อรอ ถ้ามีวันเต็ม
+  document.querySelectorAll('#date-block .full-hint').forEach(n => n.remove());
+  const fullCount = st.days.filter(d => !d.times.length).length;
+  if (fullCount && !st.moving){
+    $('dates').after(el('p', { class: 'full-hint' }, fullCount === st.days.length
+      ? 'คิวเต็มทุกวันในช่วงนี้ — กดวันที่ต้องการเพื่อลงชื่อรอคิว ถ้ามีคนยกเลิกจะแจ้งทาง LINE'
+      : 'วันที่เต็ม กดเพื่อลงชื่อรอคิวได้'));
+  }
+}
+
+/* ---------- ลงชื่อรอคิว ---------- */
+function pickFull(ds){
+  st.date = ds; st.time = null;
+  renderDates(); markSteps();
+  $('time-block').hidden = true;
+  $('form-block').hidden = true;
+  $('wait-lead').replaceChildren(el('b', {}, fullDate(ds)), ` คิว${st.svc.name}เต็มแล้ว ลงชื่อไว้ ถ้ามีคนยกเลิกจะส่ง LINE บอกทันที`);
+  $('w-error').textContent = '';
+  $('wait-form').hidden = false;
+  $('wait-done').hidden = true;
+  $('wait-block').hidden = false;
+  $('wait-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function submitWait(){
+  const err = m => { $('w-error').textContent = m; };
+  err('');
+  const name = $('w-name').value.trim();
+  const phone = $('w-phone').value.replace(/\D/g, '');
+  if (!name) return err('กรอกชื่อ-นามสกุล');
+  if (!/^0\d{8,9}$/.test(phone)) return err('กรอกเบอร์โทรให้ถูกต้อง เช่น 0812345678');
+  if (!$('w-consent').checked) return err('กดยินยอมการเก็บข้อมูลก่อน');
+  $('w-submit').disabled = true;
+  try {
+    const any = $('w-any').checked;
+    await withLoading(() => api('waitJoin', { service: st.svc.id, date: st.date, any, name, phone, consent: true }));
+    $('wait-done-text').textContent = `${st.svc.name} · ` + (any ? 'วันไหนก็ได้ (รอ 30 วัน)' : fullDate(st.date));
+    $('wait-form').hidden = true;
+    $('wait-done').hidden = false;
+  } catch (e) { err(e.message); }
+  finally { $('w-submit').disabled = false; }
 }
 
 function pickDate(ds){
   st.date = ds; st.time = null;
+  $('wait-block').hidden = true;
   renderDates(); renderTimes(); markSteps();
   $('form-block').hidden = true;
   $('time-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -640,7 +774,7 @@ function resetBooking(){
   ['f-phone','f-note'].forEach(id => $(id).value = '');
   $('names').replaceChildren();
   $('f-consent').checked = false;
-  ['date-block','time-block','form-block'].forEach(id => $(id).hidden = true);
+  ['date-block','time-block','form-block','wait-block'].forEach(id => $(id).hidden = true);
   renderServices();
   markSteps();
 }
@@ -648,14 +782,23 @@ function resetBooking(){
 /* ---------- นัดของฉัน ---------- */
 async function loadMine(){
   const box = $('mine');
-  let list;
-  try { list = await withLoading(() => api('mine')); }
-  catch (e) { box.replaceChildren(el('p', { class: 'empty' }, e.message)); return; }
+  let list, waits;
+  try {
+    [list, waits] = await withLoading(() => Promise.all([api('mine'), api('waits').catch(() => [])]));
+  } catch (e) { box.replaceChildren(el('p', { class: 'empty' }, e.message)); return; }
+
+  const waitBlock = waits.length ? el('div', { class: 'block' }, el('h2', {}, 'กำลังรอคิว'),
+    waits.map(w => el('div', { class: 'item waititem' },
+      el('div', {}, el('strong', {}, w.service), el('br'),
+        el('span', {}, w.any ? 'วันไหนก็ได้' : fullDate(w.date))),
+      el('div', { class: 'movebar', style: 'margin-top:0' },
+        el('button', { class: 'danger', onclick: () => leaveWait(w) }, 'เลิกรอ'))))) : null;
 
   if (!list.length){
     box.replaceChildren(
       el('p', { class: 'empty' }, 'ยังไม่มีนัดที่จะถึง'),
-      el('button', { class: 'primary', onclick: () => switchTab('book') }, 'จองคิว'));
+      el('button', { class: 'primary', onclick: () => switchTab('book') }, 'จองคิว'),
+      ...(waitBlock ? [waitBlock] : []));
     return;
   }
   box.replaceChildren(el('div', { class: 'block' }, el('h2', {}, 'นัดที่จะถึง'),
@@ -669,6 +812,14 @@ async function loadMine(){
               ? `ใกล้ถึงเวลานัดแล้ว หากต้องการเลื่อนหรือยกเลิก กรุณาทักแชทคลินิก`
               : `เลื่อนนัดเองได้ก่อนถึงนัดอย่างน้อย ${moveHours} ชั่วโมง`)
         : null))));
+  if (waitBlock) box.append(waitBlock);
+}
+
+async function leaveWait(w){
+  if (!confirm(`เลิกรอคิว ${w.service}\n${w.any ? 'วันไหนก็ได้' : fullDate(w.date)}?`)) return;
+  try { await withLoading(() => api('waitLeave', { id: w.id })); }
+  catch (e) { alert(e.message); }
+  loadMine();
 }
 
 async function startMove(b){
@@ -761,6 +912,8 @@ async function init(){
   addEventListener('resize', sizeHeader);
   document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
   $('submit').addEventListener('click', submit);
+  $('w-submit').addEventListener('click', submitWait);
+  $('w-mine').addEventListener('click', () => switchTab('mine'));
   $('go-mine').addEventListener('click', () => switchTab('mine'));
   $('close').addEventListener('click', () => liff.isInClient() ? liff.closeWindow() : switchTab('book'));
 
