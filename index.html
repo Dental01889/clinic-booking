@@ -115,6 +115,7 @@
         padding:8px 16px;font-size:.92rem;font-weight:500}
   .movebar .danger{color:var(--rose)}
   #services .opt{text-align:center;display:flex;align-items:center;justify-content:center;min-height:64px}
+  .ticket .info span{white-space:pre-line}
   .f-addr{margin:0 0 14px;color:var(--ink)}
   .day.full{opacity:.55}
   .day.full i{color:var(--rose);font-weight:600}
@@ -519,6 +520,13 @@ const st = { svc: null, days: [], date: null, time: null, party: 1, moving: null
 /* ---------- ตัวช่วย ---------- */
 function parts(ds){ const [y,m,d] = ds.split('-').map(Number); return { y, m, d, w: new Date(Date.UTC(y,m-1,d)).getUTCDay() }; }
 function fullDate(ds){ const p = parts(ds); return `วัน${WD_FULL[p.w]}ที่ ${p.d} ${MON[p.m-1]} ${p.y+543}`; }
+const svcOf = name => services.find(s => s.name === name) || {};
+/* บอกเวลา — ถอนฟันลงชื่อรายวัน ไม่บอกเวลา */
+function whenText(b){
+  const s = svcOf(b.service);
+  return (b.noTime || s.noTime) ? (b.noTimeText || s.noTimeText || 'เริ่ม 9 โมงเช้า ใครมาก่อนได้ทำก่อน').replace(' ใคร', '\nใคร')
+                                : `เวลา ${b.time}–${endTime(b.time, b.minutes)} น.`;
+}
 function endTime(t, min){ const [h,m] = t.split(':').map(Number); const n = h*60+m+min; return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0'); }
 
 function el(tag, props = {}, ...kids){
@@ -601,7 +609,7 @@ function ticket(b, extraClass = ''){
       el('strong', {}, b.service),
       b.name ? el('span', { style: 'color:var(--ink);font-weight:500' }, b.name) : null,
       el('span', {}, fullDate(b.date)),
-      el('span', {}, `เวลา ${b.time}–${endTime(b.time, b.minutes)} น.`)));
+      el('span', {}, whenText(b))));
 }
 
 /* ---------- ขั้นตอนจอง ---------- */
@@ -699,6 +707,16 @@ async function submitWait(){
 }
 
 function pickDate(ds){
+  if (st.svc && st.svc.noTime){
+    const day = st.days.find(d => d.date === ds);
+    st.date = ds;
+    $('wait-block').hidden = true;
+    $('time-block').hidden = true;
+    renderDates(); markSteps();
+    if (st.moving){ doMove(day.times[0]); return; }
+    pickTime(day.times[0]);      // ใช้ช่องแรกที่ว่าง (ระบบจัดให้เอง)
+    return;
+  }
   st.date = ds; st.time = null;
   $('wait-block').hidden = true;
   renderDates(); renderTimes(); markSteps();
@@ -707,6 +725,7 @@ function pickDate(ds){
 }
 
 function renderTimes(){
+  if (st.svc && st.svc.noTime){ $('time-block').hidden = true; return; }
   const day = st.days.find(d => d.date === st.date);
   if (!day) { $('time-block').hidden = true; return; }
   $('time-block').hidden = false;
@@ -720,6 +739,7 @@ function consecutiveFree(n){
   if (!st.date || !st.time) return false;
   const day = st.days.find(d => d.date === st.date);
   if (!day) return false;
+  if (st.svc.noTime) return day.times.length >= n ? day.times.slice(0, n) : false;
   const i = day.times.indexOf(st.time);
   if (i < 0) return false;
   const want = day.times.slice(i, i + n);
@@ -747,7 +767,7 @@ function renderNames(){
   const keep = [...document.querySelectorAll('#names input')].map(i => i.value);
   $('names').replaceChildren(...(slots || [st.time]).map((t, i) =>
     el('label', { class: 'field' },
-      st.party > 1 ? `ชื่อ-นามสกุล คนที่ ${i+1} (${t} น.)` : 'ชื่อ-นามสกุล',
+      st.party > 1 ? `ชื่อ-นามสกุล คนที่ ${i+1}` + (st.svc.noTime ? '' : ` (${t} น.)`) : 'ชื่อ-นามสกุล',
       el('input', { type: 'text', maxlength: '60', autocomplete: i ? 'off' : 'name',
                     value: keep[i] || '' }))));
 }
@@ -757,7 +777,8 @@ function pickTime(t){
   st.time = t;
   st.party = 1;
   renderTimes(); markSteps();
-  $('summary').replaceChildren(ticket({ date: st.date, time: t, minutes: st.svc.minutes, service: st.svc.name }));
+  $('summary').replaceChildren(ticket({ date: st.date, time: t, minutes: st.svc.minutes, service: st.svc.name,
+                                        noTime: st.svc.noTime, startText: st.svc.startText, noTimeText: st.svc.noTimeText }));
   renderParty();
   renderNames();
   $('form-error').textContent = '';
@@ -785,7 +806,7 @@ async function submit(){
     try {
       if (liff.isInClient()) await liff.sendMessages([{ type: 'text',
         text: 'จองคิวแล้ว\n' + made.map(b =>
-          `${b.service} · ${b.name || ''}\n${fullDate(b.date)}\nเวลา ${b.time}–${endTime(b.time, b.minutes)} น.`
+          `${b.service} · ${b.name || ''}\n${fullDate(b.date)}\n${whenText(b)}`
         ).join('\n\n') }]);
     } catch (_) {}
   } catch (e) {
@@ -802,8 +823,10 @@ async function submit(){
 function calendarLink(b){
   const [y, m, d] = b.date.split('-');
   const pad = t => t.replace(':', '') + '00';
-  const start = `${y}${m}${d}T${pad(b.time)}`;
-  const end   = `${y}${m}${d}T${pad(endTime(b.time, b.minutes))}`;
+  const nt = b.noTime || svcOf(b.service).noTime;
+  const st0 = nt ? (b.startText || '09.00').replace('.', ':') : b.time;
+  const start = `${y}${m}${d}T${pad(st0)}`;
+  const end   = `${y}${m}${d}T${pad(nt ? '12:00' : endTime(b.time, b.minutes))}`;
   const q = new URLSearchParams({
     action: 'TEMPLATE',
     text: `${b.service} — ${CLINIC_NAME}`,
@@ -894,8 +917,8 @@ async function startMove(b){
   $('move-note').replaceChildren(
     el('div', { class: 'notes' },
       el('h3', {}, 'กำลังเลื่อนนัด'),
-      el('ul', {}, el('li', {}, `${b.service} · ${fullDate(b.date)} เวลา ${b.time} น.`),
-                   el('li', {}, 'เลือกวันและเวลาใหม่ด้านล่าง')),
+      el('ul', {}, el('li', {}, `${b.service} · ${fullDate(b.date)}` + (svcOf(b.service).noTime ? '' : ` เวลา ${b.time} น.`)),
+                   el('li', {}, svcOf(b.service).noTime ? 'เลือกวันใหม่ด้านล่าง' : 'เลือกวันและเวลาใหม่ด้านล่าง')),
       el('button', { class: 'secondary', style: 'margin-top:12px',
         onclick: () => { st.moving = null; switchTab('mine'); } }, 'ยกเลิกการเลื่อนนัด')));
   $('move-note').hidden = false;
@@ -914,7 +937,7 @@ async function doMove(t){
 }
 
 async function cancel(b){
-  if (!confirm(`ยกเลิกนัด ${b.service}\n${fullDate(b.date)} เวลา ${b.time} น.?`)) return;
+  if (!confirm(`ยกเลิกนัด ${b.service}\n${fullDate(b.date)} ${whenText(b)}?`)) return;
   try { await withLoading(() => api('cancel', { id: b.id })); }
   catch (e) { alert(e.message); }
   loadMine();
