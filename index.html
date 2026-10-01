@@ -39,15 +39,29 @@
   .opt strong{display:block;font-size:1.08rem;font-weight:600}
   .opt span{display:block;color:var(--muted);font-size:.9rem}
 
-  .dates{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x proximity}
-  .day{flex:0 0 66px;scroll-snap-align:start;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px 2px;text-align:center}
-  .day small{display:block;font-size:.75rem;line-height:1.3;color:var(--muted)}
-  .day b{display:block;font-size:1.65rem;line-height:1.15;font-weight:700}
-  .day:disabled{opacity:.4;cursor:not-allowed}
+  /* ---- ปฏิทินเลือกวัน ---- */
+  .cal{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:14px 12px 12px}
+  .cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .cal-top b{font-size:1.08rem;font-weight:600}
+  .nav{width:44px;height:44px;flex:none;border:1.5px solid var(--line);border-radius:50%;background:var(--surface);
+       display:grid;place-items:center;font-size:1.2rem;line-height:1}
+  .nav:disabled{opacity:.3;cursor:default}
+  .wd,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .wd span{text-align:center;font-size:.78rem;color:var(--muted);padding-bottom:4px}
+  .d{aspect-ratio:1/1;border:0;border-radius:12px;background:none;color:var(--ink);
+     display:flex;align-items:center;justify-content:center;font-size:1.05rem;position:relative}
+  .d:disabled{color:#C5D0CE;cursor:default}
+  .d.free{background:var(--pick);color:var(--teal);font-weight:700}
+  .d.full{background:#EEF1F0;color:#9AA8A5;text-decoration:line-through}
+  .d[aria-pressed="true"]{background:var(--teal);color:#fff;font-weight:700}
+  .d.today::after{content:"";position:absolute;bottom:6px;width:5px;height:5px;border-radius:50%;background:currentColor}
+  .legend{display:flex;gap:16px;margin-top:12px;font-size:.82rem;color:var(--muted)}
+  .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:5px;vertical-align:-2px}
 
-  .period{margin:10px 0 6px;font-size:.85rem;color:var(--muted)}
-  .times{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-  .time{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:10px 0;font-weight:500}
+  .period{margin:16px 0 8px;font-size:.9rem;color:var(--muted)}
+  .times{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .time{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:16px 0;
+        font-size:1.1rem;font-weight:600}
 
   .opt[aria-pressed="true"],.day[aria-pressed="true"],.time[aria-pressed="true"]{background:var(--pick);border-color:var(--teal);color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal)}
   .opt[aria-pressed="true"] span,.day[aria-pressed="true"] small{color:var(--teal)}
@@ -192,9 +206,11 @@ const $ = id => document.getElementById(id);
 const WD_SHORT = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
 const WD_FULL  = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
 const MON = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const MON_FULL = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                  'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 
 let idToken = null, services = [], minHours = 3;
-const st = { svc: null, days: [], date: null, time: null };
+const st = { svc: null, days: [], date: null, time: null, month: null };
 
 /* ---------- ตัวช่วย ---------- */
 function parts(ds){ const [y,m,d] = ds.split('-').map(Number); return { y, m, d, w: new Date(Date.UTC(y,m-1,d)).getUTCDay() }; }
@@ -281,7 +297,7 @@ function renderServices(){
   $('services').replaceChildren(...services.map(s =>
     el('button', { class: 'opt', 'aria-pressed': String(st.svc?.id === s.id), onclick: () => pickService(s) },
       el('strong', {}, s.name),
-      el('span', {}, `${s.desc} คิวละ ${s.minutes} นาที`))));
+      el('span', {}, s.desc))));
 }
 
 function markSteps(){
@@ -292,7 +308,7 @@ function markSteps(){
 }
 
 async function pickService(s){
-  Object.assign(st, { svc: s, date: null, time: null, days: [] });
+  Object.assign(st, { svc: s, date: null, time: null, days: [], month: null });
   renderServices();
   markSteps();
   $('time-block').hidden = true;
@@ -304,23 +320,58 @@ async function pickService(s){
   $('date-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+const monthOf = ds => ds.slice(0, 7);
+const addMonth = (key, n) => {
+  const [y, m] = key.split('-').map(Number);
+  const d = new Date(Date.UTC(y, m - 1 + n, 1));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2,'0')}`;
+};
+
 function renderDates(){
   $('date-block').hidden = false;
   if (!st.days.length){
     $('dates').replaceChildren(el('p', { class: 'empty' }, 'ช่วงนี้ยังไม่เปิดรับคิว ทักแชทสอบถามคลินิกได้'));
     return;
   }
-  $('dates').replaceChildren(...st.days.map(d => {
-    const p = parts(d.date), full = !d.times.length;
-    return el('button', {
-        class: 'day', disabled: full, 'aria-pressed': String(st.date === d.date),
-        'aria-label': fullDate(d.date) + (full ? ' คิวเต็ม' : ` ว่าง ${d.times.length} คิว`),
-        onclick: () => pickDate(d.date)
-      },
-      el('small', {}, WD_SHORT[p.w]),
-      el('b', {}, String(p.d)),
-      el('small', {}, full ? 'เต็ม' : MON[p.m-1]));
-  }));
+
+  const months = [...new Set(st.days.map(d => monthOf(d.date)))].sort();
+  if (!st.month || !months.includes(st.month)) st.month = monthOf(st.date || st.days[0].date);
+  const idx = months.indexOf(st.month);
+  const [y, m] = st.month.split('-').map(Number);
+  const today = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
+
+  const lead = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+  const total = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const byDate = Object.fromEntries(st.days.map(d => [d.date, d]));
+
+  const cells = [];
+  for (let i = 0; i < lead; i++) cells.push(el('span'));
+  for (let n = 1; n <= total; n++){
+    const ds = `${y}-${String(m).padStart(2,'0')}-${String(n).padStart(2,'0')}`;
+    const day = byDate[ds];
+    const free = day && day.times.length;
+    cells.push(el('button', {
+        class: 'd' + (free ? ' free' : day ? ' full' : '') + (ds === today ? ' today' : ''),
+        disabled: !free,
+        'aria-pressed': String(st.date === ds),
+        'aria-label': fullDate(ds) + (free ? ` ว่าง ${day.times.length} คิว` : day ? ' คิวเต็ม' : ' ไม่เปิดให้บริการ'),
+        onclick: () => pickDate(ds)
+      }, String(n)));
+  }
+
+  $('dates').replaceChildren(
+    el('div', { class: 'cal' },
+      el('div', { class: 'cal-top' },
+        el('button', { class: 'nav', disabled: idx <= 0, 'aria-label': 'เดือนก่อนหน้า',
+          onclick: () => { st.month = months[idx - 1]; renderDates(); } }, '‹'),
+        el('b', {}, `${MON_FULL[m-1]} ${y + 543}`),
+        el('button', { class: 'nav', disabled: idx >= months.length - 1, 'aria-label': 'เดือนถัดไป',
+          onclick: () => { st.month = months[idx + 1]; renderDates(); } }, '›')),
+      el('div', { class: 'wd' }, WD_SHORT.map(w => el('span', {}, w))),
+      el('div', { class: 'days' }, cells),
+      el('div', { class: 'legend' },
+        el('span', {}, el('i', { style: 'background:#E2EFEC' }), 'มีคิวว่าง'),
+        el('span', {}, el('i', { style: 'background:#EEF1F0' }), 'คิวเต็ม'))));
 }
 
 function pickDate(ds){
@@ -387,7 +438,7 @@ function showDone(b){
 }
 
 function resetBooking(){
-  Object.assign(st, { svc: null, days: [], date: null, time: null });
+  Object.assign(st, { svc: null, days: [], date: null, time: null, month: null });
   ['f-name','f-phone','f-note'].forEach(id => $(id).value = '');
   $('f-consent').checked = false;
   ['date-block','time-block','form-block'].forEach(id => $(id).hidden = true);
