@@ -559,6 +559,7 @@
   .mv:hover{background:#E4F1ED;border-color:#1F6F68}
   @media (max-width:479px){ .mv{padding:5px 9px;font-size:.8rem} }
   @media print{ .mv{display:none!important} }
+  .mv-auto{margin:10px 0 0;padding:10px 12px;border-radius:9px;background:#E4F1ED;color:#1F6F68;font-size:.92rem}
 </style>
 </head>
 <body>
@@ -649,9 +650,10 @@
   <label>วันใหม่
     <select id="mv-date"></select>
   </label>
-  <label>เวลาใหม่
+  <label id="mv-time-row">เวลาใหม่
     <select id="mv-time"></select>
   </label>
+  <p id="mv-auto" class="mv-auto" hidden></p>
   <label>เหตุผลที่แจ้งคนไข้ (ไม่บังคับ)<input id="mv-note" type="text" maxlength="100" placeholder="เช่น หมอติดประชุม"></label>
   <p id="mv-err" class="err" role="alert"></p>
   <div class="acts">
@@ -850,7 +852,7 @@ function renderDay(data){
   if (data.capacity.length){
     data.capacity.forEach((c, i) => {
       if (i) counts.push(' · ');
-      counts.push(`${c.name} `, el('b', {}, `${c.booked}/${c.total}`), ' คิว' + (c.noTime ? ' (นัดมาถึงก่อน 09.00 น. ใครมาก่อนได้ทำก่อน)' : ''));
+      counts.push(`${c.name} `, el('b', {}, `${c.booked}/${c.total}`), ' คิว' + (c.noTime ? ' (นัดมาถึงก่อน 09.00 น. รับคิวที่เคาน์เตอร์)' : ''));
     });
   } else {
     counts.push(el('b', {}, String(live.length)), ' นัด (นอกวันให้บริการปกติ)');
@@ -1106,8 +1108,8 @@ async function loadTarget(){
     if (pick) taken.add(pick);
     return el('div', { class: 'rs-row' },
       el('div', {}, el('b', {}, b.name || '—'),
-        el('small', {}, `เดิม ${b.time} · ${b.service}` + (b.hasLine ? '' : ' · ไม่มี LINE'))),
-      el('select', { 'data-id': b.id, 'aria-label': `เวลาใหม่ของ ${b.name || 'คนไข้'}` },
+        el('small', {}, (cap && cap.noTime ? (pick ? 'ระบบลงคิวให้เอง · ' : 'วันนี้คิวเต็ม · ') : `เดิม ${b.time} · `) + b.service + (b.hasLine ? '' : ' · ไม่มี LINE'))),
+      el('select', { 'data-id': b.id, 'aria-label': `เวลาใหม่ของ ${b.name || 'คนไข้'}`, hidden: !!(cap && cap.noTime && pick) },
         el('option', { value: '' }, cap ? '— เลือกเวลา —' : 'ไม่มีรอบนี้'),
         free.map(t => el('option', { value: t, selected: t === pick }, capLabel(cap, t)))));
   }));
@@ -1160,7 +1162,8 @@ let mv = null;   // { b, from }
 function openMove(b){
   mv = { b, from: dayData.date };
   $('mv-title').textContent = `เลื่อนนัดของ ${b.name || 'คนไข้'}`;
-  $('mv-sub').textContent = `${b.service} · เดิม ${longDate(dayData.date)} เวลา ${b.time} น.` +
+  const nt = (dayData.capacity.find(c => c.name === b.service) || {}).noTime;
+  $('mv-sub').textContent = `${b.service} · เดิม ${longDate(dayData.date)}` + (nt ? '' : ` เวลา ${b.time} น.`) +
     (b.hasLine ? ' — ระบบจะส่ง LINE แจ้งคนไข้' : ' — คนไข้ไม่มี LINE ต้องโทรแจ้งเอง');
   const opts = days.filter(d => d.date >= today && !d.holiday);
   $('mv-date').replaceChildren(...opts.map(d => el('option', { value: d.date, selected: d.date === mv.from },
@@ -1175,6 +1178,8 @@ async function loadMoveTimes(){
   const to = $('mv-date').value, b = mv.b;
   $('mv-err').textContent = '';
   $('mv-time').replaceChildren(el('option', { value: '' }, 'กำลังโหลด…'));
+  $('mv-auto').hidden = true;
+  $('mv-time-row').hidden = false;
   $('mv-yes').disabled = true;
   let d;
   try { d = to === dayData.date ? dayData : await api('adminDay', { date: to }); }
@@ -1186,13 +1191,24 @@ async function loadMoveTimes(){
     $('mv-time').replaceChildren(el('option', { value: '' }, cap ? 'วันนี้คิวเต็มแล้ว' : `วันนี้ไม่มีรอบ${b.service}`));
     return;
   }
-  $('mv-time').replaceChildren(el('option', { value: '' }, '— เลือกเวลา —'), ...free.map(t => el('option', { value: t }, cap.noTime ? capLabel(cap, t) : t + ' น.')));
+  if (cap.noTime){
+    // ถอนฟัน: ไม่ต้องเลือกคิว ระบบลงช่องว่างแรกให้
+    $('mv-time').replaceChildren(el('option', { value: free[0] }, capLabel(cap, free[0])));
+    $('mv-time-row').hidden = true;
+    $('mv-auto').hidden = false;
+    $('mv-auto').textContent = `เหลือ ${free.length} คิว · ระบบลงคิวให้เอง`;
+  } else {
+    $('mv-time-row').hidden = false;
+    $('mv-auto').hidden = true;
+    $('mv-time').replaceChildren(el('option', { value: '' }, '— เลือกเวลา —'), ...free.map(t => el('option', { value: t }, t + ' น.')));
+  }
   $('mv-yes').disabled = false;
 }
 
 async function submitMove(){
   const to = $('mv-date').value, time = $('mv-time').value, b = mv.b;
   if (!time) { $('mv-err').textContent = 'เลือกเวลาใหม่ก่อน'; return; }
+  const capNow = dayData.capacity.find(c => c.name === b.service);
   $('mv-yes').disabled = true;
   try {
     loading(true);
@@ -1208,7 +1224,7 @@ async function submitMove(){
         text: `${c.name || 'คนไข้'} ไม่มี LINE\nโทร ${c.phone || '(ไม่มีเบอร์)'} แจ้งนัดใหม่ ${longDate(r.to)} เวลา ${c.time} น.`,
         confirm: 'รับทราบ', safe: true });
     } else {
-      toast(`เลื่อนไป ${longDate(r.to)} ${time} น. แล้ว แจ้งคนไข้ทาง LINE เรียบร้อย`);
+      toast(`เลื่อนไป ${longDate(r.to)}` + (capNow && capNow.noTime ? '' : ` ${time} น.`) + ' แล้ว แจ้งคนไข้ทาง LINE เรียบร้อย');
     }
   } catch (e) {
     $('mv-err').textContent = e.message;
