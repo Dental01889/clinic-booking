@@ -28,16 +28,29 @@
   .eyebrow{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
   .eyebrow h1{margin:0;font-size:1.1rem;font-weight:700}
   .eyebrow span{font-size:.85rem;color:var(--muted)}
-  .strip{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x proximity}
-  .d{position:relative;flex:0 0 58px;scroll-snap-align:center;background:var(--card);border:1.5px solid var(--rule);border-radius:10px;padding:7px 2px 6px;text-align:center}
-  .d small{display:block;font-size:.72rem;line-height:1.2;color:var(--muted)}
-  .d b{display:block;font-size:1.45rem;font-weight:600;line-height:1.2;font-variant-numeric:tabular-nums}
-  .d i{display:block;height:5px;margin:3px auto 0;border-radius:3px;background:var(--rule);width:26px;font-style:normal}
-  .d i.has{background:var(--teal)}
-  .d.shut b,.d.shut small{color:var(--amber)}
-  .d.shut i{background:var(--amber)}
-  .d[aria-current="date"]{border-color:var(--teal);background:var(--teal-soft)}
-  .d.today::after{content:"";position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--rose)}
+  .cal{background:var(--card);border:1.5px solid var(--rule);border-radius:14px;padding:12px 10px 10px;margin-bottom:12px}
+  .cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .cal-top b{font-size:1.02rem;font-weight:600}
+  .nav{width:40px;height:40px;flex:none;border:1.5px solid var(--rule);border-radius:50%;
+       background:var(--card);display:grid;place-items:center;font-size:1.15rem;line-height:1}
+  .nav:disabled{opacity:.3;cursor:default}
+  .wd,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+  .wd span{text-align:center;font-size:.74rem;color:var(--muted);padding-bottom:3px}
+  .d{position:relative;aspect-ratio:1/1;border:0;border-radius:10px;background:none;color:var(--ink);
+     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+     font-size:1rem;font-variant-numeric:tabular-nums}
+  .d:disabled{color:#C5D0CE;cursor:default}
+  .d i{font-style:normal;font-size:.62rem;line-height:1;color:var(--muted)}
+  .d.open{background:#F1F5F4}
+  .d.has{background:var(--teal-soft);color:var(--teal);font-weight:700}
+  .d.has i{color:var(--teal)}
+  .d.shut{background:var(--amber-soft);color:var(--amber)}
+  .d.shut i{color:var(--amber)}
+  .d[aria-current="date"]{background:var(--teal);color:#fff;font-weight:700}
+  .d[aria-current="date"] i{color:#CFE3E0}
+  .d.today::after{content:"";position:absolute;bottom:5px;width:4px;height:4px;border-radius:50%;background:currentColor}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:.78rem;color:var(--muted)}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 
   /* day head */
   .dayhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:22px 0 4px}
@@ -57,26 +70,31 @@
   .svcpick select{flex:1;padding:9px 12px;font:inherit;color:var(--ink);background:var(--card);
     border:1.5px solid var(--rule);border-radius:10px}
   .slots{border:1.5px solid var(--rule);border-radius:14px;overflow:hidden;background:var(--card)}
-  .slot{display:grid;grid-template-columns:86px 1fr;align-items:center;width:100%;
-        border:0;border-top:1px solid var(--rule);background:var(--card);text-align:left;
-        padding:0;font:inherit;color:inherit}
+  .slot{display:grid;grid-template-columns:84px 1fr 44px;align-items:stretch;width:100%;
+        min-height:62px;border:0;border-top:1px solid var(--rule);background:var(--card);
+        text-align:left;padding:0;font:inherit;color:inherit}
   .slot:first-child{border-top:0}
-  .slot .t{padding:14px 12px;font-weight:600;font-variant-numeric:tabular-nums;
-           border-right:1px solid var(--rule);align-self:stretch;display:flex;align-items:center}
-  .slot .n{padding:12px 14px}
-  .slot .n b{display:block;font-weight:600}
-  .slot .n small{display:block;color:var(--muted);font-size:.86rem;margin-top:1px}
-  .slot.vacant .n{color:var(--muted)}
+  .slot .t{display:flex;align-items:center;justify-content:center;padding:0 8px;
+           font-weight:600;font-variant-numeric:tabular-nums;border-right:1px solid var(--rule)}
+  .slot .n{display:flex;flex-direction:column;justify-content:center;gap:2px;
+           padding:10px 14px;min-width:0}
+  .slot .n b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .slot .n small{color:var(--muted);font-size:.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .slot .n small a{color:inherit}
+  .slot .side{display:flex;align-items:center;justify-content:center}
   .slot.vacant{cursor:pointer}
+  .slot.vacant .n{color:var(--muted)}
+  .slot.vacant .side{color:#BFCBC8;font-size:1.2rem}
   .slot.vacant[aria-pressed="true"]{background:var(--teal-soft)}
-  .slot.vacant[aria-pressed="true"] .n{color:var(--teal);font-weight:600}
-  .slot.taken{cursor:default}
+  .slot.vacant[aria-pressed="true"] .n,
+  .slot.vacant[aria-pressed="true"] .side{color:var(--teal);font-weight:600}
+  .slot.taken .t{box-shadow:inset 3px 0 0 var(--teal)}
   .slot.off .n b{text-decoration:line-through;color:var(--muted)}
+  .slot.off .t{box-shadow:inset 3px 0 0 var(--rule)}
   .slot.blocked .n{color:#A9B5B3}
-  .tag{display:inline-block;border:1px solid var(--rule);border-radius:999px;padding:0 9px;
-       font-size:.76rem;color:var(--muted);margin:4px 5px 0 0}
-  .tag.note{background:var(--teal-soft);border-color:var(--teal-soft);color:var(--teal)}
-  .drop{background:none;border:0;padding:4px 0 0;color:var(--rose);font-size:.86rem;text-decoration:underline}
+  .drop{width:30px;height:30px;border:0;border-radius:50%;background:none;color:#B9C4C2;
+        font-size:1rem;line-height:1;cursor:pointer}
+  .drop:hover{background:var(--rose-soft);color:var(--rose)}
   .selbar{position:sticky;bottom:12px;margin-top:14px;display:flex;gap:10px;align-items:center;
           background:var(--teal);color:#fff;border-radius:12px;padding:12px 14px;font-weight:600;
           box-shadow:0 6px 18px rgba(0,0,0,.18)}
@@ -288,28 +306,64 @@ function ask({ title, text, confirm, placeholder, safe }){
   });
 }
 
-/* ---------- แถบวัน ---------- */
+/* ---------- ปฏิทินเลือกวัน ---------- */
+const WD_MIN = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
+const MON_FULL = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                  'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const monthOf = ds => ds.slice(0, 7);
+let calMonth = null;
+
 function renderStrip(){
-  $('strip').replaceChildren(...days.map(d => {
-    const p = parts(d.date);
-    return el('button', {
-        class: 'd' + (d.holiday ? ' shut' : '') + (d.date === today ? ' today' : ''),
-        'aria-current': d.date === current ? 'date' : false,
-        'aria-label': longDate(d.date) + (d.holiday ? ' ปิดทำการ' : ` ${d.count} นัด`),
-        onclick: () => openDay(d.date)
+  if (!days.length){ $('strip').replaceChildren(); return; }
+  const months = [...new Set(days.map(d => monthOf(d.date)))].sort();
+  if (!calMonth || !months.includes(calMonth)) calMonth = monthOf(current || today || days[0].date);
+  if (!months.includes(calMonth)) calMonth = months[0];
+
+  const idx = months.indexOf(calMonth);
+  const [y, m] = calMonth.split('-').map(Number);
+  const lead = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+  const total = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  const byDate = Object.fromEntries(days.map(d => [d.date, d]));
+
+  const cells = [];
+  for (let i = 0; i < lead; i++) cells.push(el('span'));
+  for (let n = 1; n <= total; n++){
+    const ds = `${y}-${String(m).padStart(2,'0')}-${String(n).padStart(2,'0')}`;
+    const d = byDate[ds];
+    const cls = ['d'];
+    if (ds === today) cls.push('today');
+    if (d) cls.push(d.holiday ? 'shut' : (d.count ? 'has' : 'open'));
+    cells.push(el('button', {
+        class: cls.join(' '), disabled: !d,
+        'aria-current': ds === current ? 'date' : false,
+        'aria-label': longDate(ds) + (!d ? ' ไม่เปิดบริการ'
+          : d.holiday ? ' ปิดทำการ' : d.count ? ` ${d.count} นัด` : ' ยังไม่มีนัด'),
+        onclick: () => openDay(ds)
       },
-      el('small', {}, WD_S[p.w]),
-      el('b', {}, String(p.d)),
-      el('i', { class: d.count ? 'has' : '' }, ''),
-      el('small', {}, d.holiday ? 'ปิด' : (d.count ? `${d.count} นัด` : 'ว่าง')));
-  }));
-  const active = $('strip').querySelector('[aria-current="date"]');
-  if (active) active.scrollIntoView({ block: 'nearest', inline: 'center' });
+      String(n),
+      el('i', {}, d ? (d.holiday ? 'ปิด' : (d.count ? String(d.count) : '')) : '')));
+  }
+
+  $('strip').replaceChildren(
+    el('div', { class: 'cal' },
+      el('div', { class: 'cal-top' },
+        el('button', { class: 'nav', disabled: idx <= 0, 'aria-label': 'เดือนก่อนหน้า',
+          onclick: () => { calMonth = months[idx - 1]; renderStrip(); } }, '‹'),
+        el('b', {}, `${MON_FULL[m-1]} ${y + 543}`),
+        el('button', { class: 'nav', disabled: idx >= months.length - 1, 'aria-label': 'เดือนถัดไป',
+          onclick: () => { calMonth = months[idx + 1]; renderStrip(); } }, '›')),
+      el('div', { class: 'wd' }, WD_MIN.map(w => el('span', {}, w))),
+      el('div', { class: 'days' }, cells),
+      el('div', { class: 'legend' },
+        el('span', {}, el('i', { style: 'background:#E3EFED' }), 'มีนัด'),
+        el('span', {}, el('i', { style: 'background:#F1F5F4' }), 'ยังไม่มีนัด'),
+        el('span', {}, el('i', { style: 'background:#FBEFD8' }), 'ปิดทำการ'))));
 }
 
 /* ---------- ตารางของวัน ---------- */
 async function openDay(ds){
   current = ds;
+  calMonth = monthOf(ds);
   renderStrip();
   let data;
   try { loading(true); data = await api('adminDay', { date: ds }); }
@@ -382,36 +436,43 @@ function renderSlots(){
 
 function slotRow(t, b, free){
   if (b && !b.cancelled){
+    const bits = [];
+    if (b.phone) bits.push(el('a', { href: 'tel:' + b.phone }, b.phone));
+    bits.push(b.channel === 'LINE' ? 'จองเอง' : (b.channel || 'แอดมิน'));
+    if (b.note) bits.push(b.note);
+    const line = [];
+    bits.forEach((x, i) => { if (i) line.push(' · '); line.push(x); });
+
     return el('div', { class: 'slot taken' },
       el('div', { class: 't' }, t),
-      el('div', { class: 'n' },
-        el('b', {}, b.name || '—'),
-        b.phone ? el('small', {}, el('a', { href: 'tel:' + b.phone, style: 'color:inherit' }, b.phone)) : null,
-        el('div', {},
-          el('span', { class: 'tag' }, b.channel === 'LINE' ? 'จองเอง' : (b.channel || 'แอดมิน')),
-          b.note ? el('span', { class: 'tag note' }, b.note) : null),
-        el('button', { class: 'drop', onclick: () => cancelOne(b) }, 'ยกเลิกนัดนี้')));
+      el('div', { class: 'n' }, el('b', {}, b.name || '—'), el('small', {}, line)),
+      el('div', { class: 'side' },
+        el('button', { class: 'drop', 'aria-label': `ยกเลิกนัดของ ${b.name || 'คนไข้'}`,
+          title: 'ยกเลิกนัดนี้', onclick: () => cancelOne(b) }, '✕')));
   }
   if (b && b.cancelled && !free){
     return el('div', { class: 'slot off' },
       el('div', { class: 't' }, t),
-      el('div', { class: 'n' }, el('b', {}, b.name || '—'), el('small', {}, 'ยกเลิกแล้ว')));
+      el('div', { class: 'n' }, el('b', {}, b.name || '—'), el('small', {}, 'ยกเลิกแล้ว')),
+      el('div', { class: 'side' }));
   }
   if (!free){
     return el('div', { class: 'slot blocked' },
       el('div', { class: 't' }, t),
-      el('div', { class: 'n' }, 'ไม่ว่าง'));
+      el('div', { class: 'n' }, el('b', {}, 'ไม่ว่าง')),
+      el('div', { class: 'side' }));
   }
+  const on = picked.includes(t);
   return el('button', {
-      class: 'slot vacant', 'aria-pressed': String(picked.includes(t)),
-      'aria-label': `เวลา ${t} ว่าง`,
+      class: 'slot vacant', 'aria-pressed': String(on), 'aria-label': `เวลา ${t} ว่าง`,
       onclick: () => {
-        picked = picked.includes(t) ? picked.filter(x => x !== t) : [...picked, t].sort();
+        picked = on ? picked.filter(x => x !== t) : [...picked, t].sort();
         renderSlots();
       }
     },
     el('div', { class: 't' }, t),
-    el('div', { class: 'n' }, picked.includes(t) ? 'เลือกไว้' : 'ว่าง'));
+    el('div', { class: 'n' }, el('b', {}, on ? 'เลือกไว้' : 'ว่าง')),
+    el('div', { class: 'side' }, on ? '✓' : '+'));
 }
 
 function renderSelbar(){
