@@ -706,6 +706,14 @@ function el(tag, props = {}, ...kids){
   return n;
 }
 
+/* เปิดหน้าต่างโดยไม่เอาเคอร์เซอร์ไปรอในช่องพิมพ์
+   (เบราว์เซอร์ใน LINE จะไม่ขึ้นคีย์บอร์ด ถ้ากดช่องที่มีเคอร์เซอร์อยู่แล้ว) */
+function openDialog(d){
+  d.showModal();
+  const a = document.activeElement;
+  if (a && a !== d && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) a.blur();
+}
+
 function loading(on){ $('loading').hidden = !on; }
 let toastTimer;
 function toast(msg){
@@ -768,8 +776,7 @@ function ask({ title, text, confirm, placeholder, safe }){
     $('dlg-yes').onclick = () => done({ ok: true, text: input.value.trim() });
     $('dlg-no').onclick = () => done(null);
     dlg.onclose = () => resolve(null);
-    dlg.showModal();
-    if (placeholder) input.focus();
+    openDialog(dlg);
   });
 }
 
@@ -990,7 +997,7 @@ function openAdd(){
   $('ad-note').value = '';
   $('ad-err').textContent = '';
   renderPeople();
-  $('adlg').showModal();
+  openDialog($('adlg'));
 }
 
 function renderPeople(){
@@ -1111,7 +1118,7 @@ function openReschedule(data){
     $('rs-note').value = '';
     $('rs-err').textContent = '';
     $('rs-list').replaceChildren(el('p', { class: 'empty' }, 'กำลังโหลดคิวว่าง…'));
-    $('rdlg').showModal();
+    openDialog($('rdlg'));
     loadTarget();
   });
 }
@@ -1193,7 +1200,7 @@ function openMove(b){
     longDate(d.date) + (d.extra ? ' · วันชดเชย' : '') + (d.total ? ` · จองแล้ว ${d.count}/${d.total}` : (d.count ? ` · มีนัด ${d.count}` : '')))));
   $('mv-note').value = '';
   $('mv-err').textContent = '';
-  $('mdlg').showModal();
+  openDialog($('mdlg'));
   loadMoveTimes();
 }
 
