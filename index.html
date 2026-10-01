@@ -374,6 +374,11 @@
   .ticket .num{flex:0 0 64px;width:64px;min-width:64px;text-align:center}
   .tnote{text-align:center}
   .treat-pick{margin-top:10px}
+  .treat-tag{display:inline-block!important;width:auto;margin:2px 0 3px;padding:2px 12px;border-radius:999px;font-size:.88rem!important;font-weight:700;line-height:1.5}
+  .treat-tag.tt-fill{background:#E3EEFB;color:#1E4E86!important}
+  .treat-tag.tt-scale{background:#FBEFD8;color:#7A4E0B!important}
+  .treat-ask{margin-top:10px;padding:12px 14px;border-radius:12px;background:#FFF6E3;border:1px solid #F1DDB0}
+  .treat-ask span{display:block;font-size:.92rem;color:#6E4E0E;margin-bottom:6px;font-weight:500}
   .tp-label{display:block;font-size:.92rem;font-weight:500;color:var(--ink);margin-bottom:2px}
   #names .person + .person{margin-top:18px;padding-top:4px;border-top:1px dashed var(--line)}
 </style>
@@ -618,7 +623,8 @@ function ticket(b, extraClass = ''){
   const card = el('div', { class: 'ticket ' + (more ? '' : extraClass) },
     el('div', { class: 'num' }, String(p.d), el('small', {}, MON[p.m-1])),
     el('div', { class: 'info' },
-      el('strong', {}, b.treat || b.service),
+      el('strong', {}, b.service),
+      b.treat ? el('span', { class: 'treat-tag ' + (b.treat === 'อุดฟัน' ? 'tt-fill' : 'tt-scale') }, 'มา' + b.treat) : null,
       b.name ? el('span', { style: 'color:var(--ink);font-weight:500' }, b.name) : null,
       el('span', {}, fullDate(b.date)),
       el('span', {}, lines[0])));
@@ -915,6 +921,13 @@ async function loadMine(){
   }
   box.replaceChildren(el('div', { class: 'block' }, el('h2', {}, 'นัดที่จะถึง'),
     list.map(b => el('div', { class: 'item' }, ticket(b),
+      // นัดเก่าที่ยังไม่ได้บอกว่ามาอุดหรือขูด
+      !b.treat && (svcOf(b.service).treatments || []).length
+        ? el('div', { class: 'treat-ask' },
+            el('span', {}, 'นัดนี้มาทำอะไร? ช่วยบอกหมอหน่อยค่ะ'),
+            el('div', { class: 'chips' }, svcOf(b.service).treatments.map(x =>
+              el('button', { type: 'button', class: 'chip', onclick: () => setTreat(b, x) }, x))))
+        : null,
       el('div', { class: 'movebar' },
         b.canMove ? el('button', { onclick: () => startMove(b) }, 'เลื่อนนัด') : null,
         b.canCancel ? el('button', { class: 'danger', onclick: () => cancel(b) }, 'ยกเลิกนัด') : null),
@@ -925,6 +938,12 @@ async function loadMine(){
               : `เลื่อนนัดเองได้ก่อนถึงนัดอย่างน้อย ${moveHours} ชั่วโมง`)
         : null))));
   if (waitBlock) box.append(waitBlock);
+}
+
+async function setTreat(b, t){
+  try { await withLoading(() => api('setTreat', { id: b.id, treat: t })); }
+  catch (e) { alert(e.message); }
+  loadMine();
 }
 
 async function leaveWait(w){
