@@ -216,7 +216,35 @@ function el(tag, props = {}, ...kids){
 function loading(on){ $('loading').hidden = !on; }
 async function withLoading(fn){ loading(true); try { return await fn(); } finally { loading(false); } }
 
-async function api(action, data = {}){
+const DRAFT_KEY = 'booking-draft';
+
+function saveDraft(){
+  try {
+    sessionStorage.setItem(DRAFT_KEY, JSON.stringify({
+      svc: st.svc?.id, date: st.date, time: st.time,
+      name: $('f-name').value, phone: $('f-phone').value,
+      note: $('f-note').value, consent: $('f-consent').checked
+    }));
+  } catch (_) {}
+}
+
+function readDraft(){
+  try {
+    const raw = sessionStorage.getItem(DRAFT_KEY);
+    sessionStorage.removeItem(DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) { return null; }
+}
+
+/* หน้าเปิดค้างไว้นาน แล้วบัตรผ่านของ LINE หมดอายุ — ต่ออายุให้เองครั้งเดียว */
+async function renewSession(){
+  if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return false; }
+  saveDraft();
+  location.reload();
+  return false;
+}
+
+async function api(action, data = {}, retried = false){
   let res;
   try {
     res = await fetch(API_URL, {
@@ -228,7 +256,13 @@ async function api(action, data = {}){
     throw new Error('เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
   }
   const json = await res.json().catch(() => ({ ok:false, error:'ระบบขัดข้อง กรุณาลองใหม่อีกครั้ง' }));
-  if (!json.ok) throw new Error(json.error);
+  if (!json.ok) {
+    if (!retried && /หมดเวลาใช้งาน/.test(json.error || '')) {
+      await renewSession();
+      throw new Error('กำลังต่ออายุการใช้งาน กรุณารอสักครู่…');
+    }
+    throw new Error(json.error);
+  }
   return json.data;
 }
 
@@ -400,6 +434,23 @@ function switchTab(tab){
 }
 
 /* ---------- เริ่มต้น ---------- */
+async function restoreDraft(){
+  const d = readDraft();
+  if (!d || !d.svc) return;
+  const svc = services.find(x => x.id === d.svc);
+  if (!svc) return;
+  await pickService(svc);
+  if (d.date && st.days.some(x => x.date === d.date)){
+    pickDate(d.date);
+    const day = st.days.find(x => x.date === d.date);
+    if (d.time && day.times.includes(d.time)) pickTime(d.time);
+  }
+  $('f-name').value  = d.name  || '';
+  $('f-phone').value = d.phone || '';
+  $('f-note').value  = d.note  || '';
+  $('f-consent').checked = !!d.consent;
+}
+
 function sizeHeader(){
   document.documentElement.style.setProperty('--hdr',
     (document.querySelector('.top').offsetHeight + 12) + 'px');
@@ -445,6 +496,7 @@ async function init(){
     services = data.services;
     minHours = data.minHoursBefore;
     renderServices();
+    await restoreDraft();
     // เปิดแท็บ "นัดของฉัน" ได้ตรงๆ ด้วยลิงก์ที่ลงท้าย ?tab=mine
     const wanted = new URLSearchParams(location.search).get('tab')
       || new URLSearchParams((liff.getContext()?.liffUrl || '').split('?')[1] || '').get('tab');
