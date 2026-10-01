@@ -545,6 +545,20 @@
     .layout .days{gap:4px}
     .layout .days .d{font-size:20px}
   }
+
+  /* ปุ่มเลื่อนนัดในแต่ละคิว */
+  @media screen{
+    .layout .slots .slot{grid-template-columns:82px minmax(0,1fr) auto}
+    .layout .slots .slot .side{min-width:52px;gap:4px;padding:0 6px}
+  }
+  @media screen and (max-width:479px){
+    .layout .slots .slot{grid-template-columns:66px minmax(0,1fr) auto}
+    .layout .slots .slot .side{min-width:44px}
+  }
+  .mv{border:1px solid #C9D8D2;background:#fff;color:#1F6F68;border-radius:999px;padding:6px 12px;font-size:.84rem;font-weight:600;white-space:nowrap}
+  .mv:hover{background:#E4F1ED;border-color:#1F6F68}
+  @media (max-width:479px){ .mv{padding:5px 9px;font-size:.8rem} }
+  @media print{ .mv{display:none!important} }
 </style>
 </head>
 <body>
@@ -627,6 +641,23 @@
     <button id="rs-yes" type="button" class="go safe">เลื่อนคิวและปิดวัน</button>
   </div>
   <button id="rs-skip" type="button" class="linkbtn">ปิดวันโดยไม่เลื่อนคิว</button>
+</dialog>
+
+<dialog id="mdlg">
+  <h3 id="mv-title">เลื่อนนัด</h3>
+  <p id="mv-sub"></p>
+  <label>วันใหม่
+    <select id="mv-date"></select>
+  </label>
+  <label>เวลาใหม่
+    <select id="mv-time"></select>
+  </label>
+  <label>เหตุผลที่แจ้งคนไข้ (ไม่บังคับ)<input id="mv-note" type="text" maxlength="100" placeholder="เช่น หมอติดประชุม"></label>
+  <p id="mv-err" class="err" role="alert"></p>
+  <div class="acts">
+    <button id="mv-no" type="button">ยกเลิก</button>
+    <button id="mv-yes" type="button" class="go safe">เลื่อนนัด</button>
+  </div>
 </dialog>
 
 <div id="loading" class="loading">กำลังโหลด…</div>
@@ -889,6 +920,8 @@ function slotRow(t, b, free){
       el('div', { class: 't' }, t),
       el('div', { class: 'n' }, el('b', {}, b.name || '—'), el('small', {}, line)),
       el('div', { class: 'side' },
+        el('button', { class: 'mv', 'aria-label': `เลื่อนนัดของ ${b.name || 'คนไข้'}`,
+          title: 'เลื่อนนัดนี้', onclick: () => openMove(b) }, 'เลื่อน'),
         el('button', { class: 'drop', 'aria-label': `ยกเลิกนัดของ ${b.name || 'คนไข้'}`,
           title: 'ยกเลิกนัดนี้', onclick: () => cancelOne(b) }, '✕')));
   }
@@ -1114,6 +1147,71 @@ async function submitReschedule(){
   }
 }
 
+
+/* ---------- หมอเลื่อนนัดทีละคิว ---------- */
+let mv = null;   // { b, from }
+
+function openMove(b){
+  mv = { b, from: dayData.date };
+  $('mv-title').textContent = `เลื่อนนัดของ ${b.name || 'คนไข้'}`;
+  $('mv-sub').textContent = `${b.service} · เดิม ${longDate(dayData.date)} เวลา ${b.time} น.` +
+    (b.hasLine ? ' — ระบบจะส่ง LINE แจ้งคนไข้' : ' — คนไข้ไม่มี LINE ต้องโทรแจ้งเอง');
+  const opts = days.filter(d => d.date >= today && !d.holiday);
+  $('mv-date').replaceChildren(...opts.map(d => el('option', { value: d.date, selected: d.date === mv.from },
+    longDate(d.date) + (d.extra ? ' · วันชดเชย' : '') + (d.total ? ` · จองแล้ว ${d.count}/${d.total}` : (d.count ? ` · มีนัด ${d.count}` : '')))));
+  $('mv-note').value = '';
+  $('mv-err').textContent = '';
+  $('mdlg').showModal();
+  loadMoveTimes();
+}
+
+async function loadMoveTimes(){
+  const to = $('mv-date').value, b = mv.b;
+  $('mv-err').textContent = '';
+  $('mv-time').replaceChildren(el('option', { value: '' }, 'กำลังโหลด…'));
+  $('mv-yes').disabled = true;
+  let d;
+  try { d = to === dayData.date ? dayData : await api('adminDay', { date: to }); }
+  catch (e) { $('mv-err').textContent = e.message; return; }
+  if (!mv || $('mv-date').value !== to) return;
+  const cap = d.capacity.find(c => c.name === b.service);
+  const free = cap ? cap.free.filter(t => !(to === mv.from && t === b.time)) : [];
+  if (!free.length){
+    $('mv-time').replaceChildren(el('option', { value: '' }, cap ? 'วันนี้คิวเต็มแล้ว' : `วันนี้ไม่มีรอบ${b.service}`));
+    return;
+  }
+  $('mv-time').replaceChildren(el('option', { value: '' }, '— เลือกเวลา —'), ...free.map(t => el('option', { value: t }, t + ' น.')));
+  $('mv-yes').disabled = false;
+}
+
+async function submitMove(){
+  const to = $('mv-date').value, time = $('mv-time').value, b = mv.b;
+  if (!time) { $('mv-err').textContent = 'เลือกเวลาใหม่ก่อน'; return; }
+  $('mv-yes').disabled = true;
+  try {
+    loading(true);
+    const r = await api('adminReschedule', { from: mv.from, to, moves: [{ id: b.id, time }], close: false,
+                                             note: $('mv-note').value.trim() });
+    $('mdlg').close(); mv = null;
+    days = await api('adminDays');
+    await openDay(current);
+    loading(false);
+    if (r.callList.length){
+      const c = r.callList[0];
+      await ask({ title: 'เลื่อนนัดแล้ว — ต้องโทรแจ้งคนไข้',
+        text: `${c.name || 'คนไข้'} ไม่มี LINE\nโทร ${c.phone || '(ไม่มีเบอร์)'} แจ้งนัดใหม่ ${longDate(r.to)} เวลา ${c.time} น.`,
+        confirm: 'รับทราบ', safe: true });
+    } else {
+      toast(`เลื่อนไป ${longDate(r.to)} ${time} น. แล้ว แจ้งคนไข้ทาง LINE เรียบร้อย`);
+    }
+  } catch (e) {
+    $('mv-err').textContent = e.message;
+  } finally {
+    $('mv-yes').disabled = false;
+    loading(false);
+  }
+}
+
 /* ---------- ยกเลิกนัด ---------- */
 async function cancelOne(b){
   const r = await ask({
@@ -1222,6 +1320,9 @@ async function init(){
   $('lg-go').addEventListener('click', doLogin);
   $('print').addEventListener('click', () => window.print());
   $('rs-date').addEventListener('change', loadTarget);
+  $('mv-date').addEventListener('change', loadMoveTimes);
+  $('mv-yes').addEventListener('click', submitMove);
+  $('mv-no').addEventListener('click', () => { $('mdlg').close(); mv = null; });
   $('rs-yes').addEventListener('click', submitReschedule);
   $('rs-no').addEventListener('click', () => closeReschedule(true));      // ย้อนกลับ = ไม่ทำอะไร
   $('rs-skip').addEventListener('click', () => closeReschedule(false));   // ไปทางปิดวันแบบเดิม
