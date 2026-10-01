@@ -106,6 +106,19 @@
   .acts .go{border:0;background:var(--rose);color:#fff;font-weight:600}
   .acts .go.safe{background:var(--teal)}
 
+  .loginbox{max-width:360px;margin:56px auto 0;background:var(--card);border:1.5px solid var(--rule);
+    border-radius:16px;padding:26px 22px}
+  .loginbox h2{margin:0 0 6px;font-size:1.15rem}
+  .loginbox p{margin:0 0 18px;color:var(--muted);font-size:.93rem}
+  .loginbox input{width:100%;padding:13px 14px;font:inherit;color:var(--ink);background:var(--card);
+    border:1.5px solid var(--rule);border-radius:10px}
+  .loginbox .primary{width:100%;margin-top:4px;padding:14px;border:0;border-radius:11px;
+    background:var(--teal);color:#fff;font-size:1.02rem;font-weight:600}
+  .loginbox .primary:disabled{opacity:.5}
+  .loginbox .small{margin:14px 0 0;font-size:.84rem}
+  #logout{margin-left:auto;background:none;border:0;padding:4px;color:var(--muted);
+    font-size:.86rem;text-decoration:underline}
+
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);max-width:calc(100vw - 40px);z-index:30;background:#16211F;color:#fff;border-radius:10px;padding:11px 16px;font-size:.92rem;box-shadow:0 6px 20px rgba(0,0,0,.2)}
   .loading{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(238,241,240,.85);font-weight:500}
 </style>
@@ -114,7 +127,8 @@
 
 <header class="top">
   <div class="wrap">
-    <div class="eyebrow"><h1 id="clinic">ตารางคิว</h1><span>หน้าผู้ดูแล</span></div>
+    <div class="eyebrow"><h1 id="clinic">ตารางคิว</h1><span>หน้าผู้ดูแล</span>
+      <button id="logout" hidden>ออกจากระบบ</button></div>
     <div id="strip" class="strip"></div>
   </div>
 </header>
@@ -131,6 +145,17 @@
   <div id="list"></div>
   <div id="selbar"></div>
 </main>
+
+<section id="login" class="wrap" hidden>
+  <div class="loginbox">
+    <h2>เข้าสู่ระบบผู้ดูแล</h2>
+    <p>ใส่รหัสผ่านของคลินิกเพื่อดูตารางคิว</p>
+    <input id="lg-pw" type="password" autocomplete="current-password" placeholder="รหัสผ่าน">
+    <p id="lg-err" class="err" role="alert"></p>
+    <button id="lg-go" class="primary">เข้าสู่ระบบ</button>
+    <p class="small">เครื่องนี้จะจำการเข้าสู่ระบบไว้ 14 วัน</p>
+  </div>
+</section>
 
 <p id="gate" class="wrap" hidden style="margin-top:40px;color:var(--muted)"></p>
 
@@ -176,7 +201,11 @@ const WD_S = ['อา','จ','อ','พ','พฤ','ศ','ส'];
 const WD_F = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
 const MON  = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 
-let idToken = null, today = '', days = [], current = null;
+let idToken = null, adminToken = null, today = '', days = [], current = null;
+const TOKEN_KEY = 'clinic-admin-token';
+const readToken  = () => { try { return localStorage.getItem(TOKEN_KEY); } catch (_) { return null; } };
+const saveToken  = t => { try { localStorage.setItem(TOKEN_KEY, t); } catch (_) {} };
+const clearToken = () => { try { localStorage.removeItem(TOKEN_KEY); } catch (_) {} };
 
 const parts = ds => { const [y,m,d] = ds.split('-').map(Number); return { y, m, d, w: new Date(Date.UTC(y,m-1,d)).getUTCDay() }; };
 const longDate = ds => { const p = parts(ds); return `วัน${WD_F[p.w]}ที่ ${p.d} ${MON[p.m-1]} ${p.y+543}`; };
@@ -210,7 +239,7 @@ async function api(action, data = {}){
     res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action, idToken, ...data })
+      body: JSON.stringify({ action, idToken, adminToken, ...data })
     });
   } catch (_) {
     throw new Error('เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
@@ -218,9 +247,14 @@ async function api(action, data = {}){
   const json = await res.json().catch(() => ({ ok:false, error:'ระบบขัดข้อง ลองใหม่อีกครั้ง' }));
   if (!json.ok) {
     // บัตรผ่านของ LINE หมดอายุเพราะเปิดหน้าค้างไว้นาน — ต่ออายุให้เอง
+    if (/หมดเวลาเข้าสู่ระบบ/.test(json.error || '')) {
+      adminToken = null; clearToken(); showLogin('หมดเวลาเข้าสู่ระบบ กรุณาใส่รหัสผ่านใหม่');
+      throw new Error(json.error);
+    }
     if (/หมดเวลาใช้งาน/.test(json.error || '')) {
-      if (!liff.isLoggedIn()) liff.login({ redirectUri: location.href });
-      else location.reload();
+      try {
+        if (!liff.isLoggedIn()) liff.login({ redirectUri: location.href }); else location.reload();
+      } catch (_) { showLogin('เปิดหน้านี้ผ่าน LINE ไม่ได้ กรุณาใส่รหัสผ่าน'); }
       throw new Error('กำลังต่ออายุการใช้งาน กรุณารอสักครู่…');
     }
     throw new Error(json.error);
@@ -504,31 +538,78 @@ async function cancelOne(b){
 }
 
 /* ---------- เริ่มต้น ---------- */
-$('ad-yes').addEventListener('click', submitAdd);
-$('ad-no').addEventListener('click', () => $('adlg').close());
+function showLogin(msg){
+  $('main').hidden = true;
+  $('gate').hidden = true;
+  $('strip').replaceChildren();
+  $('login').hidden = false;
+  $('lg-err').textContent = msg || '';
+  $('lg-pw').focus();
+  loading(false);
+}
 
-async function init(){
+async function start(info){
+  $('login').hidden = true;
+  $('clinic').textContent = info.clinicName;
+  $('logout').hidden = !adminToken;
+  today = info.today;
+  days = await api('adminDays');
+  renderStrip();
+  await openDay(days.some(d => d.date === today) ? today
+    : (days.find(d => d.date >= today) || days[0] || {}).date || today);
+}
+
+async function doLogin(){
+  const pw = $('lg-pw').value;
+  if (!pw) { $('lg-err').textContent = 'ใส่รหัสผ่านก่อน'; return; }
+  $('lg-go').disabled = true;
   try {
-    if (LIFF_ID.startsWith('ใส่') || API_URL.startsWith('ใส่'))
-      throw new Error('ยังไม่ได้ใส่ LIFF_ID และ API_URL ในไฟล์ admin.html');
-    await liff.init({ liffId: LIFF_ID });
-    if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
-    idToken = liff.getIDToken();
-
-    const info = await api('adminInit');
-    $('clinic').textContent = info.clinicName;
-    today = info.today;
-    days = await api('adminDays');
-    renderStrip();
-    await openDay(days.some(d => d.date === today) ? today
-      : (days.find(d => d.date >= today) || days[0] || {}).date || today);
+    loading(true);
+    const r = await api('adminLogin', { password: pw });
+    adminToken = r.token; saveToken(r.token);
+    $('lg-pw').value = '';
+    await start(r);
   } catch (e) {
-    $('strip').replaceChildren();
-    $('gate').textContent = e.message;
-    $('gate').hidden = false;
+    $('lg-err').textContent = e.message;
   } finally {
+    $('lg-go').disabled = false;
     loading(false);
   }
+}
+
+async function init(){
+  $('lg-go').addEventListener('click', doLogin);
+  $('lg-pw').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  $('logout').addEventListener('click', () => {
+    adminToken = null; clearToken(); showLogin('ออกจากระบบแล้ว');
+  });
+
+  if (API_URL.startsWith('ใส่')){
+    $('gate').textContent = 'ยังไม่ได้ใส่ API_URL ในไฟล์ admin.html';
+    $('gate').hidden = false; loading(false); return;
+  }
+
+  // 1) เคยเข้าด้วยรหัสผ่านไว้แล้ว
+  adminToken = readToken();
+  if (adminToken){
+    try { return await start(await api('adminInit')); }
+    catch (_) { adminToken = null; clearToken(); }
+  }
+
+  // 2) เปิดผ่าน LINE
+  try {
+    if (LIFF_ID.startsWith('ใส่')) throw new Error('no liff');
+    await liff.init({ liffId: LIFF_ID });
+    if (liff.isLoggedIn()){
+      idToken = liff.getIDToken();
+      return await start(await api('adminInit'));
+    }
+    if (liff.isInClient()){ liff.login({ redirectUri: location.href }); return; }
+  } catch (_) { /* เปิดนอก LINE — ใช้รหัสผ่านแทน */ }
+
+  // 3) ให้ใส่รหัสผ่าน
+  idToken = null;
+  showLogin('');
 }
 init();
 </script>
