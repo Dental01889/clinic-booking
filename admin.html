@@ -485,6 +485,41 @@
   .days .d i{line-height:1.1;margin-top:3px}
   .days .d i:empty{display:none}
   .days .d.today::after{top:5px;right:5px;bottom:auto;width:5px;height:5px}
+
+  /* รายชื่อรอคิว */
+  .waitbox{margin-top:16px;padding:14px 16px;border:1px dashed #C9D8D2;border-radius:12px;background:#FAFCFB}
+  .waitbox h3{margin:0 0 2px;font-size:1rem}
+  .waitbox p{margin:0 0 8px;font-size:.85rem;color:var(--muted)}
+  .waitbox ul{margin:0;padding-left:18px}
+  .waitbox li{margin:4px 0;font-size:.92rem}
+  .waitbox li span{color:var(--muted)}
+  .waitbox a{color:inherit}
+  @media print{ #waitlist{display:none!important} }
+
+  /* Readable screen styles for the latest dashboard. */
+  @media screen{
+    .waitbox{margin-top:18px;padding:17px 18px;border:1px solid #C7DCCF;border-left:4px solid #287B5F;border-radius:12px;background:#F2F8F4}
+    .waitbox h3{font-size:1.05rem;line-height:1.5;color:#17352F;margin:0 0 5px;font-weight:700}
+    .waitbox p{font-size:.9rem;line-height:1.6;color:#4D625C;margin:0 0 12px}
+    .waitbox ul{padding-left:22px}
+    .waitbox li{padding:8px 0;margin:0;font-size:.96rem;line-height:1.6;overflow-wrap:anywhere}
+    .waitbox li+li{border-top:1px solid #D8E6DC}
+    .waitbox li span{color:#4D625C;font-size:.9rem}
+    .waitbox a{color:#165B4E;text-underline-offset:3px}
+    .days .d{line-height:1.35;gap:2px}
+    .days .d i{line-height:1.3;margin-top:2px}
+    .layout #main .dayhead{gap:10px 12px}
+    .slot .n b{font-weight:700}
+    .slot .n small{color:#425D51}
+    .slot.vacant .n b{font-weight:500}
+    .search input{border-color:#BDCEC5}
+    .search input:focus{border-color:#1F6F68}
+  }
+  @media screen and (max-width:479px){
+    .waitbox{padding:14px 12px}
+    .waitbox li{font-size:.93rem}
+    .layout .d{min-height:40px}
+  }
 </style>
 </head>
 <body>
@@ -512,6 +547,7 @@
   <div id="svcpick"></div>
   <div id="banner" class="banner" hidden><span>⚠</span><span id="bannertext"></span></div>
   <div id="list"></div>
+  <div id="waitlist"></div>
   <div id="selbar"></div>
 </main>
 </div>
@@ -775,6 +811,18 @@ function renderDay(data){
     : []));
 
   renderSlots();
+  renderWaitlist(data.waitlist || []);
+}
+
+function renderWaitlist(list){
+  if (!list.length){ $('waitlist').replaceChildren(); return; }
+  $('waitlist').replaceChildren(el('div', { class: 'waitbox' },
+    el('h3', {}, `รอคิว ${list.length} คน`),
+    el('p', {}, 'มีคนยกเลิกเมื่อไร ระบบส่ง LINE บอก 3 คนแรกให้เอง หรือโทรเรียกเองก็ได้'),
+    el('ul', {}, list.map(w => el('li', {},
+      el('b', {}, w.name || '—'), ' · ',
+      w.phone ? el('a', { href: 'tel:' + w.phone }, w.phone) : 'ไม่มีเบอร์',
+      el('span', {}, ` · ${w.any ? 'วันไหนก็ได้' : 'รอวันนี้'}` + (list.some(x => x.service !== w.service) ? ` · ${w.service}` : '')))))));
 }
 
 function renderSlots(){
