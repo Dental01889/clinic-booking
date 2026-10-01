@@ -11,7 +11,7 @@
 <style>
   :root{
     --paper:#F4F7F6; --surface:#FFFFFF; --ink:#1D2A2E; --muted:#5A686B;
-    --line:#D6DFDD; --teal:#1F6F68; --gum:#F7E0DD; --rose:#9C3D53;
+    --line:#D6DFDD; --teal:#1F6F68; --pick:#E2EFEC; --rose:#9C3D53;
   }
   *{box-sizing:border-box}
   [hidden]{display:none!important}
@@ -20,15 +20,19 @@
   button{font:inherit;color:inherit;cursor:pointer}
   button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
 
-  .top{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line);padding:14px 20px 0}
-  .top h1{margin:0 0 6px;font-size:1.2rem;font-weight:700;letter-spacing:.01em}
+  .top{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line);padding:12px 20px 0}
+  .brand{display:flex;align-items:center;gap:11px;margin-bottom:8px}
+  .brand img{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:none;background:var(--pick)}
+  .top h1{margin:0;font-size:1.15rem;font-weight:700;letter-spacing:.01em;line-height:1.3}
   .tabs{display:flex;gap:24px}
   .tabs button{background:none;border:0;padding:6px 0 10px;color:var(--muted);border-bottom:3px solid transparent}
   .tabs button[aria-selected="true"]{color:var(--ink);font-weight:600;border-color:var(--teal)}
 
-  main{max-width:560px;margin:0 auto;padding:4px 20px 96px}
-  .block{margin-top:24px}
-  h2{margin:0 0 10px;font-size:1rem;font-weight:600}
+  main{max-width:560px;margin:0 auto;padding:4px 20px 40px}
+  .block{margin-top:24px;scroll-margin-top:var(--hdr,96px)}
+  h2{display:flex;align-items:center;gap:9px;margin:0 0 10px;font-size:1rem;font-weight:600}
+  h2 em{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--teal);color:#fff;font-style:normal;font-size:.8rem;font-weight:600}
+  h2.done-step em{background:var(--pick);color:var(--teal);box-shadow:inset 0 0 0 1.5px var(--teal)}
 
   .services{display:grid;gap:10px}
   .opt{display:block;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:14px 16px}
@@ -45,8 +49,9 @@
   .times{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
   .time{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:10px 0;font-weight:500}
 
-  .opt[aria-pressed="true"],.day[aria-pressed="true"],.time[aria-pressed="true"]{background:var(--gum);border-color:var(--rose);color:var(--rose)}
-  .opt[aria-pressed="true"] span,.day[aria-pressed="true"] small{color:var(--rose)}
+  .opt[aria-pressed="true"],.day[aria-pressed="true"],.time[aria-pressed="true"]{background:var(--pick);border-color:var(--teal);color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal)}
+  .opt[aria-pressed="true"] span,.day[aria-pressed="true"] small{color:var(--teal)}
+  .opt[aria-pressed="true"] strong::after{content:" ✓";font-size:.95em}
 
   .ticket{display:flex;align-items:center;gap:16px;background:var(--surface);border:1.5px solid var(--line);border-left:6px solid var(--teal);border-radius:14px;padding:14px 16px}
   .ticket .num{min-width:58px;text-align:center;font-size:2.6rem;font-weight:700;line-height:1}
@@ -64,7 +69,7 @@
   .primary{display:block;width:100%;margin-top:18px;padding:14px;border:0;border-radius:12px;background:var(--teal);color:#fff;font-size:1.05rem;font-weight:600}
   .primary:disabled{opacity:.5;cursor:default}
   .secondary{display:block;width:100%;margin-top:10px;padding:13px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);font-weight:500}
-  .text-btn{background:none;border:0;padding:6px 0;color:var(--rose);text-decoration:underline}
+  .text-btn{margin-top:9px;padding:8px 16px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);color:var(--rose);font-size:.92rem;font-weight:500}
   .error{min-height:1em;margin:12px 0 0;color:var(--rose);font-size:.92rem}
   .hint{display:block;margin-top:6px;font-size:.85rem;color:var(--muted)}
   .empty{margin:28px 0 0;color:var(--muted)}
@@ -73,6 +78,14 @@
   .done{margin-top:28px}
   .done h2{font-size:1.3rem;margin-bottom:14px}
   .done p{color:var(--muted)}
+
+  .foot{max-width:560px;margin:34px auto 0;padding:22px 20px 40px;border-top:1px solid var(--line);color:var(--muted);font-size:.92rem}
+  .foot h3{margin:0 0 10px;font-size:.95rem;font-weight:600;color:var(--ink)}
+  .foot dl{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;margin:0 0 16px}
+  .foot dt{color:var(--muted)}
+  .foot dd{margin:0;color:var(--ink)}
+  .foot a{color:var(--teal)}
+  .foot .call{display:inline-block;margin-top:2px;padding:11px 20px;border-radius:999px;background:var(--teal);color:#fff;font-weight:600;text-decoration:none}
 
   .loading{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(244,247,246,.85);font-weight:500}
   @media (prefers-reduced-motion:no-preference){
@@ -83,7 +96,10 @@
 </head>
 <body>
 <header class="top">
-  <h1 id="clinic"></h1>
+  <div class="brand">
+    <img id="logo" alt="" hidden>
+    <h1 id="clinic"></h1>
+  </div>
   <nav class="tabs" role="tablist">
     <button role="tab" data-tab="book" aria-selected="true">จองคิว</button>
     <button role="tab" data-tab="mine" aria-selected="false">นัดของฉัน</button>
@@ -93,25 +109,25 @@
 <main>
   <section id="view-book">
     <div class="block">
-      <h2>เลือกบริการ</h2>
+      <h2><em>1</em>เลือกบริการ</h2>
       <div id="services" class="services"></div>
     </div>
     <div class="block" id="date-block" hidden>
-      <h2>เลือกวัน</h2>
+      <h2><em>2</em>เลือกวัน</h2>
       <div id="dates" class="dates"></div>
     </div>
     <div class="block" id="time-block" hidden>
-      <h2>เลือกเวลา</h2>
+      <h2><em>3</em>เลือกเวลา</h2>
       <div id="times"></div>
     </div>
     <div class="block" id="form-block" hidden>
-      <h2>ข้อมูลผู้จอง</h2>
+      <h2><em>4</em>ข้อมูลผู้จอง</h2>
       <div id="summary"></div>
       <label class="field">ชื่อ-นามสกุล
         <input type="text" id="f-name" autocomplete="name" maxlength="60">
       </label>
       <label class="field">เบอร์โทร
-        <input type="tel" id="f-phone" inputmode="numeric" autocomplete="tel" maxlength="12" placeholder="0812345678">
+        <input type="tel" id="f-phone" inputmode="numeric" autocomplete="tel" maxlength="12" placeholder="เบอร์ที่ติดต่อได้">
       </label>
       <label class="field">หมายเหตุถึงคลินิก (ไม่บังคับ)
         <textarea id="f-note" rows="2" maxlength="200"></textarea>
@@ -138,14 +154,39 @@
   </section>
 </main>
 
+<footer class="foot" id="foot" hidden>
+  <h3>ติดต่อคลินิก</h3>
+  <dl>
+    <div style="display:contents"><dt>ที่อยู่</dt><dd id="f-addr"></dd></div>
+    <div style="display:contents"><dt>โทร</dt><dd><a id="f-tel" href="#"></a></dd></div>
+    <div style="display:contents"><dt>เวลาทำการ</dt><dd id="f-hours"></dd></div>
+  </dl>
+  <a class="call" id="f-call" href="#">โทรหาคลินิก</a>
+  <p style="margin:18px 0 0">หากต้องการเลื่อนนัดหรือสอบถามเพิ่มเติม พิมพ์ข้อความในแชทไว้ได้เลย</p>
+</footer>
+
 <div id="loading" class="loading">กำลังโหลด…</div>
 
 <script>
-/* ============ ตั้งค่า (แก้ 3 บรรทัดนี้) ============ */
+/* ============ ตั้งค่า ============ */
 const LIFF_ID     = '2011807177-FiexSlWR';
-const API_URL     = 'https://script.google.com/macros/s/AKfycbzP71oK7LZGPpp_5RiWJKLQFGTsdlYCn8WldUpIvJGAyoUkj2lfQyHLPnVkAbALZbsnbA/exec';
+const API_URL     = 'https://script.google.com/macros/s/AKfycbzP71oK7LZGPpp_5RiWJKLQFGTsd1YCn8W1dUpIvJGAyoUkj21fQyHLPnVkAbALZbsnbA/exec';
 const CLINIC_NAME = 'ทันตกรรม รพสต ตลาดบึง';
-/* ================================================= */
+
+/* ข้อมูลท้ายหน้า — แก้ให้ตรงกับคลินิก */
+const CLINIC_LOGO  = '';                       // ใส่ลิงก์รูปโลโก้ ถ้าไม่มีเว้นว่างไว้
+const CLINIC_ADDR  = [
+  'โรงพยาบาลส่งเสริมสุขภาพตำบลตลาดบึง',
+  'เลขที่ 35 ม.7 ต.บึง อ.ศรีราชา',
+  'จ.ชลบุรี 20230'
+];
+const CLINIC_MAP   = 'https://maps.google.com/?q=32F5%2BM9X+บึง+ศรีราชา+ชลบุรี';
+const CLINIC_TEL   = '0642297385';
+const CLINIC_HOURS = [
+  'อุดฟัน / ขูดหินปูน — จันทร์, อังคาร 08.30–11.00 น. และ 13.00–14.30 น.',
+  'ถอนฟัน — วันศุกร์ สัปดาห์ที่ 1 และ 3 ของเดือน 09.00–12.00 น.'
+];
+/* ================================ */
 
 const $ = id => document.getElementById(id);
 const WD_SHORT = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
@@ -209,9 +250,17 @@ function renderServices(){
       el('span', {}, `${s.desc} คิวละ ${s.minutes} นาที`))));
 }
 
+function markSteps(){
+  const h = n => document.querySelectorAll('#view-book h2')[n];
+  h(0).classList.toggle('done-step', !!st.svc);
+  h(1).classList.toggle('done-step', !!st.date);
+  h(2).classList.toggle('done-step', !!st.time);
+}
+
 async function pickService(s){
   Object.assign(st, { svc: s, date: null, time: null, days: [] });
   renderServices();
+  markSteps();
   $('time-block').hidden = true;
   $('form-block').hidden = true;
   try {
@@ -242,7 +291,7 @@ function renderDates(){
 
 function pickDate(ds){
   st.date = ds; st.time = null;
-  renderDates(); renderTimes();
+  renderDates(); renderTimes(); markSteps();
   $('form-block').hidden = true;
   $('time-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -259,7 +308,7 @@ function renderTimes(){
 
 function pickTime(t){
   st.time = t;
-  renderTimes();
+  renderTimes(); markSteps();
   $('summary').replaceChildren(ticket({ date: st.date, time: t, minutes: st.svc.minutes, service: st.svc.name }));
   $('form-error').textContent = '';
   $('form-block').hidden = false;
@@ -309,6 +358,7 @@ function resetBooking(){
   $('f-consent').checked = false;
   ['date-block','time-block','form-block'].forEach(id => $(id).hidden = true);
   renderServices();
+  markSteps();
 }
 
 /* ---------- นัดของฉัน ---------- */
@@ -350,8 +400,37 @@ function switchTab(tab){
 }
 
 /* ---------- เริ่มต้น ---------- */
+function sizeHeader(){
+  document.documentElement.style.setProperty('--hdr',
+    (document.querySelector('.top').offsetHeight + 12) + 'px');
+}
+
+const lines = arr => arr.flatMap((t, i) => i ? [el('br'), t] : [t]);
+
+function renderFooter(){
+  $('f-addr').replaceChildren(
+    ...lines([].concat(CLINIC_ADDR)),
+    ...(CLINIC_MAP ? [el('br'), el('a', { href: CLINIC_MAP, target: '_blank', rel: 'noopener' }, 'ดูแผนที่')] : []));
+  $('f-hours').replaceChildren(...lines(CLINIC_HOURS));
+  const tel = $('f-tel'), call = $('f-call');
+  if (CLINIC_TEL){
+    tel.textContent = CLINIC_TEL;
+    tel.href = 'tel:' + CLINIC_TEL.replace(/\D/g, '');
+    call.href = tel.href;
+    call.hidden = false;
+  } else {
+    tel.replaceWith(document.createTextNode('ทักแชทสอบถามได้เลย'));
+    call.hidden = true;
+  }
+  $('foot').hidden = false;
+}
+
 async function init(){
   $('clinic').textContent = CLINIC_NAME;
+  if (CLINIC_LOGO){ const g = $('logo'); g.src = CLINIC_LOGO; g.hidden = false; }
+  renderFooter();
+  sizeHeader();
+  addEventListener('resize', sizeHeader);
   document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
   $('submit').addEventListener('click', submit);
   $('go-mine').addEventListener('click', () => switchTab('mine'));
