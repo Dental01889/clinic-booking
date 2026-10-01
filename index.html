@@ -445,6 +445,10 @@ async function init(){
     services = data.services;
     minHours = data.minHoursBefore;
     renderServices();
+    // เปิดแท็บ "นัดของฉัน" ได้ตรงๆ ด้วยลิงก์ที่ลงท้าย ?tab=mine
+    const wanted = new URLSearchParams(location.search).get('tab')
+      || new URLSearchParams((liff.getContext()?.liffUrl || '').split('?')[1] || '').get('tab');
+    if (wanted === 'mine') switchTab('mine');
   } catch (e) {
     $('view-book').replaceChildren(el('p', { class: 'empty' }, e.message));
   } finally {
