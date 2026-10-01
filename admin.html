@@ -850,7 +850,7 @@ function renderDay(data){
   if (data.capacity.length){
     data.capacity.forEach((c, i) => {
       if (i) counts.push(' · ');
-      counts.push(`${c.name} `, el('b', {}, `${c.booked}/${c.total}`), ' คิว' + (c.noTime ? ' (เริ่ม 9 โมงเช้า ใครมาก่อนได้ทำก่อน)' : ''));
+      counts.push(`${c.name} `, el('b', {}, `${c.booked}/${c.total}`), ' คิว' + (c.noTime ? ' (นัดมาถึงก่อน 09.00 น. ใครมาก่อนได้ทำก่อน)' : ''));
     });
   } else {
     counts.push(el('b', {}, String(live.length)), ' นัด (นอกวันให้บริการปกติ)');
@@ -910,6 +910,8 @@ function renderSlots(){
 /* ป้ายเวลา — บริการลงชื่อรายวัน (ถอนฟัน) แสดงเป็น "คิว 1–8" */
 const capLabel = (cap, t) => cap && cap.noTime ? `คิว ${cap.times.indexOf(t) + 1}` : t;
 const slotLabel = t => capLabel(dayData && dayData.capacity.find(c => c.id === svcId), t);
+/* ช่องเวลาในตาราง: ถอนฟันแสดงแค่ตัวเลข */
+const slotNum = t => slotLabel(t).replace('คิว ', '');
 
 function slotRow(t, b, free){
   if (b && !b.cancelled){
@@ -921,7 +923,7 @@ function slotRow(t, b, free){
     bits.forEach((x, i) => { if (i) line.push(' · '); line.push(x); });
 
     return el('div', { class: 'slot taken' },
-      el('div', { class: 't' }, slotLabel(t)),
+      el('div', { class: 't' }, slotNum(t)),
       el('div', { class: 'n' }, el('b', {}, b.name || '—'), el('small', {}, line)),
       el('div', { class: 'side' },
         el('button', { class: 'mv', 'aria-label': `เลื่อนนัดของ ${b.name || 'คนไข้'}`,
@@ -931,13 +933,13 @@ function slotRow(t, b, free){
   }
   if (b && b.cancelled && !free){
     return el('div', { class: 'slot off' },
-      el('div', { class: 't' }, slotLabel(t)),
+      el('div', { class: 't' }, slotNum(t)),
       el('div', { class: 'n' }, el('b', {}, b.name || '—'), el('small', {}, 'ยกเลิกแล้ว')),
       el('div', { class: 'side' }));
   }
   if (!free){
     return el('div', { class: 'slot blocked' },
-      el('div', { class: 't' }, slotLabel(t)),
+      el('div', { class: 't' }, slotNum(t)),
       el('div', { class: 'n' }, el('b', {}, 'ไม่ว่าง')),
       el('div', { class: 'side' }));
   }
@@ -949,7 +951,7 @@ function slotRow(t, b, free){
         renderSlots();
       }
     },
-    el('div', { class: 't' }, slotLabel(t)),
+    el('div', { class: 't' }, slotNum(t)),
     el('div', { class: 'n' }, el('b', {}, on ? 'เลือกไว้' : 'ว่าง')),
     el('div', { class: 'side' }, on ? '✓' : '+'));
 }
