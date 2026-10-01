@@ -101,6 +101,20 @@
   .foot a{color:var(--teal)}
   .foot .call{display:inline-block;margin-top:2px;padding:11px 20px;border-radius:999px;background:var(--teal);color:#fff;font-weight:600;text-decoration:none}
 
+  .notes{margin-top:18px;background:var(--pick);border-radius:12px;padding:14px 16px}
+  .notes h3{margin:0 0 8px;font-size:.95rem;font-weight:600;color:var(--teal)}
+  .notes ul{margin:0;padding-left:20px;color:var(--ink);font-size:.93rem}
+  .notes li{margin-bottom:4px}
+  .chips{display:flex;gap:8px;margin-top:6px}
+  .chip{flex:1;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;
+        padding:12px 0;font-size:1rem;font-weight:500}
+  .chip[aria-pressed="true"]{background:var(--pick);border-color:var(--teal);color:var(--teal);
+        font-weight:600;box-shadow:inset 0 0 0 1px var(--teal)}
+  .chip:disabled{opacity:.4;cursor:default}
+  .movebar{display:flex;gap:9px;flex-wrap:wrap;margin-top:9px}
+  .movebar button{border:1.5px solid var(--line);border-radius:999px;background:var(--surface);
+        padding:8px 16px;font-size:.92rem;font-weight:500}
+  .movebar .danger{color:var(--rose)}
   .loading{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(244,247,246,.85);font-weight:500}
   @media (prefers-reduced-motion:no-preference){
     .pop{animation:pop .35s ease-out}
@@ -122,6 +136,7 @@
 
 <main>
   <section id="view-book">
+    <div id="move-note" class="block" hidden></div>
     <div class="block">
       <h2><em>1</em>เลือกบริการ</h2>
       <div id="services" class="services"></div>
@@ -137,9 +152,11 @@
     <div class="block" id="form-block" hidden>
       <h2><em>4</em>ข้อมูลผู้จอง</h2>
       <div id="summary"></div>
-      <label class="field">ชื่อ-นามสกุล
-        <input type="text" id="f-name" autocomplete="name" maxlength="60">
-      </label>
+      <div id="count-block" hidden>
+        <label class="field">จองให้กี่คน (มาพร้อมกัน)</label>
+        <div id="counts" class="chips"></div>
+      </div>
+      <div id="names"></div>
       <label class="field">เบอร์โทร
         <input type="tel" id="f-phone" inputmode="numeric" autocomplete="tel" maxlength="12" placeholder="เบอร์ที่ติดต่อได้">
       </label>
@@ -158,7 +175,10 @@
   <section id="view-done" class="done" hidden>
     <h2>จองคิวแล้ว</h2>
     <div id="done-ticket"></div>
-    <p>คลินิกจะส่งข้อความเตือนทาง LINE ในวันก่อนนัด</p>
+    <div id="done-notes"></div>
+    <p style="margin-top:16px">คลินิกจะส่งข้อความเตือนทาง LINE ในวันก่อนนัด</p>
+    <a class="secondary" id="to-cal" target="_blank" rel="noopener"
+       style="display:block;text-align:center;text-decoration:none;color:inherit">เพิ่มลงปฏิทินมือถือ</a>
     <button class="primary" id="go-mine">ดูนัดของฉัน</button>
     <button class="secondary" id="close">ปิดหน้านี้</button>
   </section>
@@ -194,6 +214,7 @@ const CLINIC_ADDR  = [
   'เลขที่ 35 ม.7 ต.บึง อ.ศรีราชา',
   'จ.ชลบุรี 20230'
 ];
+const CLINIC_CHAT  = 'https://line.me/R/ti/p/@105xpjof';   // ลิงก์ทักแชท OA
 const CLINIC_MAP   = 'https://maps.google.com/?q=32F5%2BM9X+บึง+ศรีราชา+ชลบุรี';
 const CLINIC_TEL   = '0642297385';
 const CLINIC_HOURS = [
@@ -209,8 +230,8 @@ const MON = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','ม�
 const MON_FULL = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
                   'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 
-let idToken = null, services = [], minHours = 3;
-const st = { svc: null, days: [], date: null, time: null, month: null };
+let idToken = null, services = [], minHours = 3, moveHours = 24, maxParty = 2, visitNotes = [];
+const st = { svc: null, days: [], date: null, time: null, month: null, party: 1, moving: null };
 
 /* ---------- ตัวช่วย ---------- */
 function parts(ds){ const [y,m,d] = ds.split('-').map(Number); return { y, m, d, w: new Date(Date.UTC(y,m-1,d)).getUTCDay() }; }
@@ -288,6 +309,7 @@ function ticket(b, extraClass = ''){
     el('div', { class: 'num' }, String(p.d), el('small', {}, MON[p.m-1])),
     el('div', { class: 'info' },
       el('strong', {}, b.service),
+      b.name ? el('span', { style: 'color:var(--ink);font-weight:500' }, b.name) : null,
       el('span', {}, fullDate(b.date)),
       el('span', {}, `เวลา ${b.time}–${endTime(b.time, b.minutes)} น.`)));
 }
@@ -391,10 +413,50 @@ function renderTimes(){
   $('times').replaceChildren(...group('ช่วงเช้า', morning), ...group('ช่วงบ่าย', afternoon));
 }
 
+function consecutiveFree(n){
+  if (!st.date || !st.time) return false;
+  const day = st.days.find(d => d.date === st.date);
+  if (!day) return false;
+  const i = day.times.indexOf(st.time);
+  if (i < 0) return false;
+  const want = day.times.slice(i, i + n);
+  if (want.length < n) return false;
+  // ต้องต่อเนื่องจริง (ห่างกันเท่ากับความยาวคิว)
+  for (let k = 1; k < n; k++){
+    const prev = want[k-1].split(':').map(Number), cur = want[k].split(':').map(Number);
+    if ((cur[0]*60+cur[1]) - (prev[0]*60+prev[1]) !== st.svc.minutes) return false;
+  }
+  return want;
+}
+
+function renderParty(){
+  const block = $('count-block');
+  if (maxParty < 2){ block.hidden = true; return; }
+  block.hidden = false;
+  $('counts').replaceChildren(...Array.from({ length: maxParty }, (_, i) => i + 1).map(n =>
+    el('button', { class: 'chip', disabled: n > 1 && !consecutiveFree(n),
+      'aria-pressed': String(st.party === n),
+      onclick: () => { st.party = n; renderParty(); renderNames(); } }, `${n} คน`)));
+}
+
+function renderNames(){
+  const slots = st.party > 1 ? consecutiveFree(st.party) : [st.time];
+  const keep = [...document.querySelectorAll('#names input')].map(i => i.value);
+  $('names').replaceChildren(...(slots || [st.time]).map((t, i) =>
+    el('label', { class: 'field' },
+      st.party > 1 ? `ชื่อ-นามสกุล คนที่ ${i+1} (${t} น.)` : 'ชื่อ-นามสกุล',
+      el('input', { type: 'text', maxlength: '60', autocomplete: i ? 'off' : 'name',
+                    value: keep[i] || '' }))));
+}
+
 function pickTime(t){
+  if (st.moving){ doMove(t); return; }
   st.time = t;
+  st.party = 1;
   renderTimes(); markSteps();
   $('summary').replaceChildren(ticket({ date: st.date, time: t, minutes: st.svc.minutes, service: st.svc.name }));
+  renderParty();
+  renderNames();
   $('form-error').textContent = '';
   $('form-block').hidden = false;
   $('form-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -403,21 +465,25 @@ function pickTime(t){
 async function submit(){
   const err = m => { $('form-error').textContent = m; };
   err('');
-  const name = $('f-name').value.trim();
+  const names = [...document.querySelectorAll('#names input')].map(i => i.value.trim());
   const phone = $('f-phone').value.replace(/\D/g, '');
   const note = $('f-note').value.trim();
   const consent = $('f-consent').checked;
-  if (!name) return err('กรอกชื่อ-นามสกุล');
+  if (names.some(n => !n)) return err('กรอกชื่อ-นามสกุลให้ครบทุกคน');
   if (!/^0\d{8,9}$/.test(phone)) return err('กรอกเบอร์โทรให้ถูกต้อง เช่น 0812345678');
   if (!consent) return err('กดยินยอมการเก็บข้อมูลก่อนยืนยัน');
 
   $('submit').disabled = true;
   try {
-    const b = await withLoading(() => api('book', { service: st.svc.id, date: st.date, time: st.time, name, phone, note, consent }));
-    showDone(b);
+    const list = await withLoading(() => api('book',
+      { service: st.svc.id, date: st.date, time: st.time, names, phone, note, consent }));
+    const made = [].concat(list);
+    showDone(made);
     try {
       if (liff.isInClient()) await liff.sendMessages([{ type: 'text',
-        text: `จองคิวแล้ว\n${b.service}\n${fullDate(b.date)}\nเวลา ${b.time}–${endTime(b.time, b.minutes)} น.` }]);
+        text: 'จองคิวแล้ว\n' + made.map(b =>
+          `${b.service} · ${b.name || ''}\n${fullDate(b.date)}\nเวลา ${b.time}–${endTime(b.time, b.minutes)} น.`
+        ).join('\n\n') }]);
     } catch (_) {}
   } catch (e) {
     err(e.message);
@@ -430,15 +496,38 @@ async function submit(){
   }
 }
 
-function showDone(b){
-  $('done-ticket').replaceChildren(ticket(b, 'pop'));
+function calendarLink(b){
+  const [y, m, d] = b.date.split('-');
+  const pad = t => t.replace(':', '') + '00';
+  const start = `${y}${m}${d}T${pad(b.time)}`;
+  const end   = `${y}${m}${d}T${pad(endTime(b.time, b.minutes))}`;
+  const q = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: `${b.service} — ${CLINIC_NAME}`,
+    dates: `${start}/${end}`,
+    details: `นัดหมายทันตกรรม${b.name ? ' (' + b.name + ')' : ''}\n` + visitNotes.map(n => '• ' + n).join('\n'),
+    location: [].concat(CLINIC_ADDR).join(' ')
+  });
+  return 'https://calendar.google.com/calendar/render?' + q.toString();
+}
+
+function showDone(list){
+  const made = [].concat(list);
+  $('done-ticket').replaceChildren(...made.map((b, i) => ticket(b, i ? 'item' : 'pop')));
+  $('done-notes').replaceChildren(...(visitNotes.length
+    ? [el('div', { class: 'notes' },
+        el('h3', {}, 'ก่อนมาถึงคลินิก'),
+        el('ul', {}, visitNotes.map(n => el('li', {}, n))))]
+    : []));
+  $('to-cal').href = calendarLink(made[0]);
   $('view-book').hidden = true;
   $('view-done').hidden = false;
   window.scrollTo(0, 0);
 }
 
 function resetBooking(){
-  Object.assign(st, { svc: null, days: [], date: null, time: null, month: null });
+  Object.assign(st, { svc: null, days: [], date: null, time: null, month: null, party: 1 });
+  if (!st.moving) $('move-note').hidden = true;
   ['f-name','f-phone','f-note'].forEach(id => $(id).value = '');
   $('f-consent').checked = false;
   ['date-block','time-block','form-block'].forEach(id => $(id).hidden = true);
@@ -461,9 +550,45 @@ async function loadMine(){
   }
   box.replaceChildren(el('div', { class: 'block' }, el('h2', {}, 'นัดที่จะถึง'),
     list.map(b => el('div', { class: 'item' }, ticket(b),
-      b.canCancel
-        ? el('button', { class: 'text-btn', onclick: () => cancel(b) }, 'ยกเลิกนัดนี้')
-        : el('span', { class: 'hint' }, `ยกเลิกออนไลน์ได้ก่อนนัด ${minHours} ชม. หากต้องการเลื่อนหรือยกเลิก ทักแชทคลินิก`)))));
+      el('div', { class: 'movebar' },
+        b.canMove ? el('button', { onclick: () => startMove(b) }, 'เลื่อนนัด') : null,
+        b.canCancel ? el('button', { class: 'danger', onclick: () => cancel(b) }, 'ยกเลิกนัด') : null),
+      !b.canMove || !b.canCancel
+        ? el('span', { class: 'hint' },
+            !b.canCancel
+              ? `ใกล้ถึงเวลานัดแล้ว หากต้องการเลื่อนหรือยกเลิก กรุณาทักแชทคลินิก`
+              : `เลื่อนนัดเองได้ก่อนถึงนัดอย่างน้อย ${moveHours} ชั่วโมง`)
+        : null))));
+}
+
+async function startMove(b){
+  const svc = services.find(s => s.name === b.service);
+  if (!svc){ alert('ไม่พบบริการของนัดนี้ กรุณาทักแชทคลินิก'); return; }
+  st.moving = b;
+  switchTab('book');
+  await pickService(svc);
+  $('form-block').hidden = true;
+  $('count-block').hidden = true;
+  $('move-note').replaceChildren(
+    el('div', { class: 'notes' },
+      el('h3', {}, 'กำลังเลื่อนนัด'),
+      el('ul', {}, el('li', {}, `${b.service} · ${fullDate(b.date)} เวลา ${b.time} น.`),
+                   el('li', {}, 'เลือกวันและเวลาใหม่ด้านล่าง')),
+      el('button', { class: 'secondary', style: 'margin-top:12px',
+        onclick: () => { st.moving = null; switchTab('mine'); } }, 'ยกเลิกการเลื่อนนัด')));
+  $('move-note').hidden = false;
+}
+
+async function doMove(t){
+  const b = st.moving;
+  try {
+    const r = await withLoading(() => api('move', { id: b.id, date: st.date, time: t }));
+    st.moving = null;
+    $('move-note').hidden = true;
+    showDone([{ ...r, name: b.name }]);
+  } catch (e) {
+    alert(e.message);
+  }
 }
 
 async function cancel(b){
@@ -479,7 +604,7 @@ function switchTab(tab){
   $('view-mine').hidden = tab !== 'mine';
   $('view-done').hidden = true;
   $('view-book').hidden = tab !== 'book';
-  if (tab === 'book') resetBooking();
+  if (tab === 'book' && !st.moving) resetBooking();
   if (tab === 'mine') loadMine();
   window.scrollTo(0, 0);
 }
@@ -546,6 +671,9 @@ async function init(){
     const data = await api('services');
     services = data.services;
     minHours = data.minHoursBefore;
+    moveHours = data.moveMinHours || 24;
+    maxParty = data.maxPerBooking || 1;
+    visitNotes = data.visitNotes || [];
     renderServices();
     await restoreDraft();
     // เปิดแท็บ "นัดของฉัน" ได้ตรงๆ ด้วยลิงก์ที่ลงท้าย ?tab=mine
@@ -553,7 +681,13 @@ async function init(){
       || new URLSearchParams((liff.getContext()?.liffUrl || '').split('?')[1] || '').get('tab');
     if (wanted === 'mine') switchTab('mine');
   } catch (e) {
-    $('view-book').replaceChildren(el('p', { class: 'empty' }, e.message));
+    $('view-book').replaceChildren(
+      el('p', { class: 'empty' }, e.message),
+      el('a', { class: 'primary', href: CLINIC_CHAT, target: '_blank', rel: 'noopener',
+        style: 'display:block;text-align:center;text-decoration:none' }, 'ทักแชทคลินิก'),
+      CLINIC_TEL ? el('a', { class: 'secondary', href: 'tel:' + CLINIC_TEL.replace(/\D/g, ''),
+        style: 'display:block;text-align:center;text-decoration:none;color:inherit' }, 'โทรหาคลินิก') : null);
+    renderFooter();
   } finally {
     loading(false);
   }
