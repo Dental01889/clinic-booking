@@ -955,6 +955,77 @@
   #holiday-calendar-connect{background:var(--theme-accent,var(--teal));color:#FFF}
 }
 </style>
+<style>
+@media screen {
+  .holiday-calendar-step{padding:14px 0;border-top:1px solid var(--theme-border,var(--rule))}
+  .holiday-calendar-settings .holiday-step-title{margin:0 0 10px;font-size:.96rem;font-weight:600;color:var(--ink)}
+  .holiday-calendar-settings #holiday-calendar-status{padding:10px 12px;background:#FFF;border-radius:9px;margin:12px 0;font-size:.88rem}
+  #holiday-calendar-preview-status:empty{display:none}
+  .holiday-calendar-check{margin:12px 0 0;font-weight:400}
+  .holiday-calendar-more{margin-top:4px;padding-top:12px;border-top:1px solid var(--theme-border,var(--rule))}
+  .holiday-calendar-more summary{font-size:.9rem;font-weight:400;color:var(--muted)}
+  .holiday-calendar-more .holiday-row-actions{margin-top:12px}
+  #holiday-calendar-connect{width:100%;min-height:48px}
+}
+</style>
+<style>
+/* รายการวันหยุดแบบกระชับ ไม่เปลี่ยนตารางคิวหรือหน้าพิมพ์ */
+@media screen {
+  #holiday-list{gap:8px}
+  #holiday-list>li{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:2px;padding:10px 12px;border-radius:10px;align-items:start}
+  #holiday-list>li>strong{grid-column:1;grid-row:1;font-size:.96rem;line-height:1.45}
+  #holiday-list>li>p{grid-column:1;grid-row:2;margin:0;font-size:.9rem;line-height:1.45}
+  #holiday-list>li>small{grid-column:1;grid-row:3;font-size:.76rem;line-height:1.4;margin:1px 0 0}
+  #holiday-list>li>.holiday-row-actions{grid-column:2;grid-row:1/4;align-self:center;gap:6px;margin:0;flex-wrap:nowrap}
+  #holiday-list .holiday-row-actions button{min-height:44px;padding:7px 10px;font-size:.85rem;line-height:1.4;border-radius:8px;white-space:nowrap}
+  @media (max-width:540px) {
+    #holiday-list>li{grid-template-columns:minmax(0,1fr);padding:10px;row-gap:3px}
+    #holiday-list>li>.holiday-row-actions{grid-column:1;grid-row:4;justify-content:flex-start;margin-top:4px}
+    #holiday-list .holiday-row-actions button{flex:1;max-width:160px}
+  }
+}
+</style>
+<style>
+.theme-controls{display:none}
+@media screen {
+html[data-admin-theme="sky"]{--theme-page:#F3F7FC;--theme-soft:#E5EFF9;--theme-row:#EFF5FC;--theme-accent:#3F6F9F;--theme-deep:#2D5075;--theme-ink:#253649;--theme-muted:#5C6D80;--theme-border:#CCDCEE;--theme-circle:#DCEBFA;--theme-head:#D5E6F7;--theme-header-end:#EAF3FD;}
+html[data-admin-theme="peach"]{--theme-page:#FCF6F2;--theme-soft:#FAE9DD;--theme-row:#FFF0E7;--theme-accent:#A05A35;--theme-deep:#7C4327;--theme-ink:#423126;--theme-muted:#786458;--theme-border:#E9D7CB;--theme-circle:#F6DFCC;--theme-head:#F4D9C5;--theme-header-end:#FCEDE2;}
+html[data-admin-theme="butter"]{--theme-page:#FBF9EF;--theme-soft:#F5EED4;--theme-row:#FBF6E4;--theme-accent:#8A6A20;--theme-deep:#674E16;--theme-ink:#3D3624;--theme-muted:#726951;--theme-border:#E6DEC2;--theme-circle:#F5E8B9;--theme-head:#F2E5B5;--theme-header-end:#FBF4DA;}
+html[data-admin-theme="sand"]{--theme-page:#F8F6F2;--theme-soft:#ECE6DC;--theme-row:#F3EFE8;--theme-accent:#7C6952;--theme-deep:#5D4E3C;--theme-ink:#36312A;--theme-muted:#70685F;--theme-border:#DDD4C8;--theme-circle:#EBE2D3;--theme-head:#E9DFD0;--theme-header-end:#F3EDE4;}
+html[data-admin-theme="slate"]{--theme-page:#F4F6F8;--theme-soft:#E6EBF1;--theme-row:#EDF1F5;--theme-accent:#586F86;--theme-deep:#3F5366;--theme-ink:#28333F;--theme-muted:#626F7B;--theme-border:#D3DCE4;--theme-circle:#E0E7EE;--theme-head:#DAE3EC;--theme-header-end:#EDF2F7;}
+  .theme-controls{display:flex;align-items:center;flex-wrap:wrap;max-width:100%;gap:0;padding:3px;background:#FFFFFFAD;border:1px solid var(--theme-border);border-radius:14px}
+  .theme-controls>.theme-picker{display:none!important}
+  .theme-swatch{position:relative;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer}
+  .theme-swatch::before{content:"";width:30px;height:30px;border-radius:50%;background:var(--swatch);border:1px solid #00000026;box-sizing:border-box}
+  .theme-swatch[aria-pressed="true"]::before{box-shadow:0 0 0 2px #33404D}
+  .theme-swatch[aria-pressed="true"]::after{content:"✓";position:absolute;color:#24303C;font-size:18px;font-weight:700;line-height:1}
+  .theme-swatch:hover::before{box-shadow:0 0 0 2px #53657580}
+  .theme-swatch:focus-visible{outline:3px solid var(--theme-accent);outline-offset:1px}
+  @media (max-width:639px){.theme-controls{flex:1 1 100%;justify-content:flex-start}}
+}
+</style>
+<style>
+@media screen {
+  .theme-controls{flex:0 0 auto;width:44px;padding:0;border:0;background:transparent;border-radius:50%}
+  .theme-toggle{display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;border:0;padding:0;border-radius:50%;background:transparent;cursor:pointer}
+  .theme-toggle::before{content:"";width:30px;height:30px;background:var(--swatch,#E5D8F2);border-radius:50%;border:2px solid #FFFFFF;box-shadow:0 0 0 1px #33404D55}
+  .theme-toggle:hover::before{box-shadow:0 0 0 2px #33404D88}
+  .theme-toggle:focus-visible{outline:3px solid var(--theme-accent);outline-offset:1px}
+  #theme-color-dialog{box-sizing:border-box;width:min(340px,calc(100vw - 24px));padding:18px;border-radius:18px}
+  .theme-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .theme-dialog-head h3{margin:0;font-size:1.12rem}
+  #theme-color-close{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--theme-border);border-radius:10px;background:#FFF;color:var(--ink);font:inherit;cursor:pointer}
+  .theme-dialog-swatches{display:grid;grid-template-columns:repeat(4,52px);justify-content:center;gap:12px;padding:6px 0}
+  .theme-dialog-swatches .theme-swatch{width:52px;height:52px}
+  .theme-dialog-swatches .theme-swatch::before{width:36px;height:36px}
+}
+</style>
+<style>
+/* ซ่อนแถบพักกลางวันและคำอธิบายสีใต้ปฏิทินตามที่เลือก */
+@media screen {
+  .lunch-label,.cal .legend{display:none!important}
+}
+</style>
 </head>
 <body>
 
@@ -962,7 +1033,7 @@
 <header class="top">
   <div class="wrap">
     <div class="eyebrow"><div class="brand-text"><h1 id="clinic">ตารางคิว</h1><span class="header-subtitle">ตารางนัดหมายสำหรับเจ้าหน้าที่</span></div><span>หน้าผู้ดูแล</span>
-      <label class="theme-picker">โทนสี <select aria-label="เลือกโทนสีหน้าแอดมิน"><option value="lavender">ม่วงลาเวนเดอร์</option><option value="rose">ชมพูกุหลาบ</option><option value="mint">เขียวมิ้นต์</option></select></label>
+      <div class="theme-controls" role="group" aria-label="เลือกโทนสี"><label class="theme-picker"><select aria-label="เลือกโทนสีหน้าแอดมิน"><option value="lavender">ม่วงลาเวนเดอร์</option><option value="rose">ชมพูกุหลาบ</option><option value="mint">เขียวมิ้นต์</option><option value="sky">ฟ้า</option><option value="peach">พีช</option><option value="butter">เหลือง</option><option value="sand">เบจ</option><option value="slate">เทาอมฟ้า</option></select></label><button id="theme-toggle" class="theme-toggle" type="button" aria-label="เปลี่ยนโทนสี" aria-haspopup="dialog" aria-controls="theme-color-dialog"></button></div>
       <button id="install" class="installbtn" hidden>📲 ติดตั้งแอป</button>
       <button id="logout" hidden>ออกจากระบบ</button></div>
     <div class="calendar-panel">
@@ -1947,27 +2018,41 @@ init();
 </script>
 
 
+<dialog id="theme-color-dialog" class="theme-color-dialog" aria-labelledby="theme-color-heading">
+  <div class="theme-dialog-head"><h3 id="theme-color-heading">เลือกสี</h3><button id="theme-color-close" type="button" aria-label="ปิดหน้าต่างเลือกสี">✕</button></div>
+  <div class="theme-dialog-swatches" role="group" aria-label="โทนสีที่เลือกได้"><button class="theme-swatch" type="button" data-theme="lavender" style="--swatch:#E5D8F2" aria-label="เลือกโทนม่วง" aria-pressed="false"></button><button class="theme-swatch" type="button" data-theme="rose" style="--swatch:#F5DDE7" aria-label="เลือกโทนชมพู" aria-pressed="false"></button><button class="theme-swatch" type="button" data-theme="mint" style="--swatch:#D9EFE4" aria-label="เลือกโทนเขียวมิ้นต์" aria-pressed="false"></button><button class="theme-swatch" type="button" data-theme="sky" style="--swatch:#D5E6F7" aria-label="เลือกโทนฟ้า" aria-pressed="false"></button><button class="theme-swatch" type="button" data-theme="peach" style="--swatch:#F4D9C5" aria-label="เลือกโทนพีช" aria-pressed="false"></button><button class="theme-swatch" type="button" data-theme="butter" style="--swatch:#F2E5B5" aria-label="เลือกโทนเหลือง" aria-pressed="false"></button><button class="theme-swatch" type="button" data-theme="sand" style="--swatch:#E9DFD0" aria-label="เลือกโทนเบจ" aria-pressed="false"></button><button class="theme-swatch" type="button" data-theme="slate" style="--swatch:#DAE3EC" aria-label="เลือกโทนเทาอมฟ้า" aria-pressed="false"></button></div>
+</dialog>
+
 <script>
 /* Local appearance preference only; no booking data or network calls. */
 (() => {
   const key='clinic-admin-color-theme';
   const select=document.querySelector('.theme-picker select');
-  const colors={lavender:'#E5D8F2',rose:'#F5DDE7',mint:'#D9EFE4'};
+  const swatches=[...document.querySelectorAll('.theme-swatch')];
+  const toggle=document.getElementById('theme-toggle');
+  const dialog=document.getElementById('theme-color-dialog');
+  const colors={"lavender": "#E5D8F2", "rose": "#F5DDE7", "mint": "#D9EFE4", "sky": "#D5E6F7", "peach": "#F4D9C5", "butter": "#F2E5B5", "sand": "#E9DFD0", "slate": "#DAE3EC"};
   function applyTheme(theme){
     if(!Object.prototype.hasOwnProperty.call(colors,theme))theme='lavender';
     document.documentElement.setAttribute('data-admin-theme',theme);
     select.value=theme;
+    toggle.style.setProperty('--swatch',colors[theme]);
+    swatches.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.theme===theme)));
     const meta=document.querySelector('meta[name="theme-color"]');
     if(meta)meta.setAttribute('content',colors[theme]);
     return theme;
   }
+  function choose(theme){
+    const chosen=applyTheme(theme);
+    try{localStorage.setItem(key,chosen);}catch(_){}
+  }
   let chosen='lavender';
   try{chosen=localStorage.getItem(key)||chosen;}catch(_){}
   applyTheme(chosen);
-  select.addEventListener('change',()=>{
-    const theme=applyTheme(select.value);
-    try{localStorage.setItem(key,theme);}catch(_){}
-  });
+  select.addEventListener('change',()=>choose(select.value));
+  toggle.addEventListener('click',()=>openDialog(dialog));
+  document.getElementById('theme-color-close').addEventListener('click',()=>dialog.close());
+  swatches.forEach(button=>button.addEventListener('click',()=>{choose(button.dataset.theme);if(dialog.open)dialog.close();}));
 })();
 </script>
 
@@ -2020,24 +2105,39 @@ init();
     </section>
 
   <details class="holiday-calendar-settings">
-    <summary>วันหยุดอัตโนมัติจาก Google Calendar</summary>
-    <p>เลือกปฏิทินที่มีเฉพาะวันหยุดของคลินิก ระบบจะอ่านรายการล่วงหน้าและซิงก์ทุก 6 ชั่วโมง โดยไม่แก้ไขปฏิทินต้นทาง</p>
+    <summary>วันหยุดอัตโนมัติ</summary>
+    <p>ใช้ Google Calendar ปิดรับคิววันหยุด อัปเดตทุก 6 ชั่วโมง</p>
     <p id="holiday-calendar-status" role="status" aria-live="polite">กำลังโหลดสถานะ…</p>
-    <label for="holiday-calendar-select">ปฏิทินวันหยุด</label>
-    <select id="holiday-calendar-select"><option value="">กดโหลดปฏิทินเพื่อเลือก</option></select>
-    <div class="holiday-row-actions">
-      <button id="holiday-calendar-load" type="button">โหลดปฏิทิน</button>
-      <button id="holiday-calendar-preview" type="button">ดูรายการก่อนเชื่อม</button>
+    <div class="holiday-calendar-step">
+      <label for="holiday-calendar-select">1. เลือกปฏิทิน</label>
+      <select id="holiday-calendar-select"><option value="">กดค้นหาปฏิทินก่อน</option></select>
+      <div class="holiday-row-actions">
+        <button id="holiday-calendar-load" type="button">ค้นหาปฏิทิน</button>
+      </div>
     </div>
-    <p id="holiday-calendar-preview-status" role="status" aria-live="polite"></p>
-    <ul id="holiday-calendar-preview-list" class="holiday-list"></ul>
-    <label class="holiday-calendar-check"><input id="holiday-calendar-confirm" type="checkbox"> ปฏิทินนี้มีเฉพาะวันที่คลินิกหยุด และตรวจรายการแล้ว</label>
-    <div class="holiday-row-actions">
-      <button id="holiday-calendar-connect" type="button">เชื่อมและปิดรับคิวตามปฏิทิน</button>
-      <button id="holiday-calendar-sync" type="button">ซิงก์ตอนนี้</button>
-      <button id="holiday-calendar-disconnect" type="button">หยุดเชื่อมปฏิทิน</button>
+    <div class="holiday-calendar-step">
+      <p class="holiday-step-title">2. ตรวจวันหยุด</p>
+      <div class="holiday-row-actions">
+        <button id="holiday-calendar-preview" type="button">ดูวันหยุด</button>
+      </div>
+      <p id="holiday-calendar-preview-status" role="status" aria-live="polite"></p>
+      <ul id="holiday-calendar-preview-list" class="holiday-list"></ul>
+      <label class="holiday-calendar-check"><input id="holiday-calendar-confirm" type="checkbox"> ตรวจแล้ว เป็นวันหยุดของคลินิก</label>
     </div>
-    <p class="holiday-calendar-help">เลือกเฉพาะวันหยุดสาธารณะใน Google Calendar ก่อนเชื่อม ไม่เลือกปฏิทินนัดหมายส่วนตัว วันหยุดพิเศษของคลินิกยังเพิ่มเองในหน้าต่างนี้ได้</p>
+    <div class="holiday-calendar-step">
+      <p class="holiday-step-title">3. เปิดใช้งาน</p>
+      <div class="holiday-row-actions">
+        <button id="holiday-calendar-connect" type="button">เปิดใช้วันหยุดอัตโนมัติ</button>
+      </div>
+    </div>
+    <details class="holiday-calendar-more">
+      <summary>ตัวเลือกเพิ่มเติม</summary>
+      <div class="holiday-row-actions">
+        <button id="holiday-calendar-sync" type="button">อัปเดตตอนนี้</button>
+        <button id="holiday-calendar-disconnect" type="button">หยุดเชื่อมต่อ</button>
+      </div>
+      <p class="holiday-calendar-help">ใช้ปฏิทินที่มีเฉพาะวันหยุดคลินิก ไม่ใช้ปฏิทินนัดส่วนตัว วันหยุดพิเศษยังเพิ่มเองได้ หากยังไม่ได้ตั้งอัตโนมัติ ให้ Run setupHolidayCalendar ใน Apps Script หนึ่งครั้ง</p>
+    </details>
   </details>
 
   <section class="holiday-records" aria-labelledby="holiday-list-heading">
@@ -2099,10 +2199,10 @@ init();
       list.replaceChildren(...sorted.map(item=>el('li',{},
         el('strong',{},longDate(item.date),item.date<today?el('small',{},' · ผ่านแล้ว'):null),
         el('p',{},item.note || 'ไม่ระบุเหตุผล'),
-        el('small',{},item.source==='calendar'?'จาก Google Calendar':'เจ้าหน้าที่บันทึก'),
+        item.source==='calendar'?el('small',{},'จาก Google Calendar'):null,
         el('div',{class:'holiday-row-actions'},
-          el('button',{type:'button',disabled:busy,onclick:()=>selectHoliday(item)},'เลือก / แก้เหตุผล'),
-          el('button',{type:'button',disabled:busy,onclick:()=>{if(busy || dialog.dataset.holidayBusy==='true')return;dateInput.value=item.date;noteInput.value=item.note||'';changeHoliday(false);}},'เปิดรับคิวกลับ'))
+          el('button',{type:'button',disabled:busy,'aria-label':'แก้เหตุผลวันหยุด '+longDate(item.date),onclick:()=>selectHoliday(item)},'แก้เหตุผล'),
+          el('button',{type:'button',disabled:busy,'aria-label':'เปิดรับคิว '+longDate(item.date),onclick:()=>{if(busy || dialog.dataset.holidayBusy==='true')return;dateInput.value=item.date;noteInput.value=item.note||'';changeHoliday(false);}},'เปิดรับคิว'))
       )));
       listStatus.textContent=rows.length?'วันหยุดทั้งหมด '+rows.length+' วัน · แสดงวันที่กำลังจะมาถึงก่อน':'ยังไม่มีวันหยุดที่บันทึกไว้';
       return true;
@@ -2129,11 +2229,11 @@ init();
       }
       const live=(data.bookings||[]).filter(b=>!b.cancelled).length;
       const result=await ask({
-        title:on?(data.holiday?'ยืนยันแก้ไขวันหยุด?':'ยืนยันบันทึกวันหยุด?'):'เปิดรับคิวกลับ?',
+        title:on?(live?'วันนี้มีนัดคนไข้ '+live+' คิว':data.holiday?'ยืนยันแก้ไขวันหยุด?':'ยืนยันบันทึกวันหยุด?'):'เปิดรับคิวกลับ?',
         text:longDate(date)+'\n'+(on
-          ? 'คนไข้จะจองคิวใหม่ในวันนี้ไม่ได้'+(live?'\nมีนัดอยู่แล้ว '+live+' รายการ นัดเดิมจะยังอยู่ กรุณาจัดการเลื่อนหรือยกเลิกนัดแยกต่างหาก':'')+(note?'\nเหตุผล: '+note:'')
+          ? (live?'มีนัดอยู่แล้ว '+live+' คิว ต้องจัดการเลื่อนหรือยกเลิกนัดเดิมเอง\nการบันทึกวันหยุดจะปิดเฉพาะการจองใหม่ ไม่ยกเลิกนัดเดิม':'คนไข้จะจองคิวใหม่ในวันนี้ไม่ได้')+(note?'\nเหตุผล: '+note:'')
           : 'ระบบจะเปิดให้จองตามวันและเวลาทำการของแต่ละบริการ'),
-        confirm:on?'บันทึกวันหยุด':'เปิดรับคิวกลับ',safe:!on
+        confirm:on?(live?'ยืนยันปิดรับคิวใหม่':'บันทึกวันหยุด'):'เปิดรับคิวกลับ',safe:!on
       });
       if(!result){message('ยังไม่ได้เปลี่ยนวันหยุด');return;}
       message('กำลังบันทึก…');
@@ -2190,11 +2290,11 @@ init();
   }
   function describe(data){
     settings=data;
-    if(!data.connected){status.textContent='ยังไม่เชื่อมปฏิทิน วันหยุดที่เจ้าหน้าที่บันทึกเองยังใช้ได้ตามปกติ';return;}
+    if(!data.connected){status.textContent='ยังไม่เชื่อมปฏิทิน';return;}
     const when=data.lastSync?new Date(data.lastSync).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'}):'ยังไม่ซิงก์';
-    status.textContent='เชื่อมกับ '+data.name+' · ซิงก์สำเร็จล่าสุด '+when+
-      (data.automatic?' · อัตโนมัติทุก 6 ชั่วโมง':' · ยังไม่ได้ตั้งซิงก์อัตโนมัติ ให้ Run setupHolidayCalendar ใน Apps Script 1 ครั้ง')+
-      (data.error?' · ซิงก์ล่าสุดไม่สำเร็จ: '+data.error+' ใช้รายการที่โหลดสำเร็จครั้งล่าสุดอยู่':'');
+    status.textContent='เชื่อมแล้ว: '+data.name+' · อัปเดตล่าสุด '+when+
+      (data.automatic?'':' · ยังไม่ตั้งอัปเดตอัตโนมัติ')+
+      (data.error?' · ซิงก์ล่าสุดไม่สำเร็จ: '+data.error+' · ใช้รายการเดิมอยู่':'');
   }
   async function loadStatus(){
     const seq=++statusSeq;
@@ -2210,7 +2310,7 @@ init();
         ...calendars.map(c=>el('option',{value:c.id},c.name)));
       if(calendars.some(c=>c.id===chosen))select.value=chosen;
       preview=null;check.checked=false;previewList.replaceChildren();
-      previewStatus.textContent=calendars.length?'เลือกปฏิทิน แล้วกดดูรายการก่อนเชื่อม':'ยังไม่มีปฏิทิน กรุณาเพิ่มปฏิทินวันหยุดใน Google Calendar ของเจ้าของ Apps Script';
+      previewStatus.textContent=calendars.length?'เลือกปฏิทิน แล้วกดดูวันหยุด':'ยังไม่มีปฏิทิน กรุณาเพิ่มปฏิทินวันหยุดใน Google Calendar ของเจ้าของ Apps Script';
     } catch(e){previewStatus.textContent='โหลดไม่ได้: '+e.message+' · ให้เจ้าของระบบ Run setupHolidayCalendar และอนุญาตสิทธิ์ก่อน';}
     finally{setBusy(false);}
   }
@@ -2222,9 +2322,9 @@ init();
       const data=await api('adminHolidayCalendarPreview',{calendarId:select.value});
       preview=data;
       const upcoming=data.rows.filter(row=>row.date>=today);
-      previewStatus.textContent='พบวันหยุดล่วงหน้า '+upcoming.length+' วัน จาก '+data.name+' · แสดงตัวอย่าง 12 วันแรก';
+      previewStatus.textContent='พบ '+upcoming.length+' วัน · แสดง 12 วันแรก';
       previewList.replaceChildren(...upcoming.slice(0,12).map(row=>el('li',{},el('strong',{},longDate(row.date)),el('p',{},row.note))));
-      if(!upcoming.length)previewStatus.textContent='ยังไม่พบวันหยุดล่วงหน้าในปฏิทินนี้ กรุณาตรวจว่าเลือกแหล่งข้อมูลถูกต้อง';
+      if(!upcoming.length)previewStatus.textContent='ไม่พบวันหยุดล่วงหน้า ลองตรวจปฏิทินที่เลือก';
     } catch(e){previewStatus.textContent='อ่านรายการไม่สำเร็จ: '+e.message;}
     finally{setBusy(false);}
   }
@@ -2257,10 +2357,10 @@ init();
   $('holiday-open').addEventListener('click',loadStatus);
   $('holiday-calendar-load').addEventListener('click',loadCalendars);
   $('holiday-calendar-preview').addEventListener('click',showPreview);
-  select.addEventListener('change',()=>{preview=null;check.checked=false;previewList.replaceChildren();previewStatus.textContent='กดดูรายการก่อนเชื่อม เพื่อยืนยันวันหยุดของปฏิทินที่เลือก';});
+  select.addEventListener('change',()=>{preview=null;check.checked=false;previewList.replaceChildren();previewStatus.textContent='กดดูวันหยุดเพื่อตรวจรายการ';});
   $('holiday-calendar-connect').addEventListener('click',()=>{
-    if(!preview || preview.calendarId!==select.value){previewStatus.textContent='กรุณาดูรายการก่อนเชื่อม';return;}
-    if(!check.checked){previewStatus.textContent='กรุณายืนยันว่ารายการมีเฉพาะวันที่คลินิกหยุด';return;}
+    if(!preview || preview.calendarId!==select.value){previewStatus.textContent='กรุณากดดูวันหยุดก่อน';return;}
+    if(!check.checked){previewStatus.textContent='กรุณาติ๊กยืนยันวันหยุด';return;}
     mutate('adminHolidayCalendarSet',{calendarId:select.value,confirm:true},{title:'เชื่อมปฏิทินและปิดรับคิว?',text:'ใช้ '+preview.name+' เป็นแหล่งวันหยุด กิจกรรมเต็มวันในปฏิทินนี้จะปิดรับจองทุกบริการ นัดเดิมจะยังอยู่',confirm:'เชื่อมปฏิทิน',safe:true});
   });
   $('holiday-calendar-sync').addEventListener('click',()=>{
@@ -2269,7 +2369,7 @@ init();
   });
   $('holiday-calendar-disconnect').addEventListener('click',()=>{
     if(!settings || !settings.connected){previewStatus.textContent='ยังไม่มีปฏิทินที่เชื่อมไว้';return;}
-    mutate('adminHolidayCalendarDisconnect',{confirm:true},{title:'หยุดเชื่อมปฏิทิน?',text:'วันหยุดจาก Google Calendar จะไม่ปิดรับจองอีกต่อไป วันหยุดที่เจ้าหน้าที่บันทึกเองยังอยู่',confirm:'หยุดเชื่อม',safe:false});
+    mutate('adminHolidayCalendarDisconnect',{confirm:true},{title:'หยุดเชื่อมปฏิทิน?',text:'วันหยุดจาก Google Calendar จะไม่ปิดรับจองอีกต่อไป วันหยุดที่เพิ่มเองยังอยู่',confirm:'หยุดเชื่อม',safe:false});
   });
   dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
 })();
