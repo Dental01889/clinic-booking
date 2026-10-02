@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>ตารางคิว (ผู้ดูแล)</title>
+<link rel="manifest" href="admin.webmanifest">
+<meta name="theme-color" content="#1F6F68">
+<link rel="icon" href="app-icon-192.png">
+<link rel="apple-touch-icon" href="app-apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="คิวทันตกรรม">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -569,6 +576,9 @@
   .treat.t-fill{background:#E3EEFB;color:#1E4E86}
   .treat.t-scale{background:#FBEFD8;color:#7A4E0B}
   @media print{ .treat{border:1px solid #000;background:none!important;color:#000!important} }
+  .installbtn{margin-left:auto;border:1px solid #C9D8D2;background:#fff;color:#1F6F68;border-radius:999px;padding:5px 12px;font-size:.84rem;font-weight:600}
+  .installbtn:not([hidden]) + #logout{margin-left:8px}
+  @media print{ .installbtn{display:none!important} }
 </style>
 </head>
 <body>
@@ -577,6 +587,7 @@
 <header class="top">
   <div class="wrap">
     <div class="eyebrow"><h1 id="clinic">ตารางคิว</h1><span>หน้าผู้ดูแล</span>
+      <button id="install" class="installbtn" hidden>📲 ติดตั้งแอป</button>
       <button id="logout" hidden>ออกจากระบบ</button></div>
     <div class="search" id="searchbox" hidden><input id="q" type="search" placeholder="ค้นหาชื่อ หรือเบอร์โทรคนไข้" autocomplete="off" aria-label="ค้นหาคนไข้"></div>
     <div id="results" class="results" hidden></div>
@@ -1416,6 +1427,21 @@ async function init(){
   idToken = null;
   showLogin('');
 }
+/* ---------- ติดตั้งเป็นแอปบนมือถือ ---------- */
+(function(){
+  if ('serviceWorker' in navigator && window.isSecureContext)
+    navigator.serviceWorker.register('admin-sw.js', { scope: './admin.html' }).catch(() => {});
+  let prompt = null;
+  addEventListener('beforeinstallprompt', e => { e.preventDefault(); prompt = e; $('install').hidden = false; });
+  addEventListener('appinstalled', () => { $('install').hidden = true; toast('ติดตั้งแอปแล้ว ดูไอคอนที่หน้าจอหลัก'); });
+  $('install').addEventListener('click', async () => {
+    if (!prompt) return;
+    prompt.prompt();
+    await prompt.userChoice.catch(() => {});
+    prompt = null; $('install').hidden = true;
+  });
+})();
+
 init();
 </script>
 </body>

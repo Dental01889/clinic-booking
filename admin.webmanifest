@@ -1,0 +1,17 @@
+{
+  "name": "คิวทันตกรรม รพ.สต.ตลาดบึง",
+  "short_name": "คิวทันตกรรม",
+  "description": "ตารางคิวสำหรับหมอและเจ้าหน้าที่",
+  "lang": "th",
+  "start_url": "./admin.html",
+  "scope": "./admin.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F4F7F6",
+  "theme_color": "#1F6F68",
+  "icons": [
+    { "src": "app-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "app-icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "app-icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
