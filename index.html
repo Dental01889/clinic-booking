@@ -374,6 +374,20 @@
   .ticket .num{flex:0 0 64px;width:64px;min-width:64px;text-align:center}
   .tnote{text-align:center}
   .treat-pick{margin-top:10px}
+  .fastest{margin:0 0 14px}
+  .fast-btn{display:flex;align-items:stretch;width:100%;padding:0;border:1.5px dashed #E0A400;border-radius:16px;
+    background:#FFF8E1;color:#5B4300;text-align:left;overflow:hidden;font:inherit;transition:transform .12s ease}
+  .fast-btn:active{transform:scale(.985)}
+  .fb-cal{flex:0 0 76px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;
+    background:#E0A400;color:#fff;line-height:1.15}
+  .fb-cal small{font-size:.74rem;font-weight:500;opacity:.95}
+  .fb-cal b{font-size:1.95rem;font-weight:700;margin:2px 0}
+  .fb-cal span{font-size:.76rem}
+  .fb-txt{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;padding:12px 14px;line-height:1.4}
+  .fb-txt small{font-size:.82rem;font-weight:700;color:#A06F00}
+  .fb-txt b{font-size:1.08rem;font-weight:700;color:#4A3600}
+  .fb-txt span{font-size:.86rem;color:#7A6020}
+  .fb-arr{display:grid;place-items:center;padding:0 16px;font-size:1.7rem;color:#C08A00}
   .treat-tag{display:inline-block!important;width:auto;margin:2px 0 3px;padding:2px 12px;border-radius:999px;font-size:.88rem!important;font-weight:700;line-height:1.5}
   .treat-tag.tt-fill{background:#E3EEFB;color:#1E4E86!important}
   .treat-tag.tt-scale{background:#FBEFD8;color:#7A4E0B!important}
@@ -410,6 +424,9 @@
     </div>
     <div class="block" id="date-block" hidden>
       <h2><em>2</em>เลือกวัน</h2>
+      <div id="fastest" class="fastest" hidden>
+        <button id="fast-btn" type="button" class="fast-btn">⚡ เอาคิวว่างเร็วที่สุด</button>
+      </div>
       <div id="dates" class="dates"></div>
     </div>
     <div class="block" id="time-block" hidden>
@@ -528,6 +545,7 @@ const MON = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','ม�
 const MON_FULL = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
                   'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 
+let cutoffHour = 17;
 let idToken = null, services = [], minHours = 3, moveHours = 24, maxParty = 2, visitNotes = [];
 const st = { svc: null, days: [], date: null, time: null, party: 1, moving: null };
 
@@ -660,8 +678,41 @@ async function pickService(s){
   $('date-block').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+/* คิวว่างที่เร็วที่สุด (ถ้าจองหลายคน ต้องมีคิวพอ) */
+function fastestDay(){
+  return st.days.find(d => d.times.length);
+}
+function pickFastest(){
+  const d = fastestDay();
+  if (!d) return;
+  if (st.svc.noTime) { pickDate(d.date); return; }
+  st.date = d.date;
+  renderDates(); markSteps();
+  $('wait-block').hidden = true;
+  $('time-block').hidden = false;
+  renderTimes();
+  pickTime(d.times[0]);
+}
+function renderFastest(){
+  const d = fastestDay();
+  $('fastest').hidden = !!st.moving || !d;
+  if (!d) return;
+  const p = parts(d.date);
+  const when = st.svc.noTime ? '' : ` เวลา ${d.times[0]} น.`;
+  $('fast-btn').replaceChildren(
+    el('span', { class: 'fb-cal', 'aria-hidden': 'true' },
+      el('small', {}, WD_FULL[p.w]), el('b', {}, String(p.d)), el('span', {}, MON[p.m-1])),
+    el('span', { class: 'fb-txt' },
+      el('small', {}, '⚡ คิวว่างเร็วที่สุด'),
+      el('b', {}, when ? when.trim() : `มาถึงก่อน ${st.svc.startText || '09.00'} น.`),
+      el('span', {}, 'แตะเพื่อจองคิวนี้')),
+    el('span', { class: 'fb-arr', 'aria-hidden': 'true' }, '›'));
+  $('fast-btn').setAttribute('aria-label', `จองคิวว่างเร็วที่สุด ${WD_FULL[p.w]}ที่ ${p.d} ${MON[p.m-1]}${when}`);
+}
+
 function renderDates(){
   $('date-block').hidden = false;
+  renderFastest();
   if (!st.days.length){
     $('dates').replaceChildren(el('p', { class: 'empty' }, 'ช่วงนี้ยังไม่เปิดรับคิว ทักแชทสอบถามคลินิกได้'));
     return;
@@ -1039,6 +1090,7 @@ async function init(){
   addEventListener('resize', sizeHeader);
   document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
   $('submit').addEventListener('click', submit);
+  $('fast-btn').addEventListener('click', pickFastest);
   $('w-submit').addEventListener('click', submitWait);
   $('w-mine').addEventListener('click', () => switchTab('mine'));
   $('go-mine').addEventListener('click', () => switchTab('mine'));
@@ -1056,6 +1108,7 @@ async function init(){
     const apply = d => {
       services = d.services;
       minHours = d.minHoursBefore;
+      cutoffHour = d.cutoffHour || 17;
       moveHours = d.moveMinHours || 24;
       maxParty = d.maxPerBooking || 1;
       visitNotes = d.visitNotes || [];
