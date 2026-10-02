@@ -794,7 +794,6 @@
     <div id="results" class="results" hidden></div>
     <div id="strip" class="strip"></div>
         <p class="calendar-selected-day" aria-live="polite"></p>
-<nav class="admin-shortcuts" aria-label="ทางลัดหน้าแอดมิน"><button type="button" data-jump="schedule">▣ ตารางนัดหมาย</button><button type="button" data-jump="search">⌕ ค้นหาคนไข้</button><button type="button" data-jump="waiting">◷ รายชื่อรอคิว</button></nav>
     </div><!-- calendar-panel -->
   </div>
 </header>
@@ -1764,12 +1763,6 @@ init();
   };
   const originalError=showDayError;
   showDayError=function(ds,msg){originalError(ds,msg);panel.hidden=true;serviceLabel.textContent='';};
-  document.querySelector('[data-jump="schedule"]').addEventListener('click',()=>$('main').scrollIntoView({behavior:'smooth',block:'start'}));
-  document.querySelector('[data-jump="search"]').addEventListener('click',()=>{$('q').focus();});
-  document.querySelector('[data-jump="waiting"]').addEventListener('click',()=>{
-    if($('waitlist').children.length)$('waitlist').scrollIntoView({behavior:'smooth',block:'center'});
-    else toast('วันที่เลือกยังไม่มีรายชื่อรอคิว');
-  });
   updateSummary();
 })();
 </script>
