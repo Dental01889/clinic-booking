@@ -395,6 +395,91 @@
   .treat-ask span{display:block;font-size:.92rem;color:#6E4E0E;margin-bottom:6px;font-weight:500}
   .tp-label{display:block;font-size:.92rem;font-weight:500;color:var(--ink);margin-bottom:2px}
   #names .person + .person{margin-top:18px;padding-top:4px;border-top:1px dashed var(--line)}
+
+  /* Mobile-first patient booking design. */
+  @media screen{
+    :root{--paper:#F4F8F6;--surface:#FFF;--ink:#17352F;--muted:#52665C;--line:#D1DED6;--teal:#1F6F68;--pick:#E5F2EB}
+    body{line-height:1.75}
+    .top{background:#FFF;box-shadow:0 3px 14px #17352F06;padding-top:18px;padding-bottom:12px}
+    .brand{gap:13px;margin-bottom:15px}
+    .brand::before{content:"🦷";display:grid;place-items:center;flex:none;width:44px;height:44px;background:#E4F2EB;border-radius:13px;font-size:28px}
+    .brand:has(#logo:not([hidden]))::before{display:none}
+    .brand h1{font-size:1.13rem;line-height:1.5}
+    .tabs{padding:0;gap:0;border-radius:12px;overflow:hidden;background:#F0F4F2;border:1px solid #D8E3DC}
+    .tabs button{min-height:48px;border-radius:0;font-size:1rem;font-weight:600;padding:11px 12px}
+    .tabs button[aria-selected="true"]{background:#1F6F68;color:#FFF;box-shadow:none}
+    .booking-steps{border:0;background:transparent;padding:12px 0 5px;margin-bottom:16px}
+    .booking-steps li{font-size:.84rem}
+    .step-number{width:34px;height:34px;background:#FFF;border-color:#BED1C5}
+    .block{background:#FFF;border-radius:16px;border:1px solid #D4E2D9;padding:20px;box-shadow:0 4px 14px #17352F04}
+    h2{font-size:1.13rem;font-weight:700;margin-bottom:14px}
+    h2 em{width:27px;height:27px}
+    .opt{min-height:60px;padding:15px;border-radius:12px}
+    .opt strong{font-size:1.1rem}
+    .opt[aria-pressed="true"]{background:#E5F2EB;border-color:#1F6F68;box-shadow:inset 0 0 0 1px #1F6F68}
+    .monthtag{font-size:1rem;color:#17352F;font-weight:600}
+    .dates{gap:9px;padding-bottom:13px}
+    .day{flex-basis:78px;min-height:106px;border-radius:12px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:10px 5px}
+    .day small{font-size:.85rem}
+    .day b{font-size:1.8rem;line-height:1.25;margin:3px 0}
+    .day i{font-size:.8rem;font-weight:500}
+    .day:not(.full)[aria-pressed="true"]{background:#1F6F68;color:#FFF;box-shadow:0 3px 9px #1F6F681A}
+    .day:not(.full)[aria-pressed="true"] small,.day:not(.full)[aria-pressed="true"] i{color:#FFF}
+    .period{font-size:1rem;font-weight:600;color:#17352F}
+    .times{gap:9px;grid-template-columns:repeat(3,minmax(0,1fr))}
+    .time{min-height:56px;font-size:1.09rem;padding:13px 6px;background:#FFF;border-color:#D0DED5;color:#17352F;border-radius:11px;line-height:1.5}
+    .time[aria-pressed="true"]{background:#1F6F68;color:#FFF;border-color:#1F6F68;box-shadow:0 0 0 2px #D9ECE1}
+    .time[aria-pressed="true"]::before{content:"✓ ";font-size:.9rem}
+    #summary .ticket,#done-ticket .ticket{background:#E8F4ED;border:1px solid #CEE3D5;border-left:4px solid #1F6F68;border-radius:13px}
+    #summary .ticket .info span{font-size:1rem;line-height:1.8}
+    .summary-label{font-size:1rem;color:#17352F;font-weight:700}
+    .chip{min-height:50px;border-radius:9px;font-size:1rem;background:#FFF}
+    .chip[aria-pressed="true"]{background:#1F6F68;color:#FFF;border-color:#1F6F68;box-shadow:none}
+    #count-block{background:#F4F8F5;padding:15px;border-radius:12px}
+    label.field,.tp-label{font-size:1rem;font-weight:600;color:#17352F}
+    input[type=text],input[type=tel],textarea{min-height:50px;border:1px solid #C9D9CF;border-radius:10px;font-size:16px;background:#FFF}
+    .consent{background:#F5F9F6;border:1px solid #DFEADF;font-size:.94rem;color:#405A4D;line-height:1.8}
+    .consent input{flex:none;width:24px;height:24px}
+    .primary{min-height:54px;font-size:1.06rem;border-radius:11px;background:#1F6F68;box-shadow:0 4px 10px #1F6F6814}
+    .secondary{min-height:48px;border-radius:11px;font-size:1rem}
+    .fast-btn{border:1px solid #E4D3A6;background:#FFF9EA;border-radius:13px}
+    .fb-cal{background:#A47A22;flex-basis:66px}
+    .fb-txt{padding:12px;font-size:1rem}
+    .fb-txt small{color:#775719;font-size:.83rem}
+    .fb-txt b{font-size:1rem}
+    .fb-arr{padding:0 11px;color:#87651D}
+    .treat-pick{display:flex;gap:9px;flex-wrap:wrap}
+    .treat-pick>.tp-label{flex:1 1 100%;margin:0}
+    .treat-pick>.chips{width:100%;margin-top:0}
+    .treat-pick .chip{flex:1 1 110px;min-height:48px;padding:11px 8px;font-size:.97rem}
+    #names .person+.person{margin-top:20px;padding-top:12px}
+    .done{border-radius:16px}
+    .foot{border-radius:16px;background:#FFF}
+    .foot .call{min-height:48px;font-size:1rem}
+  }
+  @media screen and (min-width:960px){
+    #view-book{grid-template-columns:minmax(0,.44fr) minmax(0,.56fr)}
+    #view-book>#date-block{grid-column:1}
+    #view-book>#time-block,#view-book>#wait-block{grid-column:2}
+    #view-book>#form-block{grid-column:1/-1}
+  }
+  @media screen and (max-width:479px){
+    main{padding:16px 12px 28px}
+    .top{padding-left:16px;padding-right:16px}
+    .brand h1{font-size:1.05rem}
+    .block{padding:18px 15px;margin-top:15px}
+    .booking-steps li{font-size:.79rem}
+    .day{flex-basis:72px;min-height:102px}
+    .day b{font-size:1.75rem}
+    .time{font-size:1.03rem;padding:13px 3px}
+    .ticket{gap:12px;padding:15px 12px}
+    .ticket .num{min-width:40px;font-size:2rem}
+    #summary .ticket .info span{font-size:.97rem}
+    .consent{font-size:.9rem;padding:12px}
+  }
+  @media screen and (prefers-reduced-motion:no-preference){
+    .time,.chip,.day{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease}
+  }
 </style>
 </head>
 <body>

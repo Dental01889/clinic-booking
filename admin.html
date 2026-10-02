@@ -579,6 +579,118 @@
   .installbtn{margin-left:auto;border:1px solid #C9D8D2;background:#fff;color:#1F6F68;border-radius:999px;padding:5px 12px;font-size:.84rem;font-weight:600}
   .installbtn:not([hidden]) + #logout{margin-left:8px}
   @media print{ .installbtn{display:none!important} }
+  .extra-head{margin:16px 0 8px;font-size:.9rem;font-weight:600;color:#8A5B10}
+  .slots.extra{border-color:#F1DDB0}
+  .updated{margin:-6px 0 12px;font-size:.8rem;color:var(--muted)}
+  .updated:empty{display:none}
+  .loaderr{padding:22px 16px;border:1px dashed #E3B6C1;border-radius:14px;background:#FCF1F4;text-align:center;color:#7A2A3E}
+  .loaderr p{margin:0 0 4px;font-weight:600}
+  .loaderr small{display:block;margin-bottom:12px;color:#8A5563}
+  @media print{ #refresh,#updated{display:none!important} }
+  .updated.warn{color:#8A5B10;font-weight:600}
+
+  .schedule-heading{display:none}
+  /* Accessible dashboard redesign, screen-only. */
+  @media screen{
+    :root{--bg:#F3F8F6;--card:#FFF;--ink:#17352F;--muted:#4D625C;--rule:#CCDCD4;--teal:#1F6F68;--teal-soft:#E2F1E9}
+    .layout{max-width:1440px;padding:20px;gap:22px}
+    .layout .top,.layout .top>.wrap{display:contents;position:static}
+    .layout .eyebrow{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:0;padding:18px 22px;background:linear-gradient(115deg,#185A54,#247E74);color:#FFF;border-radius:16px;box-shadow:0 6px 20px #17352F0D}
+    .layout .eyebrow::before{content:"🦷";display:grid;place-items:center;width:48px;height:48px;font-size:30px;background:#FFFFFF1C;border-radius:13px;flex:none}
+    .layout .eyebrow h1{grid-column:auto;flex:1 1 240px;font-size:1.3rem;color:#FFF;line-height:1.5}
+    .layout .eyebrow>span{background:#FFFFFF20;color:#FFF;padding:6px 12px}
+    .layout .eyebrow #logout,.layout .eyebrow #install{margin:0;background:#FFF;color:#185A54;min-height:44px;border:1px solid #FFFFFF80;border-radius:10px;padding:9px 13px;font-size:.9rem;text-decoration:none}
+    .calendar-panel{min-width:0}
+    .search input{min-height:50px;border-radius:12px;font-size:16px}
+    .cal{border-radius:16px;box-shadow:0 5px 18px #17352F06}
+    .cal-top b{font-size:1.14rem}
+    .layout #main{padding:22px;border-radius:16px;box-shadow:0 5px 18px #17352F06;min-width:0}
+    .layout #main .dayhead h2{font-size:1.45rem;flex:1 1 100%;margin-bottom:4px}
+    .shutbtn,.addbtn{min-height:44px;padding:9px 14px;font-size:.92rem}
+    #refresh{color:#185A54;background:#F0F7F3;border-color:#BBD3C6}
+    .counts{position:relative;background:linear-gradient(105deg,#EAF5EE,#F7FBF8);border:1px solid #C9E0D2;border-left:5px solid #1F6F68;border-radius:12px;padding:16px 18px;margin:15px 0 12px;color:#405C4E;font-size:1rem;line-height:1.9}
+    .counts:not(:empty)::before{content:"สรุปนัดวันนี้";display:block;color:#17352F;font-size:.94rem;font-weight:700;margin-bottom:4px;letter-spacing:0}
+    .counts b{display:inline-block;min-width:38px;padding:0 7px;margin:0 2px;color:#165B4E;background:#FFFFFFA6;border-radius:6px;font-size:1.2rem;font-weight:700;vertical-align:baseline}
+    .updated{margin:0 0 16px;font-size:.86rem;line-height:1.6;text-align:right}
+    .updated.warn{background:#FFF4DD;padding:10px 12px;border-radius:9px;text-align:left;color:#775318}
+    .schedule-heading{display:grid;grid-template-columns:82px minmax(0,1fr) 92px 154px;align-items:center;gap:0;padding:11px 0;background:#EDF4F1;border:1px solid #CCDDD3;border-radius:10px 10px 0 0;color:#375A4B;font-size:.9rem;font-weight:600}
+    .schedule-heading span{padding:0 14px}
+    .schedule-heading span:first-child,.schedule-heading span:nth-child(3),.schedule-heading span:last-child{text-align:center;padding:0 5px}
+    #main:has(#list:empty) .schedule-heading,#main:has(.loaderr) .schedule-heading,#main:has(#list>.empty) .schedule-heading{display:none}
+    .slots{border-color:#CCDDD3;border-radius:0 0 10px 10px}
+    .slots.extra{margin-top:12px;border-radius:10px}
+    .layout .slots .slot{grid-template-columns:82px minmax(0,1fr) 92px 154px;min-height:72px;position:relative}
+    .slot .t{grid-column:1;grid-row:1;font-size:1.05rem;line-height:1.45;background:transparent;padding:10px 6px}
+    .slot .n{grid-column:2;grid-row:1;padding:12px 16px;gap:3px}
+    .slot .n b{font-size:1.03rem;line-height:1.55;font-weight:700}
+    .slot .n small{font-size:.88rem;line-height:1.6;color:#4D625C}
+    .layout .slots .slot .side{grid-column:4;grid-row:1;min-width:0;gap:6px;padding:0 8px}
+    .slot::after{grid-column:3;grid-row:1;align-self:center;justify-self:center;padding:5px 10px;border-radius:999px;font-size:.8rem;line-height:1.5;font-weight:600;white-space:nowrap}
+    .slot.taken::after{content:"จองแล้ว";background:#1F6F68;color:#FFF}
+    .slot.vacant::after{content:"ว่าง";background:#FFF;color:#4D625C;border:1px solid #C6D8CC}
+    .slot.vacant[aria-pressed="true"]::after{content:"เลือกไว้";background:#1F6F68;color:#FFF;border-color:#1F6F68}
+    .slot.off::after{content:"ยกเลิกแล้ว";background:#ECEFEE;color:#5D6D65}
+    .slot.blocked::after{content:"ไม่ว่าง";background:#E8EEEB;color:#5D6D65}
+    .slot.taken{background:#EAF5ED}
+    .slot.taken .t{background:#E0F0E5;box-shadow:inset 4px 0 0 #287B5F}
+    .slot.vacant{background:#FFF}
+    .slot.vacant[aria-pressed="true"]{background:#DCEFE3}
+    .mv{min-height:40px;padding:7px 12px;border:1px solid #91BCAA;border-radius:8px;background:#FFF;color:#185A54;font-size:.87rem}
+    .drop{width:auto;min-width:64px;height:40px;padding:7px 10px;border:1px solid #D59AAA;border-radius:8px;background:#FFF;font-size:0;color:#96354C}
+    .drop::after{content:"ยกเลิก";font-size:13px;font-weight:600;line-height:1.5}
+    .slot.vacant .side{font-size:0;color:#185A54}
+    .slot.vacant .side::after{content:"+ เพิ่มนัด";border:1px solid #91BCAA;border-radius:8px;padding:8px 12px;font-size:14px;font-weight:600;line-height:1.5;background:#FFF}
+    .slot.vacant[aria-pressed="true"] .side::after{content:"✓ เลือกไว้"}
+    .treat{font-size:.76rem;margin-left:6px;white-space:normal}
+    .waitbox{padding:18px;background:#FFFCF5;border:1px solid #E9DFC7;border-left:4px solid #B28A34;border-radius:12px;margin-top:18px}
+    .waitbox h3{color:#17352F;font-size:1.05rem}
+    .waitbox h3::before{content:"◷ ";color:#8E6A20}
+    .waitbox li{font-size:.96rem;line-height:1.7;padding:8px 0;overflow-wrap:anywhere}
+    .waitbox li+li{border-top:1px solid #EAE2D1}
+    .selbar{background:#1F6F68}
+  }
+  @media screen and (min-width:960px){
+    .layout{grid-template-columns:300px minmax(0,1fr);padding:24px;gap:22px}
+    .calendar-panel{grid-column:1;grid-row:2;position:sticky;top:20px}
+    .layout #main{grid-column:2;grid-row:2}
+    .layout:has(#main[hidden]){display:grid;grid-template-columns:300px minmax(0,1fr)}
+    .layout:has(#main[hidden]) .calendar-panel{grid-column:1/-1;max-width:440px;width:100%;justify-self:center}
+  }
+  @media screen and (max-width:1100px) and (min-width:960px){
+    .schedule-heading,.layout .slots .slot{grid-template-columns:72px minmax(0,1fr) 74px 126px}
+    .slot .n{padding:11px}
+    .mv{padding:7px 9px}
+    .drop{min-width:58px;padding:7px}
+    .layout #main{padding:16px}
+  }
+  @media screen and (max-width:959px){
+    .layout{grid-template-columns:minmax(0,1fr)}
+    .calendar-panel{max-width:480px;width:100%;justify-self:center}
+  }
+  @media screen and (max-width:639px){
+    .layout{padding:12px;gap:16px}
+    .layout .eyebrow{padding:16px;gap:10px;border-radius:13px}
+    .layout .eyebrow h1{flex:1 1 180px;font-size:1.12rem}
+    .layout .eyebrow::before{width:40px;height:40px;font-size:26px}
+    .layout #main{padding:16px 12px}
+    .layout #main .dayhead h2{font-size:1.18rem}
+    .counts{padding:13px 12px;font-size:.94rem}
+    .counts b{font-size:1.13rem}
+    .schedule-heading{grid-template-columns:64px minmax(0,1fr)}
+    .schedule-heading span:nth-child(3),.schedule-heading span:last-child{display:none}
+    .layout .slots .slot{grid-template-columns:64px minmax(0,1fr);grid-template-rows:auto auto;min-height:100px}
+    .slot .t{grid-column:1;grid-row:1/3;font-size:.98rem}
+    .slot .n{grid-column:2;grid-row:1;padding:11px 12px 5px}
+    .slot .n b{font-size:1rem}
+    .slot .n small{font-size:.86rem}
+    .layout .slots .slot .side{grid-column:2;grid-row:2;justify-content:flex-start;padding:0 12px 10px}
+    .slot::after{display:none}
+    .slot.taken .n::after{content:"จองแล้ว";font-size:.77rem;color:#1F6F68;font-weight:600}
+    .slot.vacant .n{padding-bottom:4px}
+    .mv,.drop{min-height:44px;height:44px}
+    .updated{text-align:left}
+    .waitbox{padding:16px 12px}
+  }
 </style>
 </head>
 <body>
@@ -589,9 +701,11 @@
     <div class="eyebrow"><h1 id="clinic">ตารางคิว</h1><span>หน้าผู้ดูแล</span>
       <button id="install" class="installbtn" hidden>📲 ติดตั้งแอป</button>
       <button id="logout" hidden>ออกจากระบบ</button></div>
+    <div class="calendar-panel">
     <div class="search" id="searchbox" hidden><input id="q" type="search" placeholder="ค้นหาชื่อ หรือเบอร์โทรคนไข้" autocomplete="off" aria-label="ค้นหาคนไข้"></div>
     <div id="results" class="results" hidden></div>
     <div id="strip" class="strip"></div>
+    </div><!-- calendar-panel -->
   </div>
 </header>
 
@@ -599,13 +713,16 @@
   <p id="pclinic" class="printonly"></p>
   <div class="dayhead">
     <h2 id="dayname"></h2>
+    <button id="refresh" class="shutbtn" title="โหลดคิวล่าสุด">↻ รีเฟรชคิว</button>
     <button id="print" class="shutbtn" title="พิมพ์ตารางคิววันนี้">🖨 พิมพ์</button>
     <button id="add" class="addbtn">+ เพิ่มนัด</button>
     <button id="shut" class="shutbtn"></button>
   </div>
   <p id="counts" class="counts"></p>
+  <p id="updated" class="updated"></p>
   <div id="svcpick"></div>
   <div id="banner" class="banner" hidden><span>⚠</span><span id="bannertext"></span></div>
+  <div class="schedule-heading" aria-hidden="true"><span>เวลา / คิว</span><span>คนไข้ / รายละเอียด</span><span>สถานะ</span><span>จัดการ</span></div>
   <div id="list"></div>
   <div id="waitlist"></div>
   <div id="selbar"></div>
@@ -849,17 +966,67 @@ function renderStrip(){
 }
 
 /* ---------- ตารางของวัน ---------- */
+let daySeq = 0;
 async function openDay(ds){
   current = ds;
   calMonth = monthOf(ds);
   renderStrip();
+  const seq = ++daySeq;                 // กันผลโหลดวันก่อนหน้ามาทับวันที่เลือกล่าสุด
   let data;
   try { loading(true); data = await api('adminDay', { date: ds }); }
-  catch (e) { toast(e.message); return; }
-  finally { loading(false); }
+  catch (e) {
+    if (seq === daySeq) showDayError(ds, e.message);
+    return false;
+  }
+  finally { if (seq === daySeq) loading(false); }
+  if (seq !== daySeq) return false;
   renderDay(data);
   $('main').hidden = false;
+  markUpdated();
+  return true;
 }
+
+/* โหลดวันไม่สำเร็จ — ล้างตารางวันเก่าทิ้ง แสดงข้อผิดพลาดพร้อมปุ่มลองใหม่ */
+function showDayError(ds, msg){
+  dayData = null; picked = [];
+  $('dayname').textContent = longDate(ds);
+  $('shut').hidden = true; $('print').hidden = true; $('add').hidden = true;
+  $('counts').replaceChildren();
+  $('svcpick').replaceChildren();
+  $('banner').hidden = true;
+  $('waitlist').replaceChildren();
+  $('selbar').replaceChildren();
+  setUpdated('⚠ โหลดล่าสุดไม่สำเร็จ', true);
+  $('list').replaceChildren(el('div', { class: 'loaderr', role: 'alert' },
+    el('p', {}, 'โหลดตารางคิวของวันนี้ไม่สำเร็จ'),
+    el('small', {}, msg || ''),
+    el('button', { type: 'button', class: 'addbtn', onclick: () => openDay(ds) }, 'ลองใหม่')));
+  $('main').hidden = false;
+}
+
+/* รีเฟรชทั้งปฏิทินและตารางของวันที่เลือก */
+async function refreshAll(){
+  const btn = $('refresh');
+  btn.disabled = true;
+  let calOk = true;
+  try {
+    loading(true);
+    days = await api('adminDays');
+    renderStrip();
+  } catch (e) { calOk = false; toast('ปฏิทินโหลดไม่สำเร็จ: ' + e.message); }
+  finally { loading(false); btn.disabled = false; }
+  const dayOk = current ? await openDay(current) : true;
+  // ตารางโหลดได้ แต่ปฏิทินไม่ได้ — บอกว่าอัปเดตได้เพียงบางส่วน
+  if (dayOk && !calOk) setUpdated(`⚠ อัปเดตตารางแล้ว ${nowHM()} น. · ตัวเลขในปฏิทินยังไม่อัปเดต กดรีเฟรชอีกครั้ง`, true);
+  else if (!dayOk && calOk) setUpdated(`⚠ อัปเดตปฏิทินแล้ว ${nowHM()} น. · ตารางของวันนี้โหลดไม่สำเร็จ`, true);
+}
+
+const nowHM = () => { const d = new Date(); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); };
+function setUpdated(text, warn){
+  $('updated').textContent = text;
+  $('updated').classList.toggle('warn', !!warn);
+}
+function markUpdated(){ setUpdated(`อัปเดตล่าสุด ${nowHM()} น.`, false); }
 
 let dayData = null, svcId = null, picked = [];
 
@@ -872,6 +1039,7 @@ function renderDay(data){
   shut.textContent = data.holiday ? 'เปิดทำการอีกครั้ง' : 'ปิดทำการวันนี้';
   shut.classList.toggle('on', data.holiday);
   shut.onclick = () => toggleHoliday(data);
+  $('print').hidden = false;
   shut.hidden = !!data.extra && !data.holiday;     // วันชดเชยคนไข้จองเองไม่ได้อยู่แล้ว
   $('add').hidden = true;
 
@@ -937,8 +1105,17 @@ function renderSlots(){
     return;
   }
 
+  // นัดที่ไม่ได้ขึ้นในช่องปกติ (เวลาซ้ำกัน / นอกรอบ / บริการอื่น) — แสดงต่อท้าย ห้ามหาย
+  const shown = new Set(svc.times.map(t => byTime[t]).filter(Boolean));
+  const extra = data.bookings
+    .filter(b => !b.cancelled && !shown.has(b) && (b.service === svc.name || !data.capacity.some(c => c.name === b.service)))
+    .sort((a, b) => a.time.localeCompare(b.time));
+
   $('list').replaceChildren(el('div', { class: 'slots' },
-    svc.times.map(t => slotRow(t, byTime[t], svc.free.includes(t)))));
+      svc.times.map(t => slotRow(t, byTime[t], svc.free.includes(t)))),
+    ...(extra.length ? [
+      el('p', { class: 'extra-head' }, `นัดเพิ่มเติม ${extra.length} คน (เวลาซ้ำหรือนอกรอบปกติ)`),
+      el('div', { class: 'slots extra' }, extra.map(b => slotRow(b.time, b, false)))] : []));
   renderSelbar();
 }
 
@@ -1018,14 +1195,14 @@ function renderPeople(){
   $('ad-people').replaceChildren(...picked.map((t, i) =>
     el('div', {},
       el('label', {}, picked.length > 1 ? `คนไข้คนที่ ${i+1}` : 'คนไข้'),
-      el('div', { class: 'person' },
+      el('div', { class: 'person', 'data-time': t },
         el('input', { class: 'nm', type: 'text', maxlength: '60', placeholder: 'ชื่อ-นามสกุล', 'aria-label': `ชื่อคนไข้คนที่ ${i+1}` }),
         el('div', { class: 'when' }, svc.noTime ? slotLabel(t) : `${t} – ${endOf(t, svc.minutes)}`),
         picked.length > 1
           ? el('button', { class: 'x', type: 'button', 'aria-label': `เอาคิว ${t} ออก`,
               onclick: () => {
                 const names = currentNames();
-                names.splice(i, 1);
+                delete names[t];
                 picked = picked.filter(x => x !== t);
                 renderPeople(); renderSlots(); restoreNames(names);
               } }, '✕')
@@ -1050,20 +1227,29 @@ function renderPeople(){
   };
 }
 
-const currentNames = () => [...document.querySelectorAll('#ad-people .person')]
-  .map(r => ({ name: r.querySelector('.nm').value, phone: r.querySelector('.ph').value,
-               treat: r.querySelector('.tr') ? r.querySelector('.tr').value : '' }));
-const restoreNames = v => document.querySelectorAll('#ad-people .person').forEach((r, i) => {
-  if (!v[i]) return;
-  r.querySelector('.nm').value = v[i].name; r.querySelector('.ph').value = v[i].phone;
-  if (r.querySelector('.tr')) r.querySelector('.tr').value = v[i].treat || '';
+/* ข้อมูลในฟอร์มผูกกับ "เวลา" ไม่ใช่ลำดับแถว — เพิ่ม/ลบคิวแล้วเวลาเรียงใหม่ ข้อมูลไม่สลับคน */
+const currentNames = () => {
+  const out = {};
+  document.querySelectorAll('#ad-people .person').forEach(r => {
+    out[r.dataset.time] = { name: r.querySelector('.nm').value, phone: r.querySelector('.ph').value,
+                            treat: r.querySelector('.tr') ? r.querySelector('.tr').value : '' };
+  });
+  return out;
+};
+const restoreNames = v => document.querySelectorAll('#ad-people .person').forEach(r => {
+  const x = v[r.dataset.time];
+  if (!x) return;
+  r.querySelector('.nm').value = x.name; r.querySelector('.ph').value = x.phone;
+  if (r.querySelector('.tr')) r.querySelector('.tr').value = x.treat || '';
 });
 
 async function submitAdd(){
   const err = m => { $('ad-err').textContent = m; };
   err('');
   const svc = dayData.capacity.find(c => c.id === svcId);
-  const people = currentNames().map(x => ({ name: x.name.trim(), phone: x.phone.replace(/\D/g, ''), treat: x.treat }));
+  const form = currentNames();
+  const people = picked.map(t => { const x = form[t] || { name: '', phone: '', treat: '' };
+    return { time: t, name: x.name.trim(), phone: x.phone.replace(/\D/g, ''), treat: x.treat }; });
   if (people.some(x => !x.name)) return err('กรอกชื่อคนไข้ให้ครบทุกคน');
   const bad = people.findIndex(x => x.phone && !/^0\d{8,9}$/.test(x.phone));
   if (bad >= 0) return err(`เบอร์โทรของคนที่ ${bad+1} ไม่ถูกต้อง เช่น 0812345678`);
@@ -1075,7 +1261,7 @@ async function submitAdd(){
     const r = await api('adminAdd', {
       date: dayData.date, service: svc.id,
       note: $('ad-note').value.trim(), channel: 'แอดมิน',
-      people: picked.map((t, i) => ({ time: t, name: people[i].name, phone: people[i].phone, treat: people[i].treat }))
+      people: people.map(x => ({ time: x.time, name: x.name, phone: x.phone, treat: x.treat }))
     });
     $('adlg').close();
     toast(`เพิ่ม ${r.added} นัดเรียบร้อย`);
@@ -1383,6 +1569,7 @@ async function init(){
   $('ad-no').addEventListener('click', () => $('adlg').close());
   $('lg-go').addEventListener('click', doLogin);
   $('print').addEventListener('click', () => window.print());
+  $('refresh').addEventListener('click', refreshAll);
   $('rs-date').addEventListener('change', loadTarget);
   $('mv-date').addEventListener('change', loadMoveTimes);
   $('mv-yes').addEventListener('click', submitMove);
