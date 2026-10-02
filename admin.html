@@ -779,6 +779,139 @@
     .slot .n small{font-size:.87rem}
     .calendar-selected-day:not(:empty){font-size:.9rem;padding:10px 12px}
   }
+
+  .theme-picker{display:none}
+  @media screen{
+    html[data-admin-theme="lavender"]{--theme-page:#F7F4FB;--theme-soft:#EFE8F8;--theme-row:#F4EFFA;--theme-accent:#73529C;--theme-deep:#573B7A;--theme-ink:#32273E;--theme-muted:#665D73;--theme-border:#DFD4EA;--theme-circle:#E9DCF7;--theme-head:#E5D8F2;--theme-header-end:#F0E7FA}
+    html[data-admin-theme="rose"]{--theme-page:#FCF5F7;--theme-soft:#F8E6EC;--theme-row:#FCF0F4;--theme-accent:#A74970;--theme-deep:#813653;--theme-ink:#412B34;--theme-muted:#785E69;--theme-border:#EDD2DC;--theme-circle:#F6DCE6;--theme-head:#F5DDE7;--theme-header-end:#FCEBF1}
+    html[data-admin-theme="mint"]{--theme-page:#F3F8F6;--theme-soft:#E3F1EA;--theme-row:#EDF7F1;--theme-accent:#287766;--theme-deep:#185A4D;--theme-ink:#17352F;--theme-muted:#52665C;--theme-border:#CCDDD3;--theme-circle:#D9EEE3;--theme-head:#D9EFE4;--theme-header-end:#EAF7EF}
+    html[data-admin-theme]{--bg:var(--theme-page);--card:#FFF;--ink:var(--theme-ink);--muted:var(--theme-muted);--rule:var(--theme-border);--teal:var(--theme-accent);--teal-soft:var(--theme-soft)}
+    html[data-admin-theme] body{background:var(--theme-page);color:var(--theme-ink)}
+    .theme-picker{display:flex;align-items:center;gap:7px;font-size:.87rem;color:var(--theme-deep);margin:0;flex-wrap:wrap}
+    .theme-picker select{font:inherit;min-height:44px;padding:9px 28px 9px 10px;border:1px solid var(--theme-border);border-radius:10px;background:#FFFFFFDD;color:var(--theme-deep);max-width:100%;cursor:pointer}
+    .theme-picker select:focus-visible{outline:3px solid var(--theme-accent);outline-offset:2px}
+    html[data-admin-theme] .layout .eyebrow{background:linear-gradient(110deg,var(--theme-head),var(--theme-header-end));color:var(--theme-ink);border:1px solid var(--theme-border);box-shadow:0 5px 18px #30243E08}
+    html[data-admin-theme] .layout .eyebrow h1{color:var(--theme-ink)}
+    html[data-admin-theme] .header-subtitle{color:var(--theme-deep);background:transparent}
+    html[data-admin-theme] .layout .eyebrow::before{content:"";background:var(--theme-accent);width:38px;height:44px;border-radius:0;-webkit-mask:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 56"%3E%3Cpath d="M24 7C15-1 3 4 4 16c0 10 5 12 6 24 1 12 7 12 9 0 2-13 8-13 10 0 2 12 8 12 9 0 1-12 6-14 6-24 1-12-11-17-20-9z"/%3E%3C/svg%3E') center/contain no-repeat;mask:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 56"%3E%3Cpath d="M24 7C15-1 3 4 4 16c0 10 5 12 6 24 1 12 7 12 9 0 2-13 8-13 10 0 2 12 8 12 9 0 1-12 6-14 6-24 1-12-11-17-20-9z"/%3E%3C/svg%3E') center/contain no-repeat}
+    html[data-admin-theme] .layout .eyebrow #logout,html[data-admin-theme] .layout .eyebrow #install{color:var(--theme-deep);border-color:var(--theme-border);background:#FFFFFFD9}
+    html[data-admin-theme] .cal,html[data-admin-theme] .slots,html[data-admin-theme] .stat-card,html[data-admin-theme] dialog{border-color:var(--theme-border)}
+    html[data-admin-theme] .wd span,html[data-admin-theme] .day-service,html[data-admin-theme] .dayhead h2,html[data-admin-theme] .stat-value{color:var(--theme-ink)}
+    html[data-admin-theme] .d.open{background:#F7F7F8;box-shadow:inset 0 0 0 1px var(--theme-border);color:var(--theme-ink)}
+    html[data-admin-theme] .d.has{background:var(--theme-soft);color:var(--theme-deep);box-shadow:inset 0 0 0 1px var(--theme-border)}
+    html[data-admin-theme] .d.extra:not([aria-current]){color:var(--theme-deep);box-shadow:inset 0 0 0 1.5px var(--theme-border)}
+    html[data-admin-theme] .d i,html[data-admin-theme] .d.has i{color:var(--theme-muted)}
+    html[data-admin-theme] .d[aria-current="date"]{background:var(--theme-accent);color:#FFF;box-shadow:inset 0 0 0 2px var(--theme-deep)}
+    html[data-admin-theme] .d[aria-current="date"] i{color:#FFF}
+    html[data-admin-theme] .legend,html[data-admin-theme] .stat-label,html[data-admin-theme] .updated{color:var(--theme-muted)}
+    html[data-admin-theme] .legend span:first-child i{background:var(--theme-soft)!important}
+    html[data-admin-theme] .search input{border-color:var(--theme-border);color:var(--theme-ink)}
+    html[data-admin-theme] .search::before{border-color:var(--theme-accent)}
+    html[data-admin-theme] .search::after{background:var(--theme-accent)}
+    html[data-admin-theme] #refresh{color:var(--theme-deep);background:var(--theme-soft);border-color:var(--theme-border)}
+    html[data-admin-theme] .shutbtn:not(.on):hover{border-color:var(--theme-accent);background:var(--theme-soft)}
+    html[data-admin-theme] .stat-icon{background:var(--theme-circle);color:var(--theme-accent)}
+    html[data-admin-theme] .stat-card:nth-child(2) .stat-icon{background:var(--theme-soft)}
+    html[data-admin-theme] .stat-card:nth-child(3) .stat-icon{background:#FFF0D2;color:#986916}
+    html[data-admin-theme] .schedule-heading,html[data-admin-theme] .lunch-label{background:var(--theme-soft);color:var(--theme-deep);border-color:var(--theme-border)}
+    html[data-admin-theme] .layout .slots .slot{border-top-color:var(--theme-border)}
+    html[data-admin-theme] .slot .t{color:var(--theme-ink);border-right-color:var(--theme-border)}
+    html[data-admin-theme] .slot .n b{color:var(--theme-ink)}
+    html[data-admin-theme] .slot .n small{color:var(--theme-muted)}
+    html[data-admin-theme] .slot .n small a{color:var(--theme-deep)}
+    html[data-admin-theme] .slot.taken{background:linear-gradient(90deg,var(--theme-soft),var(--theme-row))}
+    html[data-admin-theme] .slot.taken .t{background:var(--theme-soft);box-shadow:inset 4px 0 0 var(--theme-accent)}
+    html[data-admin-theme] .slot.taken::after,html[data-admin-theme] .slot.vacant[aria-pressed="true"]::after{background:var(--theme-accent);color:#FFF;border-color:var(--theme-accent)}
+    html[data-admin-theme] .slot.vacant::after{color:var(--theme-muted);border-color:var(--theme-border)}
+    html[data-admin-theme] .slot.vacant:hover{background:var(--theme-row)}
+    html[data-admin-theme] .slot.vacant[aria-pressed="true"]{background:var(--theme-soft);box-shadow:inset 0 0 0 2px var(--theme-accent)}
+    html[data-admin-theme] .slot.vacant[aria-pressed="true"] .n b{color:var(--theme-deep)}
+    html[data-admin-theme] .mv,html[data-admin-theme] .slot.vacant .side::after{color:var(--theme-deep);border-color:var(--theme-border);background:#FFF}
+    html[data-admin-theme] .mv:hover{background:var(--theme-soft);border-color:var(--theme-accent)}
+    html[data-admin-theme] .waitbox{border-color:var(--theme-border);border-left-color:#B28A34}
+    html[data-admin-theme] .waitbox li::before{background:var(--theme-soft);color:var(--theme-deep)}
+    html[data-admin-theme] .waitbox a{color:var(--theme-deep)}
+    html[data-admin-theme] .selbar,html[data-admin-theme] .addbtn,html[data-admin-theme] .acts .go.safe{background:var(--theme-accent)}
+    html[data-admin-theme] .addbtn:not(:disabled):hover{background:var(--theme-deep)}
+    html[data-admin-theme] #ad-people>div,html[data-admin-theme] .empty{background:var(--theme-row);border-color:var(--theme-border)}
+    html[data-admin-theme] .chip[aria-pressed="true"]{color:var(--theme-deep);background:var(--theme-soft);border-color:var(--theme-accent)}
+    html[data-admin-theme] .updated.warn{background:#FFF4DD;color:#775318}
+  }
+  @media screen and (max-width:639px){
+    .theme-picker{flex:1 1 100%;font-size:.86rem}
+    .theme-picker select{flex:1;min-width:0}
+    html[data-admin-theme] .slot.taken .n::after{color:var(--theme-deep)}
+  }
+
+  .print-report-summary,.print-table-heading{display:none}
+  @media print{
+    html,body{background:#FFF!important;color:#000!important;font-size:12pt;line-height:1.5}
+    .theme-picker,.day-statistics,.day-service,.schedule-heading,.lunch-label{display:none!important}
+    #main{border:0!important;border-radius:0!important;box-shadow:none!important;background:#FFF!important;padding:0!important}
+    #pclinic{font-size:12pt!important;font-weight:600;margin:0 0 4mm!important;color:#000!important}
+    .dayhead{margin:0 0 4mm!important;display:block!important}
+    .dayhead h2{font-size:17pt!important;font-weight:700;line-height:1.4;margin:0!important;color:#000!important}
+    #counts{display:none!important}
+    .print-report-summary:not(:empty){display:block;margin:0 0 5mm;padding:3mm 4mm;border:1px solid #555;border-radius:0;break-inside:avoid}
+    .print-report-summary h3{font-size:11pt;margin:0 0 2mm;font-weight:600}
+    .print-report-values{display:flex;flex-wrap:wrap;gap:2mm 6mm;align-items:baseline}
+    .print-report-values span{font-size:11pt;color:#000;white-space:nowrap}
+    .print-report-values strong{font-size:15pt;font-weight:700;padding:0 1mm;color:#000}
+    .print-table-heading{display:grid;grid-template-columns:22mm minmax(0,1fr);border:1px solid #000;border-bottom:0;background:#FFF;font-size:11pt;font-weight:700;break-after:avoid}
+    .print-table-heading span{padding:2.5mm 3mm}
+    .print-table-heading span:first-child{border-right:1px solid #000;text-align:center;padding:2.5mm 1mm}
+    .slots{border:1px solid #000!important;border-radius:0!important;background:#FFF!important;overflow:visible!important}
+    .layout .slots .slot{display:grid!important;grid-template-columns:22mm minmax(0,1fr)!important;grid-template-rows:auto!important;min-height:15mm!important;border-top:1px solid #777!important;background:#FFF!important;break-inside:avoid;page-break-inside:avoid}
+    .layout .slots .slot:first-child{border-top:0!important}
+    .slot .t{grid-column:1!important;grid-row:1!important;border-right:1px solid #000!important;padding:2mm 1mm!important;font-size:12pt!important;font-weight:700;color:#000!important;background:#FFF!important;box-shadow:none!important}
+    .slot .n{grid-column:2!important;grid-row:1!important;display:flex!important;flex-direction:column!important;gap:1mm!important;padding:2.5mm 4mm!important;min-width:0!important}
+    .slot .n b{font-size:12.5pt!important;line-height:1.5!important;color:#000!important;font-weight:700;white-space:normal!important;overflow:visible!important;overflow-wrap:anywhere}
+    .slot .n small,.slot .n small a{font-size:10pt!important;color:#222!important;line-height:1.5!important;text-decoration:none!important;white-space:normal!important;overflow:visible!important;overflow-wrap:anywhere}
+    .slot.vacant .n b{color:#555!important;font-size:11pt!important;font-weight:400}
+    .slot::after,.slot .n::after,.slot .side{display:none!important}
+    .slot .treat{display:inline-block!important;margin-left:2mm!important;padding:.5mm 2mm!important;border:1px solid #555!important;border-radius:2mm!important;background:#FFF!important;color:#000!important;font-size:10pt!important;vertical-align:middle;line-height:1.4}
+    .extra-head{font-size:11pt;font-weight:600;margin:4mm 0 2mm;color:#000}
+    .slots.extra{margin-top:0!important}
+  }
+
+  @media screen{
+    .stat-card{position:relative;justify-content:center;padding:20px 72px;min-height:112px}
+    .stat-card .stat-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:54px;height:54px;margin:0}
+    .stat-text{width:100%;text-align:center}
+    .stat-value{width:100%;text-align:center;font-size:2.3rem}
+    .stat-label{text-align:center}
+  }
+  @media screen and (min-width:960px) and (max-width:1199px){
+    .stat-card{padding:18px 48px;min-height:105px}
+    .stat-card .stat-icon{left:11px;width:36px;height:36px}
+    .stat-card .stat-icon svg{width:23px;height:23px}
+    .stat-value{font-size:2rem}
+  }
+  @media screen and (max-width:639px){
+    .stat-card{display:flex;flex-direction:column;align-items:center;padding:12px 6px;min-height:125px}
+    .stat-card .stat-icon{position:static;transform:none;width:34px;height:34px;margin:0 0 8px}
+    .stat-value{font-size:1.75rem}
+  }
+</style>
+
+<style>
+/* ส่วนกำหนดวันหยุดของผู้ดูแล */
+@media screen {
+  .holiday-manager{margin-top:20px;padding:22px;background:#FFF;border:1px solid var(--theme-border,var(--rule));border-radius:20px;box-shadow:0 6px 22px #38264E08}
+  .holiday-manager[hidden]{display:none}
+  .holiday-manager h2{margin:0 0 6px;font-size:1.12rem;color:var(--theme-deep,var(--ink))}
+  .holiday-manager p{margin:0 0 18px;font-size:.9rem;line-height:1.7;color:var(--muted)}
+  .holiday-manager label{display:block;margin:14px 0 7px;font-size:.95rem;font-weight:600}
+  .holiday-manager input{display:block;box-sizing:border-box;width:100%;min-width:0;min-height:48px;padding:11px 12px;border:1px solid var(--theme-border,var(--rule));border-radius:12px;background:var(--theme-page,#FFF);color:var(--ink);font:inherit}
+  .holiday-manager input:focus-visible,.holiday-manager button:focus-visible{outline:3px solid var(--theme-accent,var(--teal));outline-offset:3px}
+  .holiday-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  .holiday-actions button{flex:1 1 130px;min-height:48px;padding:11px 12px;border:1px solid var(--theme-border,var(--rule));border-radius:12px;background:#FFF;color:var(--theme-deep,var(--ink));font:inherit;font-weight:600;cursor:pointer}
+  .holiday-actions .holiday-save{background:var(--theme-accent,var(--teal));color:#FFF;border-color:transparent}
+  .holiday-actions button:disabled{opacity:.55;cursor:wait}
+  .holiday-manager .holiday-status{margin:14px 0 0;padding:12px;border-radius:10px;background:var(--theme-soft,#F4F1F8);color:var(--theme-deep,var(--ink));overflow-wrap:anywhere}
+  .holiday-manager .holiday-status:empty{display:none}
+  .holiday-manager .holiday-status[data-error="true"]{background:#FFF0F0;color:#92363B}
+}
 </style>
 </head>
 <body>
@@ -787,13 +920,27 @@
 <header class="top">
   <div class="wrap">
     <div class="eyebrow"><div class="brand-text"><h1 id="clinic">ตารางคิว</h1><span class="header-subtitle">ตารางนัดหมายสำหรับเจ้าหน้าที่</span></div><span>หน้าผู้ดูแล</span>
+      <label class="theme-picker">โทนสี <select aria-label="เลือกโทนสีหน้าแอดมิน"><option value="lavender">ม่วงลาเวนเดอร์</option><option value="rose">ชมพูกุหลาบ</option><option value="mint">เขียวมิ้นต์</option></select></label>
       <button id="install" class="installbtn" hidden>📲 ติดตั้งแอป</button>
       <button id="logout" hidden>ออกจากระบบ</button></div>
     <div class="calendar-panel">
     <div class="search" id="searchbox" hidden><input id="q" type="search" placeholder="ค้นหาชื่อ หรือเบอร์โทรคนไข้" autocomplete="off" aria-label="ค้นหาคนไข้"></div>
     <div id="results" class="results" hidden></div>
     <div id="strip" class="strip"></div>
-        <p class="calendar-selected-day" aria-live="polite"></p>
+
+    <section id="holiday-manager" class="holiday-manager" hidden aria-labelledby="holiday-heading">
+      <h2 id="holiday-heading">กำหนดวันหยุด</h2>
+      <p>เลือกวันที่ต้องการปิดรับจองคิวใหม่<br>นัดที่มีอยู่แล้วจะยังอยู่ในระบบ</p>
+      <label for="holiday-date">วันที่ปิดรับคิว</label>
+      <input id="holiday-date" type="date" required>
+      <label for="holiday-note">เหตุผล (ไม่บังคับ)</label>
+      <input id="holiday-note" type="text" maxlength="100" placeholder="เช่น หมอลา / วันหยุดพิเศษ">
+      <div class="holiday-actions">
+        <button id="holiday-save" class="holiday-save" type="button">บันทึกวันหยุด</button>
+        <button id="holiday-reopen" type="button">เปิดรับคิวกลับ</button>
+      </div>
+      <p id="holiday-status" class="holiday-status" role="status" aria-live="polite"></p>
+    </section>
     </div><!-- calendar-panel -->
   </div>
 </header>
@@ -818,6 +965,8 @@
   <div id="svcpick"></div>
   <div id="banner" class="banner" hidden><span>⚠</span><span id="bannertext"></span></div>
   <div class="schedule-heading" aria-hidden="true"><span>เวลา / คิว</span><span>คนไข้ / รายละเอียด</span><span>สถานะ</span><span>จัดการ</span></div>
+  <section class="print-report-summary" aria-label="สรุปจำนวนผู้มีนัดสำหรับพิมพ์"></section>
+  <div class="print-table-heading" aria-hidden="true"><span>เวลา / คิว</span><span>ชื่อคนไข้ · งานที่ทำ / เบอร์โทร</span></div>
   <div id="list"></div>
   <div id="waitlist"></div>
   <div id="selbar"></div>
@@ -1767,18 +1916,132 @@ init();
 })();
 </script>
 
+
 <script>
-/* Keep the selected table date clear while browsing other calendar months. */
+/* Local appearance preference only; no booking data or network calls. */
 (() => {
-  const caption=document.querySelector('.calendar-selected-day');
-  function updateSelectedDay(){
-    caption.replaceChildren();
-    if(!current)return;
-    caption.append(el('strong',{},'วันที่ของตารางที่เลือก'),document.createTextNode(longDate(current)));
+  const key='clinic-admin-color-theme';
+  const select=document.querySelector('.theme-picker select');
+  const colors={lavender:'#E5D8F2',rose:'#F5DDE7',mint:'#D9EFE4'};
+  function applyTheme(theme){
+    if(!Object.prototype.hasOwnProperty.call(colors,theme))theme='lavender';
+    document.documentElement.setAttribute('data-admin-theme',theme);
+    select.value=theme;
+    const meta=document.querySelector('meta[name="theme-color"]');
+    if(meta)meta.setAttribute('content',colors[theme]);
+    return theme;
   }
-  const originalStrip=renderStrip;
-  renderStrip=function(){originalStrip();updateSelectedDay();};
-  updateSelectedDay();
+  let chosen='lavender';
+  try{chosen=localStorage.getItem(key)||chosen;}catch(_){}
+  applyTheme(chosen);
+  select.addEventListener('change',()=>{
+    const theme=applyTheme(select.value);
+    try{localStorage.setItem(key,theme);}catch(_){}
+  });
+})();
+</script>
+
+<script>
+/* Printed appointment totals reflect the rows actually displayed. */
+(() => {
+  const box=document.querySelector('.print-report-summary');
+  function buildPrintSummary(){
+    box.replaceChildren();
+    if(!dayData || $('main').hidden)return;
+    const rows=[...$('list').querySelectorAll('.slot.taken')];
+    const total=rows.length;
+    const treatment=row=>{const tag=row.querySelector('.treat');return tag?tag.textContent.trim():'';};
+    const fill=rows.filter(row=>treatment(row)==='อุดฟัน').length;
+    const scale=rows.filter(row=>['ขูดหินปูน','ขูด'].includes(treatment(row))).length;
+    const cap=dayData.capacity.find(c=>c.id===svcId);
+    const extraction=cap && cap.noTime ? total : 0;
+    const unknown=Math.max(0,total-fill-scale-extraction);
+    const values=[['ผู้มีนัดทั้งหมด',total],['อุดฟัน',fill],['ขูดหินปูน',scale]];
+    if(extraction)values.push(['ถอนฟัน',extraction]);
+    if(unknown)values.push(['ยังไม่ระบุงาน',unknown]);
+    box.append(el('h3',{},'สรุปผู้มีนัดในตารางนี้'),
+      el('div',{class:'print-report-values'},values.map(([label,count])=>
+        el('span',{},label+' ',el('strong',{},String(count)),' คน'))));
+  }
+  addEventListener('beforeprint',buildPrintSummary);
+  const printButton=$('print');
+  printButton.addEventListener('click',buildPrintSummary,true);
+})();
+</script>
+
+<script>
+/* กำหนดวันหยุดผ่าน API เดิม โดยไม่เปลี่ยนขั้นตอนจองหรือยกเลิกนัด */
+(() => {
+  const panel=$('holiday-manager'), dateInput=$('holiday-date'), noteInput=$('holiday-note');
+  const save=$('holiday-save'), reopen=$('holiday-reopen'), status=$('holiday-status');
+  let busy=false;
+  const originalRenderDay=renderDay;
+  renderDay=function(data){
+    originalRenderDay(data);
+    panel.hidden=false;
+    if(!dateInput.value) dateInput.value=data.date;
+  };
+  function message(text,error=false){
+    status.textContent=text;
+    status.dataset.error=String(error);
+  }
+  async function changeHoliday(on){
+    if(busy) return;
+    if(!dateInput.value || !dateInput.checkValidity()){
+      message('กรุณาเลือกวันที่ให้ถูกต้อง',true);
+      dateInput.reportValidity();
+      return;
+    }
+    const date=dateInput.value, note=noteInput.value.trim();
+    busy=true;
+    save.disabled=reopen.disabled=dateInput.disabled=noteInput.disabled=true;
+    message('กำลังตรวจสอบนัดของวันที่เลือก…');
+    let saved=false;
+    try {
+      const data=await api('adminDay',{date});
+      if(!on && !data.holiday){
+        message('วันที่เลือกไม่ได้เป็นวันหยุด ระบบเปิดรับคิวตามวันและเวลาทำการอยู่แล้ว');
+        return;
+      }
+      const live=(data.bookings||[]).filter(b=>!b.cancelled).length;
+      const result=await ask({
+        title:on?'ยืนยันบันทึกวันหยุด?':'เปิดรับคิวกลับ?',
+        text:longDate(date)+'\n'+(on
+          ? 'คนไข้จะจองคิวใหม่ในวันนี้ไม่ได้'+(live?'\nมีนัดอยู่แล้ว '+live+' รายการ นัดเดิมจะยังอยู่ กรุณาจัดการเลื่อนหรือยกเลิกนัดแยกต่างหาก':'')+(note?'\nเหตุผล: '+note:'')
+          : 'ระบบจะเปิดให้จองตามวันและเวลาทำการของแต่ละบริการ'),
+        confirm:on?'บันทึกวันหยุด':'เปิดรับคิวกลับ',safe:!on
+      });
+      if(!result){message('ยังไม่ได้เปลี่ยนวันหยุด');return;}
+      message('กำลังบันทึก…');
+      await api('adminHoliday',{date,on,note});
+      saved=true;
+      // โหลดปฏิทินและตารางแยกกัน เพื่อรายงานกรณีอัปเดตได้บางส่วน
+      const results=await Promise.allSettled([api('adminDays'),openDay(date)]);
+      const calOk=results[0].status==='fulfilled';
+      const dayOk=results[1].status==='fulfilled' && results[1].value===true;
+      if(calOk){days=results[0].value;renderStrip();}
+      else {
+        // ไม่แสดงสถานะเปิด/ปิดเก่าของวันที่เพิ่งบันทึก
+        days=days.map(d=>d.date===date?{...d,holiday:on}:d);
+        renderStrip();
+      }
+      const done=(on?'บันทึกวันหยุดแล้ว: ':'เปิดรับคิวกลับแล้ว: ')+longDate(date);
+      if(calOk && dayOk) message(done);
+      else {
+        const detail=!calOk && !dayOk?'ปฏิทินและตาราง':!calOk?'ปฏิทิน':'ตาราง';
+        message(done+' แต่โหลด'+detail+'ล่าสุดไม่สำเร็จ กรุณากดรีเฟรชคิว',true);
+        setUpdated('⚠ บันทึกวันหยุดแล้ว แต่โหลด'+detail+'ล่าสุดไม่สำเร็จ · กดรีเฟรชคิว',true);
+      }
+    } catch(e){
+      message(saved?'บันทึกแล้ว แต่โหลดหน้าจอล่าสุดไม่สำเร็จ กรุณากดรีเฟรชคิว':'บันทึกไม่สำเร็จ: '+(e.message||'กรุณาลองอีกครั้ง'),true);
+    } finally {
+      busy=false;
+      save.disabled=reopen.disabled=dateInput.disabled=noteInput.disabled=false;
+    }
+  }
+  dateInput.addEventListener('change',()=>message(''));
+  save.addEventListener('click',()=>changeHoliday(true));
+  reopen.addEventListener('click',()=>changeHoliday(false));
 })();
 </script>
 </body>
