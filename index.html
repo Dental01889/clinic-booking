@@ -837,12 +837,7 @@ async function submit(){
       { service: st.svc.id, date: st.date, time: st.time, names, treats, phone, note, consent }));
     const made = [].concat(list);
     showDone(made);
-    try {
-      if (liff.isInClient()) await liff.sendMessages([{ type: 'text',
-        text: '✅ จองคิวแล้ว\n\n' + made.map(b =>
-          `${b.name ? 'คุณ' + b.name + ' · ' : ''}${b.service}\n${fullDate(b.date)}\n${whenText(b)}`
-        ).join('\n\n') }]);
-    } catch (_) {}
+    // ข้อความยืนยันส่งจากคลินิกทาง LINE ให้เอง (จากเซิร์ฟเวอร์)
   } catch (e) {
     err(e.message);
     if (e.message.includes('ถูกจอง')) {
