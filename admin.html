@@ -691,7 +691,6 @@
     .updated{text-align:left}
     .waitbox{padding:16px 12px}
   }
-
   .day-statistics,.admin-shortcuts,.day-service,.lunch-label{display:none}
   @media screen{
     body{font-size:17px}
@@ -892,8 +891,8 @@
     .stat-card .stat-icon{position:static;transform:none;width:34px;height:34px;margin:0 0 8px}
     .stat-value{font-size:1.75rem}
   }
-</style>
 
+</style>
 <style>
 /* ส่วนกำหนดวันหยุดของผู้ดูแล */
 @media screen {
@@ -913,7 +912,6 @@
   .holiday-manager .holiday-status[data-error="true"]{background:#FFF0F0;color:#92363B}
 }
 </style>
-
 <style>
 @media screen {
   .holiday-launch{display:block;width:100%;min-height:50px;margin-top:16px;padding:12px 16px;border:1px solid var(--theme-border,var(--rule));border-radius:14px;background:#FFF;color:var(--theme-deep,var(--ink));font:inherit;font-weight:600;cursor:pointer;box-shadow:0 4px 14px #38264E06}
@@ -939,6 +937,24 @@
   .holiday-launch:focus-visible,#holiday-dialog button:focus-visible{outline:3px solid var(--theme-accent,var(--teal));outline-offset:3px}
 }
 </style>
+<style>
+/* ชื่อวันหยุดต่อท้ายวันที่ อ่านได้ทั้งจอเล็กและหน้าพิมพ์ */
+#dayname{overflow-wrap:anywhere;line-height:1.5}
+</style>
+<style>
+@media screen {
+  .holiday-calendar-settings{margin-top:24px;padding:16px;border:1px solid var(--theme-border,var(--rule));border-radius:14px;background:var(--theme-page,#F8F5FC)}
+  .holiday-calendar-settings summary{font-weight:600;cursor:pointer;line-height:1.6;color:var(--theme-deep,var(--ink))}
+  .holiday-calendar-settings p{font-size:.9rem;line-height:1.7;color:var(--muted);overflow-wrap:anywhere}
+  .holiday-calendar-settings select{box-sizing:border-box;width:100%;min-height:48px;padding:10px;border:1px solid var(--theme-border,var(--rule));border-radius:10px;background:#FFF;color:var(--ink);font:inherit;margin:8px 0 12px}
+  .holiday-calendar-settings label:not(.holiday-calendar-check){display:block;font-weight:600}
+  .holiday-calendar-check{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;line-height:1.7;margin:16px 0}
+  .holiday-calendar-check input{width:20px;height:20px;flex:none;accent-color:var(--theme-accent,var(--teal));margin-top:3px}
+  .holiday-calendar-help{margin-bottom:0}
+  #holiday-calendar-preview-list{max-height:240px;overflow:auto}
+  #holiday-calendar-connect{background:var(--theme-accent,var(--teal));color:#FFF}
+}
+</style>
 </head>
 <body>
 
@@ -953,7 +969,6 @@
     <div class="search" id="searchbox" hidden><input id="q" type="search" placeholder="ค้นหาชื่อ หรือเบอร์โทรคนไข้" autocomplete="off" aria-label="ค้นหาคนไข้"></div>
     <div id="results" class="results" hidden></div>
     <div id="strip" class="strip"></div>
-
     <button id="holiday-open" type="button" class="holiday-launch" hidden>กำหนดวันหยุด</button>
     </div><!-- calendar-panel -->
   </div>
@@ -1890,7 +1905,6 @@ async function init(){
 
 init();
 </script>
-
 <script>
 /* Presentation only. Original booking/authentication/network functions remain intact. */
 (() => {
@@ -1909,6 +1923,8 @@ init();
   markUpdated=function(){originalUpdated();updateSummary();};
   const originalDay=renderDay;
   renderDay=function(data){originalDay(data);updateSummary();};
+  const originalRow=slotRow;
+  slotRow=function(t,b,free){const row=originalRow(t,b,free);if(b && !b.cancelled)row.dataset.bookingId=b.id;return row;};
   const originalSlots=renderSlots;
   renderSlots=function(){originalSlots();updateSummary();
     const cap=dayData && dayData.capacity.find(c=>c.id===svcId);
@@ -1964,11 +1980,12 @@ init();
     if(!dayData || $('main').hidden)return;
     const rows=[...$('list').querySelectorAll('.slot.taken')];
     const total=rows.length;
+    const byId=new Map(dayData.bookings.map(b=>[String(b.id),b]));
     const treatment=row=>{const tag=row.querySelector('.treat');return tag?tag.textContent.trim():'';};
-    const fill=rows.filter(row=>treatment(row)==='อุดฟัน').length;
-    const scale=rows.filter(row=>['ขูดหินปูน','ขูด'].includes(treatment(row))).length;
-    const cap=dayData.capacity.find(c=>c.id===svcId);
-    const extraction=cap && cap.noTime ? total : 0;
+    const isExtraction=row=>{const b=byId.get(String(row.dataset.bookingId));return !!b && (dayData.capacity.some(c=>c.name===b.service && c.noTime) || b.service==='ถอนฟัน');};
+    const fill=rows.filter(row=>!isExtraction(row) && treatment(row)==='อุดฟัน').length;
+    const scale=rows.filter(row=>!isExtraction(row) && ['ขูดหินปูน','ขูด'].includes(treatment(row))).length;
+    const extraction=rows.filter(isExtraction).length;
     const unknown=Math.max(0,total-fill-scale-extraction);
     const values=[['ผู้มีนัดทั้งหมด',total],['อุดฟัน',fill],['ขูดหินปูน',scale]];
     if(extraction)values.push(['ถอนฟัน',extraction]);
@@ -2001,6 +2018,28 @@ init();
       </div>
       <p id="holiday-status" class="holiday-status" role="status" aria-live="polite"></p>
     </section>
+
+  <details class="holiday-calendar-settings">
+    <summary>วันหยุดอัตโนมัติจาก Google Calendar</summary>
+    <p>เลือกปฏิทินที่มีเฉพาะวันหยุดของคลินิก ระบบจะอ่านรายการล่วงหน้าและซิงก์ทุก 6 ชั่วโมง โดยไม่แก้ไขปฏิทินต้นทาง</p>
+    <p id="holiday-calendar-status" role="status" aria-live="polite">กำลังโหลดสถานะ…</p>
+    <label for="holiday-calendar-select">ปฏิทินวันหยุด</label>
+    <select id="holiday-calendar-select"><option value="">กดโหลดปฏิทินเพื่อเลือก</option></select>
+    <div class="holiday-row-actions">
+      <button id="holiday-calendar-load" type="button">โหลดปฏิทิน</button>
+      <button id="holiday-calendar-preview" type="button">ดูรายการก่อนเชื่อม</button>
+    </div>
+    <p id="holiday-calendar-preview-status" role="status" aria-live="polite"></p>
+    <ul id="holiday-calendar-preview-list" class="holiday-list"></ul>
+    <label class="holiday-calendar-check"><input id="holiday-calendar-confirm" type="checkbox"> ปฏิทินนี้มีเฉพาะวันที่คลินิกหยุด และตรวจรายการแล้ว</label>
+    <div class="holiday-row-actions">
+      <button id="holiday-calendar-connect" type="button">เชื่อมและปิดรับคิวตามปฏิทิน</button>
+      <button id="holiday-calendar-sync" type="button">ซิงก์ตอนนี้</button>
+      <button id="holiday-calendar-disconnect" type="button">หยุดเชื่อมปฏิทิน</button>
+    </div>
+    <p class="holiday-calendar-help">เลือกเฉพาะวันหยุดสาธารณะใน Google Calendar ก่อนเชื่อม ไม่เลือกปฏิทินนัดหมายส่วนตัว วันหยุดพิเศษของคลินิกยังเพิ่มเองในหน้าต่างนี้ได้</p>
+  </details>
+
   <section class="holiday-records" aria-labelledby="holiday-list-heading">
     <div class="holiday-list-head">
       <h3 id="holiday-list-heading">รายการวันหยุดและเหตุผล</h3>
@@ -2021,6 +2060,8 @@ init();
   const originalRenderDay=renderDay;
   renderDay=function(data){
     originalRenderDay(data);
+    const holidayNote=data.holiday ? String(data.holidayNote || '').trim() : '';
+    $('dayname').textContent=longDate(data.date)+(holidayNote?' — '+holidayNote:'');
     launch.hidden=false;
     if(!dateInput.value) dateInput.value=data.date;
   };
@@ -2029,12 +2070,14 @@ init();
     status.dataset.error=String(error);
   }
   function setBusy(on){
-    busy=on;
+    busy=on;dialog.dataset.holidayBusy=String(on);
+    ['load','preview','connect','sync','disconnect'].forEach(name=>{const button=$('holiday-calendar-'+name);if(button)button.disabled=on;});
+    $('holiday-calendar-select').disabled=$('holiday-calendar-confirm').disabled=on;
     save.disabled=reopen.disabled=dateInput.disabled=noteInput.disabled=refresh.disabled=$('holiday-close').disabled=on;
     list.querySelectorAll('button').forEach(b=>b.disabled=on);
   }
   function selectHoliday(item){
-    if(busy)return;
+    if(busy || dialog.dataset.holidayBusy==='true')return;
     dateInput.value=item.date;
     noteInput.value=item.note || '';
     message('เลือก '+longDate(item.date)+' แล้ว แก้เหตุผลแล้วกดบันทึก หรือกดเปิดรับคิวกลับ');
@@ -2056,9 +2099,10 @@ init();
       list.replaceChildren(...sorted.map(item=>el('li',{},
         el('strong',{},longDate(item.date),item.date<today?el('small',{},' · ผ่านแล้ว'):null),
         el('p',{},item.note || 'ไม่ระบุเหตุผล'),
+        el('small',{},item.source==='calendar'?'จาก Google Calendar':'เจ้าหน้าที่บันทึก'),
         el('div',{class:'holiday-row-actions'},
           el('button',{type:'button',disabled:busy,onclick:()=>selectHoliday(item)},'เลือก / แก้เหตุผล'),
-          el('button',{type:'button',disabled:busy,onclick:()=>{if(busy)return;dateInput.value=item.date;noteInput.value=item.note||'';changeHoliday(false);}},'เปิดรับคิวกลับ'))
+          el('button',{type:'button',disabled:busy,onclick:()=>{if(busy || dialog.dataset.holidayBusy==='true')return;dateInput.value=item.date;noteInput.value=item.note||'';changeHoliday(false);}},'เปิดรับคิวกลับ'))
       )));
       listStatus.textContent=rows.length?'วันหยุดทั้งหมด '+rows.length+' วัน · แสดงวันที่กำลังจะมาถึงก่อน':'ยังไม่มีวันหยุดที่บันทึกไว้';
       return true;
@@ -2070,7 +2114,7 @@ init();
     } finally {if(seq===listSeq)refresh.disabled=busy;}
   }
   async function changeHoliday(on){
-    if(busy)return;
+    if(busy || dialog.dataset.holidayBusy==='true')return;
     if(!dateInput.value || !dateInput.checkValidity()){
       message('กรุณาเลือกวันที่ให้ถูกต้อง',true);dateInput.reportValidity();return;
     }
@@ -2109,6 +2153,7 @@ init();
       message(saved?'บันทึกแล้ว แต่โหลดหน้าจอล่าสุดไม่สำเร็จ กรุณาโหลดใหม่':'บันทึกไม่สำเร็จ: '+(e.message||'กรุณาลองอีกครั้ง'),true);
     } finally {setBusy(false);}
   }
+  document.addEventListener('clinic-holidays-updated',()=>loadHolidayList());
   launch.addEventListener('click',()=>{
     message('');
     if(!dateInput.value)dateInput.value=current || today;
@@ -2125,6 +2170,110 @@ init();
 })();
 </script>
 
+
+
+
+<script>
+/* อ่านอย่างเดียวจาก Google Calendar ผ่านหลังบ้าน ผู้ดูแลเลือกแหล่งข้อมูลครั้งแรก */
+(() => {
+  const dialog=$('holiday-dialog'), select=$('holiday-calendar-select');
+  const status=$('holiday-calendar-status'), previewStatus=$('holiday-calendar-preview-status');
+  const previewList=$('holiday-calendar-preview-list'), check=$('holiday-calendar-confirm');
+  const buttons=['load','preview','connect','sync','disconnect'].map(name=>$('holiday-calendar-'+name));
+  let busy=false, preview=null, settings=null, statusSeq=0;
+  function setBusy(on){
+    busy=on;dialog.dataset.holidayBusy=String(on);buttons.forEach(b=>b.disabled=on);select.disabled=check.disabled=on;
+    $('holiday-close').disabled=on;
+    $('holiday-save').disabled=$('holiday-reopen').disabled=$('holiday-date').disabled=$('holiday-note').disabled=on;
+    $('holiday-list-refresh').disabled=on;
+    $('holiday-list').querySelectorAll('button').forEach(button=>button.disabled=on);
+  }
+  function describe(data){
+    settings=data;
+    if(!data.connected){status.textContent='ยังไม่เชื่อมปฏิทิน วันหยุดที่เจ้าหน้าที่บันทึกเองยังใช้ได้ตามปกติ';return;}
+    const when=data.lastSync?new Date(data.lastSync).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'}):'ยังไม่ซิงก์';
+    status.textContent='เชื่อมกับ '+data.name+' · ซิงก์สำเร็จล่าสุด '+when+
+      (data.automatic?' · อัตโนมัติทุก 6 ชั่วโมง':' · ยังไม่ได้ตั้งซิงก์อัตโนมัติ ให้ Run setupHolidayCalendar ใน Apps Script 1 ครั้ง')+
+      (data.error?' · ซิงก์ล่าสุดไม่สำเร็จ: '+data.error+' ใช้รายการที่โหลดสำเร็จครั้งล่าสุดอยู่':'');
+  }
+  async function loadStatus(){
+    const seq=++statusSeq;
+    try {const data=await api('adminHolidayCalendarStatus');if(seq===statusSeq)describe(data);}
+    catch(e){if(seq===statusSeq)status.textContent='โหลดสถานะปฏิทินไม่สำเร็จ: '+e.message;}
+  }
+  async function loadCalendars(){
+    if(busy || dialog.dataset.holidayBusy==='true')return;setBusy(true);previewStatus.textContent='กำลังโหลดปฏิทิน…';
+    try {
+      const calendars=await api('adminHolidayCalendars');
+      const chosen=select.value || (settings && settings.calendarId) || '';
+      select.replaceChildren(el('option',{value:''},'— เลือกปฏิทินวันหยุด —'),
+        ...calendars.map(c=>el('option',{value:c.id},c.name)));
+      if(calendars.some(c=>c.id===chosen))select.value=chosen;
+      preview=null;check.checked=false;previewList.replaceChildren();
+      previewStatus.textContent=calendars.length?'เลือกปฏิทิน แล้วกดดูรายการก่อนเชื่อม':'ยังไม่มีปฏิทิน กรุณาเพิ่มปฏิทินวันหยุดใน Google Calendar ของเจ้าของ Apps Script';
+    } catch(e){previewStatus.textContent='โหลดไม่ได้: '+e.message+' · ให้เจ้าของระบบ Run setupHolidayCalendar และอนุญาตสิทธิ์ก่อน';}
+    finally{setBusy(false);}
+  }
+  async function showPreview(){
+    if(busy || dialog.dataset.holidayBusy==='true')return;
+    if(!select.value){previewStatus.textContent='กรุณาเลือกปฏิทินวันหยุด';return;}
+    setBusy(true);preview=null;check.checked=false;previewList.replaceChildren();previewStatus.textContent='กำลังอ่านรายการ…';
+    try {
+      const data=await api('adminHolidayCalendarPreview',{calendarId:select.value});
+      preview=data;
+      const upcoming=data.rows.filter(row=>row.date>=today);
+      previewStatus.textContent='พบวันหยุดล่วงหน้า '+upcoming.length+' วัน จาก '+data.name+' · แสดงตัวอย่าง 12 วันแรก';
+      previewList.replaceChildren(...upcoming.slice(0,12).map(row=>el('li',{},el('strong',{},longDate(row.date)),el('p',{},row.note))));
+      if(!upcoming.length)previewStatus.textContent='ยังไม่พบวันหยุดล่วงหน้าในปฏิทินนี้ กรุณาตรวจว่าเลือกแหล่งข้อมูลถูกต้อง';
+    } catch(e){previewStatus.textContent='อ่านรายการไม่สำเร็จ: '+e.message;}
+    finally{setBusy(false);}
+  }
+  async function refreshPage(){
+    const date=current || today;
+    const results=await Promise.allSettled([api('adminDays'),openDay(date)]);
+    const calOk=results[0].status==='fulfilled', dayOk=results[1].status==='fulfilled' && results[1].value===true;
+    if(calOk){days=results[0].value;renderStrip();}
+    else {days=[];$('strip').replaceChildren(el('p',{class:'empty'},'โหลดปฏิทินล่าสุดไม่สำเร็จ กรุณากดรีเฟรชคิว'));}
+    document.dispatchEvent(new Event('clinic-holidays-updated'));
+    if(!calOk || !dayOk){setUpdated('⚠ บันทึกแล้ว แต่อัปเดตหน้าจอได้บางส่วน · กดรีเฟรชคิว',true);return false;}
+    return true;
+  }
+  async function mutate(action,params,confirmOptions){
+    if(busy || dialog.dataset.holidayBusy==='true')return;
+    setBusy(true);
+    let committed=false;
+    try {
+      if(confirmOptions && !await ask(confirmOptions))return;
+      previewStatus.textContent='กำลังอัปเดตวันหยุด…';
+      const result=await api(action,params);committed=true;describe(result);
+      const ok=await refreshPage();
+      const clashes=(result.busy||[]).map(row=>longDate(row.date)+' มี '+row.count+' นัด');
+      previewStatus.textContent=(ok?'อัปเดตวันหยุดแล้ว':'บันทึกแล้ว แต่โหลดหน้าจอไม่ครบ กรุณารีเฟรช')+
+        (clashes.length?' · มีนัดเดิมในวันหยุด '+clashes.length+' วัน ต้องจัดการนัดเดิมแยกต่างหาก':'');
+      if(clashes.length)await ask({title:'มีนัดเดิมตรงกับวันหยุด',text:clashes.join('\n')+'\nระบบปิดรับจองใหม่แล้ว นัดเดิมยังอยู่ กรุณาเลื่อนหรือยกเลิกตามความเหมาะสม',confirm:'รับทราบ',safe:true});
+    } catch(e){previewStatus.textContent=committed?'บันทึกแล้ว แต่โหลดข้อมูลล่าสุดไม่สำเร็จ กรุณารีเฟรช':'อัปเดตไม่สำเร็จ: '+e.message;await loadStatus();}
+    finally{setBusy(false);}
+  }
+  $('holiday-open').addEventListener('click',loadStatus);
+  $('holiday-calendar-load').addEventListener('click',loadCalendars);
+  $('holiday-calendar-preview').addEventListener('click',showPreview);
+  select.addEventListener('change',()=>{preview=null;check.checked=false;previewList.replaceChildren();previewStatus.textContent='กดดูรายการก่อนเชื่อม เพื่อยืนยันวันหยุดของปฏิทินที่เลือก';});
+  $('holiday-calendar-connect').addEventListener('click',()=>{
+    if(!preview || preview.calendarId!==select.value){previewStatus.textContent='กรุณาดูรายการก่อนเชื่อม';return;}
+    if(!check.checked){previewStatus.textContent='กรุณายืนยันว่ารายการมีเฉพาะวันที่คลินิกหยุด';return;}
+    mutate('adminHolidayCalendarSet',{calendarId:select.value,confirm:true},{title:'เชื่อมปฏิทินและปิดรับคิว?',text:'ใช้ '+preview.name+' เป็นแหล่งวันหยุด กิจกรรมเต็มวันในปฏิทินนี้จะปิดรับจองทุกบริการ นัดเดิมจะยังอยู่',confirm:'เชื่อมปฏิทิน',safe:true});
+  });
+  $('holiday-calendar-sync').addEventListener('click',()=>{
+    if(!settings || !settings.connected){previewStatus.textContent='กรุณาเชื่อมปฏิทินก่อน';return;}
+    mutate('adminHolidayCalendarSync',{});
+  });
+  $('holiday-calendar-disconnect').addEventListener('click',()=>{
+    if(!settings || !settings.connected){previewStatus.textContent='ยังไม่มีปฏิทินที่เชื่อมไว้';return;}
+    mutate('adminHolidayCalendarDisconnect',{confirm:true},{title:'หยุดเชื่อมปฏิทิน?',text:'วันหยุดจาก Google Calendar จะไม่ปิดรับจองอีกต่อไป วันหยุดที่เจ้าหน้าที่บันทึกเองยังอยู่',confirm:'หยุดเชื่อม',safe:false});
+  });
+  dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
+})();
+</script>
 
 </body>
 </html>
