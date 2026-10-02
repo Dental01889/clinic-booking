@@ -796,6 +796,7 @@ const WD_MIN = ['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
 const MON_FULL = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
                   'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const monthOf = ds => ds.slice(0, 7);
+const addDaysJs = (ds, n) => { const [y,m,d] = ds.split('-').map(Number); return new Date(Date.UTC(y, m-1, d+n)).toISOString().slice(0,10); };
 let calMonth = null;
 
 function renderStrip(){
@@ -1206,7 +1207,7 @@ function openMove(b){
   const nt = (dayData.capacity.find(c => c.name === b.service) || {}).noTime;
   $('mv-sub').textContent = `${b.service} · เดิม ${longDate(dayData.date)}` + (nt ? '' : ` เวลา ${b.time} น.`) +
     (b.hasLine ? ' — ระบบจะส่ง LINE แจ้งคนไข้' : ' — คนไข้ไม่มี LINE ต้องโทรแจ้งเอง');
-  const opts = days.filter(d => d.date >= today && !d.holiday);
+  const opts = days.filter(d => d.date >= today && !d.holiday && d.date <= addDaysJs(today, 120));   // ตัวเลือก 4 เดือน
   $('mv-date').replaceChildren(...opts.map(d => el('option', { value: d.date, selected: d.date === mv.from },
     longDate(d.date) + (d.extra ? ' · วันชดเชย' : '') + (d.total ? ` · จองแล้ว ${d.count}/${d.total}` : (d.count ? ` · มีนัด ${d.count}` : '')))));
   $('mv-note').value = '';
