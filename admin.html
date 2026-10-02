@@ -913,6 +913,32 @@
   .holiday-manager .holiday-status[data-error="true"]{background:#FFF0F0;color:#92363B}
 }
 </style>
+
+<style>
+@media screen {
+  .holiday-launch{display:block;width:100%;min-height:50px;margin-top:16px;padding:12px 16px;border:1px solid var(--theme-border,var(--rule));border-radius:14px;background:#FFF;color:var(--theme-deep,var(--ink));font:inherit;font-weight:600;cursor:pointer;box-shadow:0 4px 14px #38264E06}
+  .holiday-launch[hidden]{display:none}
+  .holiday-launch:hover{background:var(--theme-soft,#F4F1F8)}
+  #holiday-dialog{box-sizing:border-box;width:min(680px,calc(100vw - 24px));max-height:calc(100dvh - 32px);padding:24px;overflow:auto}
+  #holiday-dialog .holiday-manager{margin:0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}
+  .holiday-dialog-head,.holiday-list-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .holiday-dialog-head{margin-bottom:14px}
+  .holiday-dialog-head h2{margin:0;font-size:1.25rem;color:var(--theme-deep,var(--ink))}
+  .holiday-dialog-head button,.holiday-list-head button,.holiday-row-actions button{min-height:44px;padding:9px 12px;border:1px solid var(--theme-border,var(--rule));border-radius:10px;background:#FFF;color:var(--theme-deep,var(--ink));font:inherit;cursor:pointer}
+  .holiday-records{margin-top:24px;padding-top:20px;border-top:1px solid var(--theme-border,var(--rule))}
+  .holiday-list-head{flex-wrap:wrap}
+  .holiday-list-head h3{margin:0;font-size:1.05rem}
+  #holiday-list-status{font-size:.9rem;color:var(--muted);line-height:1.65;margin:12px 0}
+  .holiday-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  .holiday-list li{padding:14px;border:1px solid var(--theme-border,var(--rule));border-radius:12px;background:var(--theme-page,#F9F7FC)}
+  .holiday-list strong{display:block;font-size:1rem;line-height:1.6}
+  .holiday-list p{margin:4px 0 12px;line-height:1.7;overflow-wrap:anywhere;white-space:pre-wrap;color:var(--muted)}
+  .holiday-list small{font-weight:400;color:var(--muted)}
+  .holiday-row-actions{display:flex;gap:8px;flex-wrap:wrap}
+  #holiday-dialog button:disabled{opacity:.55;cursor:wait}
+  .holiday-launch:focus-visible,#holiday-dialog button:focus-visible{outline:3px solid var(--theme-accent,var(--teal));outline-offset:3px}
+}
+</style>
 </head>
 <body>
 
@@ -928,19 +954,7 @@
     <div id="results" class="results" hidden></div>
     <div id="strip" class="strip"></div>
 
-    <section id="holiday-manager" class="holiday-manager" hidden aria-labelledby="holiday-heading">
-      <h2 id="holiday-heading">กำหนดวันหยุด</h2>
-      <p>เลือกวันที่ต้องการปิดรับจองคิวใหม่<br>นัดที่มีอยู่แล้วจะยังอยู่ในระบบ</p>
-      <label for="holiday-date">วันที่ปิดรับคิว</label>
-      <input id="holiday-date" type="date" required>
-      <label for="holiday-note">เหตุผล (ไม่บังคับ)</label>
-      <input id="holiday-note" type="text" maxlength="100" placeholder="เช่น หมอลา / วันหยุดพิเศษ">
-      <div class="holiday-actions">
-        <button id="holiday-save" class="holiday-save" type="button">บันทึกวันหยุด</button>
-        <button id="holiday-reopen" type="button">เปิดรับคิวกลับ</button>
-      </div>
-      <p id="holiday-status" class="holiday-status" role="status" aria-live="polite"></p>
-    </section>
+    <button id="holiday-open" type="button" class="holiday-launch" hidden>กำหนดวันหยุด</button>
     </div><!-- calendar-panel -->
   </div>
 </header>
@@ -1969,43 +1983,109 @@ init();
 })();
 </script>
 
+<dialog id="holiday-dialog" aria-labelledby="holiday-heading">
+  <div class="holiday-dialog-head">
+    <h2 id="holiday-heading">กำหนดวันหยุด</h2>
+    <button id="holiday-close" type="button" aria-label="ปิดหน้าต่างวันหยุด">ปิด ✕</button>
+  </div>
+    <section id="holiday-manager" class="holiday-manager" aria-labelledby="holiday-heading">
+
+      <p>เลือกวันที่ต้องการปิดรับจองคิวใหม่<br>นัดที่มีอยู่แล้วจะยังอยู่ในระบบ</p>
+      <label for="holiday-date">วันที่ปิดรับคิว</label>
+      <input id="holiday-date" type="date" required>
+      <label for="holiday-note">เหตุผล (ไม่บังคับ)</label>
+      <input id="holiday-note" type="text" maxlength="100" placeholder="เช่น หมอลา / วันหยุดพิเศษ">
+      <div class="holiday-actions">
+        <button id="holiday-save" class="holiday-save" type="button">บันทึกวันหยุด</button>
+        <button id="holiday-reopen" type="button">เปิดรับคิวกลับ</button>
+      </div>
+      <p id="holiday-status" class="holiday-status" role="status" aria-live="polite"></p>
+    </section>
+  <section class="holiday-records" aria-labelledby="holiday-list-heading">
+    <div class="holiday-list-head">
+      <h3 id="holiday-list-heading">รายการวันหยุดและเหตุผล</h3>
+      <button id="holiday-list-refresh" type="button">↻ โหลดรายการ</button>
+    </div>
+    <p id="holiday-list-status" role="status" aria-live="polite"></p>
+    <ul id="holiday-list" class="holiday-list"></ul>
+  </section>
+</dialog>
 <script>
-/* กำหนดวันหยุดผ่าน API เดิม โดยไม่เปลี่ยนขั้นตอนจองหรือยกเลิกนัด */
+/* จัดการวันหยุดในป๊อปอัป พร้อมรายการจากชีตวันหยุด */
 (() => {
-  const panel=$('holiday-manager'), dateInput=$('holiday-date'), noteInput=$('holiday-note');
+  const panel=$('holiday-manager'), dialog=$('holiday-dialog'), launch=$('holiday-open');
+  const dateInput=$('holiday-date'), noteInput=$('holiday-note');
   const save=$('holiday-save'), reopen=$('holiday-reopen'), status=$('holiday-status');
-  let busy=false;
+  const list=$('holiday-list'), listStatus=$('holiday-list-status'), refresh=$('holiday-list-refresh');
+  let busy=false, listSeq=0;
   const originalRenderDay=renderDay;
   renderDay=function(data){
     originalRenderDay(data);
-    panel.hidden=false;
+    launch.hidden=false;
     if(!dateInput.value) dateInput.value=data.date;
   };
   function message(text,error=false){
     status.textContent=text;
     status.dataset.error=String(error);
   }
+  function setBusy(on){
+    busy=on;
+    save.disabled=reopen.disabled=dateInput.disabled=noteInput.disabled=refresh.disabled=$('holiday-close').disabled=on;
+    list.querySelectorAll('button').forEach(b=>b.disabled=on);
+  }
+  function selectHoliday(item){
+    if(busy)return;
+    dateInput.value=item.date;
+    noteInput.value=item.note || '';
+    message('เลือก '+longDate(item.date)+' แล้ว แก้เหตุผลแล้วกดบันทึก หรือกดเปิดรับคิวกลับ');
+    panel.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  async function loadHolidayList(){
+    const seq=++listSeq;
+    refresh.disabled=true;
+    list.replaceChildren();
+    listStatus.textContent='กำลังโหลดรายการวันหยุด…';
+    try {
+      const rows=await api('adminHolidays');
+      if(seq!==listSeq)return false;
+      if(!Array.isArray(rows))throw new Error('ข้อมูลรายการวันหยุดไม่ถูกต้อง');
+      const sorted=rows.slice().sort((a,b)=>{
+        const pastA=a.date<today, pastB=b.date<today;
+        return pastA!==pastB?(pastA?1:-1):pastA?b.date.localeCompare(a.date):a.date.localeCompare(b.date);
+      });
+      list.replaceChildren(...sorted.map(item=>el('li',{},
+        el('strong',{},longDate(item.date),item.date<today?el('small',{},' · ผ่านแล้ว'):null),
+        el('p',{},item.note || 'ไม่ระบุเหตุผล'),
+        el('div',{class:'holiday-row-actions'},
+          el('button',{type:'button',disabled:busy,onclick:()=>selectHoliday(item)},'เลือก / แก้เหตุผล'),
+          el('button',{type:'button',disabled:busy,onclick:()=>{if(busy)return;dateInput.value=item.date;noteInput.value=item.note||'';changeHoliday(false);}},'เปิดรับคิวกลับ'))
+      )));
+      listStatus.textContent=rows.length?'วันหยุดทั้งหมด '+rows.length+' วัน · แสดงวันที่กำลังจะมาถึงก่อน':'ยังไม่มีวันหยุดที่บันทึกไว้';
+      return true;
+    } catch(e){
+      if(seq!==listSeq)return false;
+      list.replaceChildren();
+      listStatus.textContent='โหลดรายการไม่สำเร็จ: '+(e.message||'กรุณาลองอีกครั้ง')+' · กดโหลดรายการเพื่อลองใหม่';
+      return false;
+    } finally {if(seq===listSeq)refresh.disabled=busy;}
+  }
   async function changeHoliday(on){
-    if(busy) return;
+    if(busy)return;
     if(!dateInput.value || !dateInput.checkValidity()){
-      message('กรุณาเลือกวันที่ให้ถูกต้อง',true);
-      dateInput.reportValidity();
-      return;
+      message('กรุณาเลือกวันที่ให้ถูกต้อง',true);dateInput.reportValidity();return;
     }
-    const date=dateInput.value, note=noteInput.value.trim();
-    busy=true;
-    save.disabled=reopen.disabled=dateInput.disabled=noteInput.disabled=true;
-    message('กำลังตรวจสอบนัดของวันที่เลือก…');
+    const date=dateInput.value,note=noteInput.value.trim();
+    setBusy(true);message('กำลังตรวจสอบนัดของวันที่เลือก…');
     let saved=false;
     try {
       const data=await api('adminDay',{date});
       if(!on && !data.holiday){
         message('วันที่เลือกไม่ได้เป็นวันหยุด ระบบเปิดรับคิวตามวันและเวลาทำการอยู่แล้ว');
-        return;
+        await loadHolidayList();return;
       }
       const live=(data.bookings||[]).filter(b=>!b.cancelled).length;
       const result=await ask({
-        title:on?'ยืนยันบันทึกวันหยุด?':'เปิดรับคิวกลับ?',
+        title:on?(data.holiday?'ยืนยันแก้ไขวันหยุด?':'ยืนยันบันทึกวันหยุด?'):'เปิดรับคิวกลับ?',
         text:longDate(date)+'\n'+(on
           ? 'คนไข้จะจองคิวใหม่ในวันนี้ไม่ได้'+(live?'\nมีนัดอยู่แล้ว '+live+' รายการ นัดเดิมจะยังอยู่ กรุณาจัดการเลื่อนหรือยกเลิกนัดแยกต่างหาก':'')+(note?'\nเหตุผล: '+note:'')
           : 'ระบบจะเปิดให้จองตามวันและเวลาทำการของแต่ละบริการ'),
@@ -2013,36 +2093,38 @@ init();
       });
       if(!result){message('ยังไม่ได้เปลี่ยนวันหยุด');return;}
       message('กำลังบันทึก…');
-      await api('adminHoliday',{date,on,note});
-      saved=true;
-      // โหลดปฏิทินและตารางแยกกัน เพื่อรายงานกรณีอัปเดตได้บางส่วน
-      const results=await Promise.allSettled([api('adminDays'),openDay(date)]);
+      await api('adminHoliday',{date,on,note});saved=true;
+      const results=await Promise.allSettled([api('adminDays'),openDay(date),loadHolidayList()]);
       const calOk=results[0].status==='fulfilled';
       const dayOk=results[1].status==='fulfilled' && results[1].value===true;
+      const listOk=results[2].status==='fulfilled' && results[2].value===true;
       if(calOk){days=results[0].value;renderStrip();}
-      else {
-        // ไม่แสดงสถานะเปิด/ปิดเก่าของวันที่เพิ่งบันทึก
-        days=days.map(d=>d.date===date?{...d,holiday:on}:d);
-        renderStrip();
-      }
+      else {days=days.map(d=>d.date===date?{...d,holiday:on}:d);renderStrip();}
       const done=(on?'บันทึกวันหยุดแล้ว: ':'เปิดรับคิวกลับแล้ว: ')+longDate(date);
-      if(calOk && dayOk) message(done);
-      else {
-        const detail=!calOk && !dayOk?'ปฏิทินและตาราง':!calOk?'ปฏิทิน':'ตาราง';
-        message(done+' แต่โหลด'+detail+'ล่าสุดไม่สำเร็จ กรุณากดรีเฟรชคิว',true);
-        setUpdated('⚠ บันทึกวันหยุดแล้ว แต่โหลด'+detail+'ล่าสุดไม่สำเร็จ · กดรีเฟรชคิว',true);
-      }
+      const failed=[];
+      if(!calOk)failed.push('ปฏิทิน');if(!dayOk)failed.push('ตาราง');if(!listOk)failed.push('รายการวันหยุด');
+      message(failed.length?done+' แต่โหลด'+failed.join(' / ')+'ล่าสุดไม่สำเร็จ กรุณาโหลดใหม่':done,!!failed.length);
+      if(!calOk || !dayOk)setUpdated('⚠ บันทึกแล้ว แต่อัปเดตหน้าจอได้บางส่วน · กดรีเฟรชคิว',true);
     } catch(e){
-      message(saved?'บันทึกแล้ว แต่โหลดหน้าจอล่าสุดไม่สำเร็จ กรุณากดรีเฟรชคิว':'บันทึกไม่สำเร็จ: '+(e.message||'กรุณาลองอีกครั้ง'),true);
-    } finally {
-      busy=false;
-      save.disabled=reopen.disabled=dateInput.disabled=noteInput.disabled=false;
-    }
+      message(saved?'บันทึกแล้ว แต่โหลดหน้าจอล่าสุดไม่สำเร็จ กรุณาโหลดใหม่':'บันทึกไม่สำเร็จ: '+(e.message||'กรุณาลองอีกครั้ง'),true);
+    } finally {setBusy(false);}
   }
-  dateInput.addEventListener('change',()=>message(''));
+  launch.addEventListener('click',()=>{
+    message('');
+    if(!dateInput.value)dateInput.value=current || today;
+    openDialog(dialog);
+    loadHolidayList();
+  });
+  $('holiday-close').addEventListener('click',()=>{if(!busy)dialog.close();});
+  dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
+  dialog.addEventListener('close',()=>{++listSeq;refresh.disabled=false;});
+  refresh.addEventListener('click',()=>{if(!busy)loadHolidayList();});
+  dateInput.addEventListener('change',()=>{noteInput.value='';message('');});
   save.addEventListener('click',()=>changeHoliday(true));
   reopen.addEventListener('click',()=>changeHoliday(false));
 })();
 </script>
+
+
 </body>
 </html>
