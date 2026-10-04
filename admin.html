@@ -2375,5 +2375,20 @@ init();
 })();
 </script>
 
+<script>
+/* แสดงเวลานัดอย่างเดียว โดยเก็บการกรอกที่ผูกกับเวลาเดิมไว้ */
+(()=>{
+  const original = renderPeople;
+  renderPeople = function(){
+    original();
+    const svc = dayData && dayData.capacity.find(c => c.id === svcId);
+    if (!svc || svc.noTime) return;
+    document.querySelectorAll('#ad-people .person[data-time]').forEach(row => {
+      const label = row.querySelector('.when');
+      if (label) label.textContent = 'เวลานัด ' + row.dataset.time + ' น.';
+    });
+  };
+})();
+</script>
 </body>
 </html>

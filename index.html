@@ -481,6 +481,51 @@
     .time,.chip,.day{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease}
   }
 </style>
+<style>
+/* รูปแบบมือถือ 3 ขั้น ช่องกระชับ และการ์ดวันแบบเดิม */
+#view-book{display:block!important;max-width:680px;margin-inline:auto}
+#view-book [hidden]{display:none!important}
+.booking-steps{grid-template-columns:repeat(3,minmax(0,1fr))!important;margin-bottom:14px!important}
+.booking-steps li.current .step-number{background:#1f6f68!important;color:white!important;border-color:#1f6f68!important}
+.booking-steps li.complete .step-number{background:#ddefe5!important;color:#165c4e!important}
+#view-book>.block{padding:18px;margin-bottom:16px;border-radius:18px}
+#view-book h2{font-size:1.2rem;margin-bottom:16px}
+#services{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#services .opt{padding:20px 12px;min-height:90px;font-size:1rem}
+#count-block{margin-top:20px;padding:0;background:none;border:0}
+#count-block .field{font-size:1.05rem;margin-bottom:10px}
+#counts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#counts .chip{min-height:50px;padding:12px}
+#booking-next{margin-top:22px;width:100%;min-height:50px}
+.booking-context{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;margin:0 0 14px;border-radius:12px;background:#e8f4ee;font-size:.95rem}
+.booking-context .error{flex-basis:100%;margin:0}
+.booking-edit{border:0;background:transparent;color:#1f6f68;padding:8px;font:inherit;font-weight:600;cursor:pointer}
+.booking-back{margin-top:14px;min-height:44px}
+#date-block .dates{display:flex;overflow-x:auto;gap:10px;padding:6px 0 10px;scroll-snap-type:x proximity}
+#date-block .day{flex:0 0 80px;min-width:80px;padding:10px 5px;min-height:124px;scroll-snap-align:start}
+#date-block .day b{display:block;font-size:1.8rem;line-height:1.2;font-variant-numeric:tabular-nums;text-align:center;margin:6px 0}
+#date-block .day small,#date-block .day i{font-size:.85rem}
+#date-block .fast-btn{min-height:94px}
+#date-block .fb-cal{padding:9px 12px;min-width:66px}
+#date-block .fb-cal b{font-size:1.85rem}
+#date-block .fb-txt{padding:12px;font-size:.94rem}
+#date-block .fb-txt b{font-size:1rem}
+#time-block .times{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#time-block .time{min-height:54px;padding:12px 8px;font-size:1rem;line-height:1.5}
+#time-block .period{margin:0 0 12px;font-size:1rem}
+#form-block .field{margin-top:14px;margin-bottom:7px;font-size:1rem}
+#form-block input:not([type=checkbox]){min-height:48px;padding:10px 12px}
+#form-block textarea{min-height:64px;padding:10px 12px}
+#form-block .chips .chip{min-height:46px;padding:10px}
+#form-block .ticket{padding:14px;gap:14px}
+#form-block .ticket .num{font-size:2rem}
+#form-block .ticket .info{font-size:.95rem;gap:4px}
+.booking-party-summary{margin:10px 0;color:#1f6f68;font-weight:600}
+@media(min-width:960px){#view-book{max-width:720px}#view-book>.block{padding:24px}#date-block .day{flex-basis:96px}#time-block .times{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+#time-block h2 em{display:none}
+
+</style>
 </head>
 <body>
 <header class="top">
@@ -1223,6 +1268,177 @@ async function init(){
   }
 }
 init();
+</script>
+<script>
+/* จอง 3 ขั้น: บริการ/จำนวนคน → วัน/คิว → ตรวจสอบและยืนยัน */
+(()=>{
+  const servicePanel = $('services').closest('.block');
+  servicePanel.id = 'booking-service-panel';
+  servicePanel.append($('count-block'));
+  const countLabel = $('count-block').querySelector('label');
+  countLabel.textContent = 'จำนวนคน';
+  const steps = document.querySelectorAll('.booking-steps li');
+  steps[0].lastElementChild.textContent = 'บริการ / จำนวนคน';
+  steps[1].lastElementChild.textContent = 'วัน / คิว';
+  steps[2].hidden = true;
+  steps[3].querySelector('.step-number').textContent = '3';
+  steps[3].lastElementChild.textContent = 'ตรวจสอบ';
+  $('form-block').querySelector('h2').lastChild.textContent = 'ตรวจสอบและยืนยัน';
+  $('form-block').querySelector('h2 em').textContent = '3';
+  $('time-block').querySelector('h2').lastChild.textContent = 'เลือกคิว';
+  const next = el('button',{class:'primary',type:'button',id:'booking-next',disabled:true},'เลือกวันนัด →');
+  const serviceError = el('p',{class:'error',role:'alert',id:'booking-service-error'});
+  servicePanel.append(serviceError,next);
+  const dateSummary = el('div',{class:'booking-context',id:'booking-context'});
+  $('date-block').querySelector('h2').after(dateSummary);
+  const dateBack = el('button',{type:'button',class:'secondary booking-back',onclick:()=>go(1)},'← ย้อนกลับ');
+  $('date-block').append(dateBack);
+  $('form-block').querySelector('.summary-label').after(el('button',{
+    type:'button',class:'booking-edit',onclick:()=>{go(2);renderDates();renderTimes();}
+  },'แก้ไขวันหรือคิว'));
+  let stage=1, request=0, fetching=false;
+  const party = ()=>st.moving ? 1 : Math.min(maxParty,st.party||1);
+  const mins = t=>{const [h,m]=t.split(':').map(Number);return h*60+m;};
+  const options = d=>{
+    if(!d || !st.svc) return [];
+    const n=party();
+    if(st.svc.noTime) return d.times.length>=n ? [d.times.slice(0,n)] : [];
+    return d.times.map((t,i)=>d.times.slice(i,i+n)).filter(xs=>xs.length===n && xs.every((t,i)=>!i||mins(t)-mins(xs[i-1])===st.svc.minutes));
+  };
+  function go(n){
+    stage=n;
+    servicePanel.hidden=n!==1;
+    $('date-block').hidden=n!==2;
+    $('time-block').hidden=n!==2||!st.date||!!st.svc?.noTime||!options(st.days.find(d=>d.date===st.date)).length;
+    $('form-block').hidden=n!==3;
+    if(n!==2) $('wait-block').hidden=true;
+    $('view-book').dataset.stage=String(n);
+    if(n!==1&&st.svc) dateSummary.replaceChildren(
+      el('span',{},`${st.svc.name} · ${party()} คน`),
+      el('button',{type:'button',class:'booking-edit',onclick:()=>go(1)},'แก้ไข'));
+    [steps[0],steps[1],steps[3]].forEach((li,i)=>{
+      li.classList.toggle('current',i+1===n);li.classList.toggle('complete',i+1<n);
+      if(i+1===n)li.setAttribute('aria-current','step');else li.removeAttribute('aria-current');
+    });
+  }
+  next.addEventListener('click',()=>{if(!st.svc||fetching||next.disabled)return;renderDates();go(2);$('date-block').scrollIntoView({block:'start',behavior:'smooth'});});
+  const oldMark=markSteps;
+  markSteps=function(){oldMark();go(stage);};
+  pickService=async function(s){
+    const token=++request;
+    Object.assign(st,{svc:s,date:null,time:null,days:[],party:st.moving?1:st.party||1});
+    renderServices();renderParty();go(st.moving?2:1);
+    fetching=true;next.disabled=true;serviceError.textContent='';
+    try{
+      const days=await withLoading(()=>api('slots',{service:s.id}));
+      if(token!==request)return;
+      st.days=days;next.disabled=false;renderDates();go(st.moving?2:1);
+    }catch(e){if(token===request){serviceError.textContent=e.message;go(1);}}
+    finally{if(token===request)fetching=false;}
+  };
+  renderParty=function(){
+    $('count-block').hidden=maxParty<2||!!st.moving;
+    $('counts').replaceChildren(...Array.from({length:Math.min(2,maxParty)},(_,i)=>i+1).map(n=>el('button',{
+      type:'button',class:'chip','aria-pressed':String(party()===n),onclick:()=>{
+        st.party=n;st.time=null;st.date=null;renderParty();renderDates();go(1);
+      }
+    },`${n} คน`)));
+  };
+  fastestDay=function(){return st.days.find(d=>options(d).length);};
+  renderFastest=function(){
+    const d=fastestDay();$('fastest').hidden=!!st.moving||!d;if(!d)return;
+    const p=parts(d.date),xs=options(d)[0];
+    const when=st.svc.noTime?`มาถึงก่อน ${st.svc.startText||'09.00'} น.`:`${xs.join(' และ ')} น.`;
+    $('fast-btn').replaceChildren(
+      el('span',{class:'fb-cal','aria-hidden':'true'},el('small',{},WD_FULL[p.w]),el('b',{},String(p.d)),el('span',{},MON[p.m-1])),
+      el('span',{class:'fb-txt'},el('small',{},'⚡ คิวว่างเร็วที่สุด'),el('b',{},when),el('span',{},'เลือกคิวนี้')),
+      el('span',{class:'fb-arr','aria-hidden':'true'},'›'));
+    $('fast-btn').setAttribute('aria-label',`เลือกคิวว่างเร็วที่สุด ${fullDate(d.date)} ${when} สำหรับ ${party()} คน`);
+  };
+  const oldFast=pickFastest;
+  pickFastest=function(){const d=fastestDay();if(!d)return;st.date=d.date;renderDates();pickTime(options(d)[0][0]);};
+  $('fast-btn').removeEventListener('click',oldFast);
+  $('fast-btn').addEventListener('click',()=>pickFastest());
+  renderDates=function(){
+    renderFastest();
+    document.querySelectorAll('#date-block .full-hint').forEach(n=>n.remove());
+    if(!st.days.length){$('dates').replaceChildren(el('p',{class:'empty'},'ช่วงนี้ยังไม่เปิดรับคิว ทักแชทสอบถามคลินิกได้'));return;}
+    $('dates').replaceChildren(...st.days.map(d=>{
+      const p=parts(d.date),full=!options(d).length;
+      return el('button',{type:'button',class:'day'+(full?' full':''),disabled:full&&!!st.moving,
+        'aria-pressed':String(st.date===d.date),'aria-label':`${fullDate(d.date)} ${full?'ไม่มีคิวสำหรับจำนวนคนที่เลือก':`ว่าง ${d.times.length} คิว`}`,
+        onclick:()=>full?pickFull(d.date):pickDate(d.date)},el('small',{},WD_SHORT[p.w]),el('b',{},String(p.d)),el('small',{},MON[p.m-1]),el('i',{},full?(party()>1&&d.times.length?'ไม่มีคู่คิว':'เต็ม'):`ว่าง ${d.times.length}`));
+    }));
+    if(!st.moving&&st.days.some(d=>!options(d).length))$('dates').after(el('p',{class:'full-hint'},'วันที่คิวไม่พอ กดเพื่อลงชื่อรอคิวได้'));
+    const active=$('dates').querySelector('[aria-pressed="true"]');if(active)active.scrollIntoView({block:'nearest',inline:'center'});
+  };
+  const oldFull=pickFull;
+  pickFull=function(ds){go(2);oldFull(ds);$('date-block').hidden=false;$('wait-block').hidden=false;
+    if(party()>1&&st.days.find(d=>d.date===ds)?.times.length)$('wait-lead').textContent=`${fullDate(ds)} ไม่มีคิวติดกันสำหรับ 2 คน ลงชื่อรอคิวได้`;
+  };
+  pickDate=function(ds){
+    st.date=ds;st.time=null;$('wait-block').hidden=true;renderDates();renderTimes();go(2);
+    const d=st.days.find(d=>d.date===ds);
+    if(st.svc.noTime&&options(d).length)pickTime(options(d)[0][0]);
+  };
+  renderTimes=function(){
+    const d=st.days.find(d=>d.date===st.date),xs=options(d);
+    $('time-block').hidden=stage!==2||!!st.svc?.noTime||!d;
+    $('times').replaceChildren(...(xs.length?[el('p',{class:'period'},party()>1?'เลือกคู่คิวสำหรับ 2 คน':'เลือกเวลานัด'),el('div',{class:'times'},xs.map(pair=>el('button',{
+      type:'button',class:'time','aria-pressed':String(st.time===pair[0]),onclick:()=>pickTime(pair[0])
+    },pair.join(' และ ')+(party()>1?' น.':''))))]:[el('p',{class:'empty'},'วันนี้ไม่มีคิวสำหรับจำนวนคนที่เลือก'),el('button',{class:'secondary',type:'button',onclick:()=>pickFastest()},'หาคิวว่างเร็วที่สุด')]));
+  };
+  consecutiveFree=function(n){
+    if(!st.date||!st.time)return false;
+    const d=st.days.find(d=>d.date===st.date);if(!d)return false;
+    if(st.svc.noTime)return d.times.length>=n?d.times.slice(0,n):false;
+    const at=d.times.indexOf(st.time),xs=at<0?[]:d.times.slice(at,at+n);
+    return xs.length===n&&xs.every((t,i)=>!i||mins(t)-mins(xs[i-1])===st.svc.minutes)?xs:false;
+  };
+  whenText=function(b){const s=svcOf(b.service);return b.noTime||s.noTime?(b.noTimeText||s.noTimeText||'มาถึงก่อน 09.00 น.\nรับคิวที่เคาน์เตอร์'):`เวลานัด ${b.time} น.`;};
+  pickTime=function(t){
+    if(st.moving){doMove(t);return;}
+    st.time=t;const xs=consecutiveFree(party());if(!xs){go(2);renderTimes();return;}
+    const b={date:st.date,time:t,service:st.svc.name,noTime:st.svc.noTime,startText:st.svc.startText,noTimeText:st.svc.noTimeText};
+    $('summary').replaceChildren(ticket(b),el('p',{class:'booking-party-summary'},`${party()} คน`+(!st.svc.noTime&&party()>1?` · เวลานัด ${xs.join(' และ ')} น.`:'')));
+    renderNames();$('form-error').textContent='';go(3);$('form-block').scrollIntoView({behavior:'smooth',block:'start'});
+  };
+  const oldReset=resetBooking;
+  resetBooking=function(){request++;fetching=false;oldReset();next.disabled=true;serviceError.textContent='';st.treats=[];renderParty();go(1);};
+  const oldSubmit=submit;
+  submit=async function(){
+    const err=m=>$('form-error').textContent=m;err('');
+    const names=[...document.querySelectorAll('#names input')].map(i=>i.value.trim());
+    const phone=$('f-phone').value.replace(/\D/g,''),note=$('f-note').value.trim();
+    if(names.length!==party()||names.some(n=>!n))return err('กรอกชื่อ-นามสกุลให้ครบทุกคน');
+    const treats=names.map((_,i)=>(st.treats||[])[i]||'');
+    if((st.svc.treatments||[]).length&&treats.some(x=>!x))return err('เลือกอุดฟันหรือขูดหินปูนให้ครบทุกคน');
+    if(!/^0\d{8,9}$/.test(phone))return err('กรอกเบอร์โทรให้ถูกต้อง เช่น 0812345678');
+    if(!$('f-consent').checked)return err('กดยินยอมการเก็บข้อมูลก่อนยืนยัน');
+    if(!consecutiveFree(party())){go(2);renderDates();renderTimes();return;}
+    $('submit').disabled=true;
+    try{const list=await withLoading(()=>api('book',{service:st.svc.id,date:st.date,time:st.time,names,treats,phone,note,consent:true}));showDone([].concat(list));}
+    catch(e){err(e.message);
+      if(/ถูกจอง|คิวเต็ม|คิวต่อเนื่อง|ไม่เปิดให้จอง|เหลือ.*คิว/.test(e.message)){
+        try{st.days=await withLoading(()=>api('slots',{service:st.svc.id}));st.time=null;renderDates();renderTimes();go(2);dateSummary.append(el('p',{class:'error',role:'alert'},'คิวเปลี่ยนแล้ว กรุณาเลือกใหม่ ข้อมูลที่กรอกยังอยู่'));}
+        catch(refreshError){err(`${e.message} โหลดคิวล่าสุดไม่สำเร็จ กรุณาลองยืนยันอีกครั้ง`);}
+      }
+    }finally{$('submit').disabled=false;}
+  };
+  $('submit').removeEventListener('click',oldSubmit);$('submit').addEventListener('click',()=>submit());
+  const oldSave=saveDraft;
+  saveDraft=function(){oldSave();try{const d=JSON.parse(sessionStorage.getItem(DRAFT_KEY)||'null');if(d){d.party=party();sessionStorage.setItem(DRAFT_KEY,JSON.stringify(d));}}catch(_){}};
+  restoreDraft=async function(){
+    const d=readDraft();if(!d?.svc)return;const s=services.find(x=>x.id===d.svc);if(!s)return;
+    st.party=Math.min(2,maxParty,d.party||d.names?.length||1);await pickService(s);
+    if(d.date&&st.days.some(x=>x.date===d.date)){pickDate(d.date);if(d.time&&st.days.find(x=>x.date===d.date).times.includes(d.time))pickTime(d.time);}
+    st.treats=d.treats||[];if($('names').children.length)renderNames();
+    document.querySelectorAll('#names input').forEach((inp,i)=>inp.value=(d.names||[])[i]||'');
+    $('f-phone').value=d.phone||'';$('f-note').value=d.note||'';$('f-consent').checked=!!d.consent;
+  };
+  renderParty();go(1);
+})();
+
 </script>
 </body>
 </html>
