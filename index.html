@@ -486,8 +486,8 @@
 #view-book{display:block!important;max-width:680px;margin-inline:auto}
 #view-book [hidden]{display:none!important}
 .booking-steps{grid-template-columns:repeat(3,minmax(0,1fr))!important;margin-bottom:14px!important}
-.booking-steps li.current .step-number{background:#1f6f68!important;color:white!important;border-color:#1f6f68!important}
-.booking-steps li.complete .step-number{background:#ddefe5!important;color:#165c4e!important}
+.booking-steps li.current .step-number{background:#8260aa!important;color:white!important;border-color:#8260aa!important}
+.booking-steps li.complete .step-number{background:#e9def6!important;color:#624486!important}
 #view-book>.block{padding:18px;margin-bottom:16px;border-radius:18px}
 #view-book h2{font-size:1.2rem;margin-bottom:16px}
 #services{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -497,9 +497,9 @@
 #counts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 #counts .chip{min-height:50px;padding:12px}
 #booking-next{margin-top:22px;width:100%;min-height:50px}
-.booking-context{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;margin:0 0 14px;border-radius:12px;background:#e8f4ee;font-size:.95rem}
+.booking-context{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;margin:0 0 14px;border-radius:12px;background:#f0e9f9;font-size:.95rem}
 .booking-context .error{flex-basis:100%;margin:0}
-.booking-edit{border:0;background:transparent;color:#1f6f68;padding:8px;font:inherit;font-weight:600;cursor:pointer}
+.booking-edit{border:0;background:transparent;color:#8260aa;padding:8px;font:inherit;font-weight:600;cursor:pointer}
 .booking-back{margin-top:14px;min-height:44px}
 #date-block .dates{display:flex;overflow-x:auto;gap:10px;padding:6px 0 10px;scroll-snap-type:x proximity}
 #date-block .day{flex:0 0 80px;min-width:80px;padding:10px 5px;min-height:124px;scroll-snap-align:start}
@@ -520,103 +520,119 @@
 #form-block .ticket{padding:14px;gap:14px}
 #form-block .ticket .num{font-size:2rem}
 #form-block .ticket .info{font-size:.95rem;gap:4px}
-.booking-party-summary{margin:10px 0;color:#1f6f68;font-weight:600}
+.booking-party-summary{margin:10px 0;color:#8260aa;font-weight:600}
 @media(min-width:960px){#view-book{max-width:720px}#view-book>.block{padding:24px}#date-block .day{flex-basis:96px}#time-block .times{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
 #time-block h2 em{display:none}
 /* ปรับภาพจริงให้ตรงต้นแบบการ์ด 3 ขั้น */
 @media screen{
-:root{--paper:#fff;--ink:#182238;--muted:#67708a;--line:#dfe3ed;--teal:#14966e;--pick:#e8f9f1}
+:root{--paper:#fff;--ink:#392c50;--muted:#7e6f91;--line:#e3d9ed;--teal:#8c6ab3;--pick:#f2ecfb}
 html,body{background:#fff}
 main{max-width:560px!important;padding:18px 20px 30px!important}
-.top{padding:20px max(20px,calc((100vw - 560px)/2 + 20px)) 12px!important;background:linear-gradient(135deg,#fff 30%,#e1f6ef)!important;border:0!important;box-shadow:none!important}
+.top{padding:20px max(20px,calc((100vw - 560px)/2 + 20px)) 12px!important;background:linear-gradient(135deg,#fff 30%,#f0e8fb)!important;border:0!important;box-shadow:none!important}
 .brand{gap:10px!important;margin-bottom:14px!important}
-.brand::before{content:''!important;background:#179c79 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='white' d='M13 9c5-2 7 3 11 3s6-5 11-3c8 4 3 13 1 17-2 5-2 13-6 13-3 0-2-12-6-12s-3 12-6 12c-4 0-4-8-6-13-2-4-7-13 1-17z'/%3E%3C/svg%3E") center/34px no-repeat!important;width:42px!important;height:42px!important;border-radius:12px!important}
-.brand h1{font-size:1.02rem!important;color:#182238}
+.brand::before{content:''!important;background:#a88bce url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='white' d='M13 9c5-2 7 3 11 3s6-5 11-3c8 4 3 13 1 17-2 5-2 13-6 13-3 0-2-12-6-12s-3 12-6 12c-4 0-4-8-6-13-2-4-7-13 1-17z'/%3E%3C/svg%3E") center/34px no-repeat!important;width:42px!important;height:42px!important;border-radius:12px!important}
+.brand h1{font-size:1.02rem!important;color:#392c50}
 .tabs{gap:8px!important;padding:3px!important;background:#f2f4fc!important;border:0!important;border-radius:16px!important}
-.tabs button{flex:1;min-height:42px!important;border:0!important;border-radius:13px!important;padding:8px!important;font-size:.95rem!important;color:#66708d}
-.tabs button[aria-selected=true]{background:linear-gradient(110deg,#169a72,#24a584)!important;color:white!important;box-shadow:0 3px 7px #0c92691a!important}
+.tabs button{flex:1;min-height:42px!important;border:0!important;border-radius:13px!important;padding:8px!important;font-size:.95rem!important;color:#7c6c92}
+.tabs button[aria-selected=true]{background:linear-gradient(110deg,#8f6bb7,#a78ace)!important;color:white!important;box-shadow:0 3px 7px #8560ac1a!important}
 #view-book>.block{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important;margin:20px 0!important}
-#view-book h2{font-size:1.3rem!important;line-height:1.5!important;margin:0 0 16px!important;color:#182238!important}
+#view-book h2{font-size:1.3rem!important;line-height:1.5!important;margin:0 0 16px!important;color:#392c50!important}
 #view-book h2 em{display:none!important}
 .booking-steps{margin:0 0 24px!important;padding:8px 0 4px!important}
-.booking-steps li{gap:9px!important;font-size:.78rem!important;line-height:1.45!important;color:#727c94!important}
-.booking-steps li.current{color:#182238!important;font-weight:600}
-.booking-steps .step-number{width:31px!important;height:31px!important;background:#f2f3fa!important;border-color:#c9cede!important;color:#74809a!important;box-shadow:none!important}
-.booking-steps li.current .step-number,.booking-steps li.complete .step-number{background:#1ba177!important;color:white!important;border-color:#1ba177!important;box-shadow:none!important}
-.booking-steps li:not(:last-child)::after{top:15px!important;background:#d5dbe6!important;height:1px!important}
+.booking-steps li{gap:9px!important;font-size:.78rem!important;line-height:1.45!important;color:#8b7a9e!important}
+.booking-steps li.current{color:#392c50!important;font-weight:600}
+.booking-steps .step-number{width:31px!important;height:31px!important;background:#f2f3fa!important;border-color:#d7c9e5!important;color:#8b7d9c!important;box-shadow:none!important}
+.booking-steps li.current .step-number,.booking-steps li.complete .step-number{background:#9772bd!important;color:white!important;border-color:#9772bd!important;box-shadow:none!important}
+.booking-steps li:not(:last-child)::after{top:15px!important;background:#dfd3ed!important;height:1px!important}
 .service-choice-label{font-weight:600;font-size:1.03rem;margin:0 0 10px}
 #services{gap:12px!important}
-#services .opt{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:13px;position:relative;text-align:center;min-height:138px!important;padding:20px 8px!important;border:1px solid #dfe3ed!important;border-radius:13px!important;background:white!important;color:#182238!important}
+#services .opt{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:13px;position:relative;text-align:center;min-height:138px!important;padding:20px 8px!important;border:1px solid #e3d9ed!important;border-radius:13px!important;background:white!important;color:#392c50!important}
 #services .opt strong{font-size:.97rem!important;font-weight:600!important}
 #services .opt strong::after{content:none!important}
-#services .opt[aria-pressed=true]{background:linear-gradient(135deg,#e9faf0,#f7fffb)!important;border-color:#18a274!important;box-shadow:none!important}
-#services .opt[aria-pressed=true]::after,#counts .chip[aria-pressed=true]::after,.day[aria-pressed=true]::after,.time[aria-pressed=true]::after{content:'✓';position:absolute;top:8px;right:8px;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#19a277;color:#fff;font-size:.8rem;line-height:1}
+#services .opt[aria-pressed=true]{background:linear-gradient(135deg,#f2eafb,#fdfaff)!important;border-color:#a080c6!important;box-shadow:none!important}
+#services .opt[aria-pressed=true]::after,#counts .chip[aria-pressed=true]::after,.day[aria-pressed=true]::after,.time[aria-pressed=true]::after{content:'✓';position:absolute;top:8px;right:8px;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#9a78c2;color:#fff;font-size:.8rem;line-height:1}
 .service-symbol{display:block!important;width:54px;height:54px;background:center/contain no-repeat;color:inherit!important}
-.tooth-general{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='none' stroke='%231a9875' stroke-width='3' stroke-linejoin='round' d='M13 7c5-2 7 3 11 3s6-5 11-3c8 4 3 13 1 17-2 5-2 15-6 15-3 0-2-13-6-13s-3 13-6 13c-4 0-4-10-6-15-2-4-7-13 1-17z'/%3E%3C/svg%3E")}
+.tooth-general{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='none' stroke='%239678bd' stroke-width='3' stroke-linejoin='round' d='M13 7c5-2 7 3 11 3s6-5 11-3c8 4 3 13 1 17-2 5-2 15-6 15-3 0-2-13-6-13s-3 13-6 13c-4 0-4-10-6-15-2-4-7-13 1-17z'/%3E%3C/svg%3E")}
 .tooth-extraction{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='none' stroke='%237d859e' stroke-width='2.5' stroke-linejoin='round' d='M13 7c5-2 7 3 11 3s6-5 11-3c8 4 3 13 1 17-2 5-2 15-6 15-3 0-2-13-6-13s-3 13-6 13c-4 0-4-10-6-15-2-4-7-13 1-17z'/%3E%3C/svg%3E")}
 #count-block{margin-top:24px!important}
-#counts .chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;position:relative;min-height:112px!important;font-size:1.02rem!important;border:1px solid #dfe3ed;border-radius:13px;color:#182238!important;background:#fff!important}
-#counts .chip[aria-pressed=true]{border-color:#19a277!important;background:#ebfaf3!important}
+#counts .chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;position:relative;min-height:112px!important;font-size:1.02rem!important;border:1px solid #e3d9ed;border-radius:13px;color:#392c50!important;background:#fff!important}
+#counts .chip[aria-pressed=true]{border-color:#9a78c2!important;background:#f5effc!important}
 .party-symbol{display:block;width:43px;height:43px;background:center/contain no-repeat}
 .party-one{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='12' r='7' fill='none' stroke='%23828ca5' stroke-width='3'/%3E%3Cpath d='M11 41v-6c0-15 26-15 26 0v6z' fill='none' stroke='%23828ca5' stroke-width='3'/%3E%3C/svg%3E")}
-.party-two{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='16' cy='13' r='7' fill='%231aa47b'/%3E%3Ccircle cx='34' cy='14' r='6' fill='%2379d9b6'/%3E%3Cpath d='M3 41v-7c0-16 26-16 26 0v7z' fill='%231aa47b'/%3E%3Cpath d='M32 41v-7c0-5-1-8-3-10 10-3 16 3 16 10v7z' fill='%2379d9b6'/%3E%3C/svg%3E")}
-.booking-party-hint{font-size:.83rem;color:#727c94;margin:10px 0 0}
-.primary{background:linear-gradient(110deg,#139c72,#22aa83)!important;border-radius:12px!important;min-height:50px!important;font-size:1.02rem!important;padding:12px!important;box-shadow:0 4px 10px #1a9b7414!important}
+.party-two{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='16' cy='13' r='7' fill='%239674bf'/%3E%3Ccircle cx='34' cy='14' r='6' fill='%23c7b0e3'/%3E%3Cpath d='M3 41v-7c0-16 26-16 26 0v7z' fill='%239674bf'/%3E%3Cpath d='M32 41v-7c0-5-1-8-3-10 10-3 16 3 16 10v7z' fill='%23c7b0e3'/%3E%3C/svg%3E")}
+.booking-party-hint{font-size:.83rem;color:#8b7a9e;margin:10px 0 0}
+.primary{background:linear-gradient(110deg,#8b68b4,#a082c6)!important;border-radius:12px!important;min-height:50px!important;font-size:1.02rem!important;padding:12px!important;box-shadow:0 4px 10px #8660aa14!important}
 #booking-service-error:empty{display:none}
 #booking-next{margin-top:36px!important}
-.booking-context{padding:0!important;margin:0 0 16px!important;background:none!important;font-size:.96rem!important;color:#717992!important}
+.booking-context{padding:0!important;margin:0 0 16px!important;background:none!important;font-size:.96rem!important;color:#89779d!important}
 .booking-context .booking-edit{font-size:.84rem}
-#date-block .fast-btn{display:flex;align-items:center;gap:10px;min-height:80px!important;padding:10px 12px!important;border:1px solid #ffdf91!important;border-radius:14px!important;background:linear-gradient(110deg,#fff8e1,#fffbed)!important;box-shadow:none!important;text-align:left!important}
-.fb-bolt{flex:none;font-size:3rem;font-weight:700;color:#f3b222;line-height:1}
+#date-block .fast-btn{display:flex;align-items:center;gap:10px;min-height:80px!important;padding:10px 12px!important;border:1px solid #e4d4f5!important;border-radius:14px!important;background:linear-gradient(110deg,#f6eefc,#fcf7ff)!important;box-shadow:none!important;text-align:left!important}
+.fb-bolt{flex:none;font-size:3rem;font-weight:700;color:#b393d2;line-height:1}
 #date-block .fb-txt{padding:0!important;flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
-#date-block .fb-txt b{font-size:.96rem!important;color:#302a17;font-weight:600}
-#date-block .fb-txt small{font-size:.79rem!important;color:#514526;line-height:1.5}
-.fb-action{flex:none;padding:9px 10px;border-radius:999px;background:#ffe394;color:#55420d;font-size:.77rem;font-weight:600;white-space:nowrap}
+#date-block .fb-txt b{font-size:.96rem!important;color:#57406e;font-weight:600}
+#date-block .fb-txt small{font-size:.79rem!important;color:#78608d;line-height:1.5}
+.fb-action{flex:none;padding:9px 10px;border-radius:999px;background:#e9d7fb;color:#765090;font-size:.77rem;font-weight:600;white-space:nowrap}
 #date-block .dates{margin-top:20px;gap:9px!important;padding-bottom:12px!important}
-#date-block .day{position:relative;min-width:72px!important;flex-basis:72px!important;min-height:136px!important;padding:12px 5px!important;border:1px solid #dfe3ed!important;background:#fff!important;border-radius:12px!important}
-#date-block .day b{font-size:1.72rem!important;color:#182238;margin:5px 0!important}
-#date-block .day small{font-size:.8rem!important;color:#68748d!important}
-#date-block .day i{margin-top:8px;padding:3px 7px;border-radius:999px;background:#e1faed;color:#158560!important;font-size:.78rem!important;font-weight:500!important}
-#date-block .day[aria-pressed=true]{background:#e9faf1!important;border-color:#17a278!important;box-shadow:none!important;color:#182238!important}
+#date-block .day{position:relative;min-width:72px!important;flex-basis:72px!important;min-height:136px!important;padding:12px 5px!important;border:1px solid #e3d9ed!important;background:#fff!important;border-radius:12px!important}
+#date-block .day b{font-size:1.72rem!important;color:#392c50;margin:5px 0!important}
+#date-block .day small{font-size:.8rem!important;color:#7f6f94!important}
+#date-block .day i{margin-top:8px;padding:3px 7px;border-radius:999px;background:#eadcf8;color:#755096!important;font-size:.78rem!important;font-weight:500!important}
+#date-block .day[aria-pressed=true]{background:#f2eafb!important;border-color:#9b7bc1!important;box-shadow:none!important;color:#392c50!important}
 #date-block .day[aria-pressed=true]::after{top:4px;right:4px;width:17px;height:17px;font-size:.68rem}
 #date-block .day.full{background:#fff1f4!important;border-color:#fff1f4!important}
 #date-block .day.full b,#date-block .day.full small{color:#a74f66!important}
 #date-block .day.full i{background:#ffe1e8!important;color:#a74f66!important}
 #time-block h2{display:none!important}
-#time-block .period{font-size:1rem!important;color:#182238!important;margin:0 0 12px!important}
+#time-block .period{font-size:1rem!important;color:#392c50!important;margin:0 0 12px!important}
 #time-block .times{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-#time-block .time{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;gap:2px;min-height:94px!important;border:1px solid #dfe3ed!important;background:#fff!important;color:#182238!important;padding:14px 5px!important;font-size:.95rem!important;border-radius:12px!important;box-shadow:none!important}
-#time-block .time[aria-pressed=true]{border-color:#1ba679!important;background:#eafbf2!important;box-shadow:none!important}
+#time-block .time{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;gap:2px;min-height:94px!important;border:1px solid #e3d9ed!important;background:#fff!important;color:#392c50!important;padding:14px 5px!important;font-size:.95rem!important;border-radius:12px!important;box-shadow:none!important}
+#time-block .time[aria-pressed=true]{border-color:#9d7bc4!important;background:#f2eafb!important;box-shadow:none!important}
 #time-block .time[aria-pressed=true]::before{content:none!important}
-.pair-and{font-size:.75rem;line-height:1.3;color:#64708a}
+.pair-and{font-size:.75rem;line-height:1.3;color:#7d6e91}
 .pair-time{line-height:1.5}
 .booking-navigation{display:grid;grid-template-columns:minmax(90px,.8fr) minmax(0,1.2fr);gap:12px;margin-top:22px}
 .booking-navigation[hidden]{display:none!important}
 .booking-navigation .primary,.booking-navigation .secondary{margin:0!important}
 #form-block .summary-label{display:none}
 #form-block .booking-edit{font-size:.9rem;padding:0 0 10px}
-#form-block .ticket{border:1px solid #dfe3ed!important;border-left:1px solid #dfe3ed!important;background:linear-gradient(110deg,#f7fcf9,#f7f7fe)!important;border-radius:14px!important;padding:16px!important}
+#form-block .ticket{border:1px solid #e3d9ed!important;border-left:1px solid #e3d9ed!important;background:linear-gradient(110deg,#faf7ff,#f7f7fe)!important;border-radius:14px!important;padding:16px!important}
 #form-block .ticket .num{display:none}
 #form-block .ticket .info{font-size:.95rem!important;line-height:1.6}
-#form-block .ticket .info strong{font-size:1.04rem!important;color:#182238!important;margin-bottom:8px}
-#form-block .ticket .info span{font-size:.92rem!important;color:#4b5774!important;line-height:1.6!important}
-#form-block .field,#form-block .tp-label{font-size:.93rem!important;font-weight:500!important;color:#28334c!important}
-#form-block input:not([type=checkbox]),#form-block textarea{min-height:46px!important;padding:10px 12px!important;border-color:#d6dcea!important;border-radius:10px!important;background:#fff!important;font-size:16px!important}
-.booking-note{margin-top:18px;border-radius:10px;background:#f4f5fa;padding:10px 12px;font-size:.9rem;color:#727b96}
+#form-block .ticket .info strong{font-size:1.04rem!important;color:#392c50!important;margin-bottom:8px}
+#form-block .ticket .info span{font-size:.92rem!important;color:#67557e!important;line-height:1.6!important}
+#form-block .field,#form-block .tp-label{font-size:.93rem!important;font-weight:500!important;color:#4b395f!important}
+#form-block input:not([type=checkbox]),#form-block textarea{min-height:46px!important;padding:10px 12px!important;border-color:#dfd4eb!important;border-radius:10px!important;background:#fff!important;font-size:16px!important}
+.booking-note{margin-top:18px;border-radius:10px;background:#f4f5fa;padding:10px 12px;font-size:.9rem;color:#8b7ca0}
 .booking-note summary{cursor:pointer}
 .booking-note .field{margin-top:10px!important}
-#form-block .consent{background:none!important;border:0!important;padding:0!important;font-size:.82rem!important;margin-top:18px!important;color:#68728b!important;line-height:1.65!important}
-#form-block .consent input{width:22px!important;height:22px!important;accent-color:#179c72}
+#form-block .consent{background:none!important;border:0!important;padding:0!important;font-size:.82rem!important;margin-top:18px!important;color:#7e6e93!important;line-height:1.65!important}
+#form-block .consent input{width:22px!important;height:22px!important;accent-color:#8c6bb2}
 #form-block .chips .chip{min-height:42px!important;font-size:.9rem!important}
 #foot{margin-top:34px!important;font-size:.9rem}
 }
 @media screen and (max-width:360px){main{padding-inline:14px!important}.top{padding-inline:14px!important}.fb-action{font-size:.7rem;padding:8px}.brand h1{font-size:.94rem!important}#time-block .time{font-size:.88rem!important}}
 
-.date-choice-label{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:20px;font-size:1rem;color:#182238}
-.date-choice-label small{font-size:.76rem;color:#74809a}
+.date-choice-label{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:20px;font-size:1rem;color:#392c50}
+.date-choice-label small{font-size:.76rem;color:#8b7d9c}
 #date-block .dates{margin-top:10px}
-.booking-steps li.complete::after{background:#21a77c!important}
+.booking-steps li.complete::after{background:#a083c6!important}
+
+/* แสดงส่วนที่เลือกแล้วต่อเนื่องในหน้าเดียว */
+#booking-service-panel,#date-block,#time-block,#form-block{scroll-margin-top:var(--hdr,130px)}
+#view-book>#date-block,#view-book>#form-block{margin-top:30px!important;padding-top:24px!important;border-top:1px solid #ede6f5!important}
+#view-book>#time-block{margin-top:18px!important}
+.booking-navigation{margin-bottom:22px}
+@media screen{
+.chips .chip[aria-pressed=true]{background:#f0e7fa!important;border-color:#a082c6!important;color:#67498b!important;box-shadow:none!important}
+#counts .chip[aria-pressed=true]{background:#f2eafb!important;color:#392c50!important}
+#done-ticket .ticket,#view-mine .ticket{background:#f8f3fe!important;border-color:#e3d9ed!important;border-left-color:#a082c6!important}
+#view-done h2{color:#765297}
+}
+
+.booking-preview-notice{padding:10px 12px;border-radius:10px;background:#f4eefb;color:#71538f;font-size:.85rem}
+#time-block .booking-preview-time{min-height:50px!important;color:#725d87!important}
+#date-block .day.preview{border-style:dashed!important}
 
 </style>
 </head>
@@ -1389,38 +1405,40 @@ init();
   const dateSummary = el('div',{class:'booking-context',id:'booking-context'});
   $('date-block').querySelector('h2').after(dateSummary);
   $('dates').before(el('div',{class:'date-choice-label'},el('strong',{},'เลือกวันนัด'),el('small',{},'เลื่อนเพื่อดูวันถัดไป')));
-  const dateBack = el('button',{type:'button',class:'secondary booking-back',onclick:()=>go(1)},'← ย้อนกลับ');
+  const dateBack = el('button',{type:'button',class:'secondary booking-back',onclick:()=>{go(1);servicePanel.scrollIntoView({behavior:'smooth',block:'start'});}},'← ย้อนกลับ');
   const navigation=el('div',{class:'booking-navigation',id:'booking-navigation'});
   const continueButton=el('button',{type:'button',class:'primary',id:'booking-continue',disabled:true},'กรอกข้อมูล →');
   navigation.append(dateBack,continueButton);
   $('time-block').after(navigation);
   continueButton.addEventListener('click',()=>{if(st.time&&consecutiveFree(party()))openForm(st.time);});
   $('form-block').querySelector('.summary-label').after(el('button',{
-    type:'button',class:'booking-edit',onclick:()=>{go(2);renderDates();renderTimes();}
+    type:'button',class:'booking-edit',onclick:()=>{go(2);renderDates();renderTimes();$('date-block').scrollIntoView({behavior:'smooth',block:'start'});}
   },'แก้ไขวันหรือคิว'));
-  let stage=1, request=0, fetching=false;
+  let stage=1, revealed=1, request=0, fetching=false;
+  let savedNames=[];
   const party = ()=>st.moving ? 1 : Math.min(maxParty,st.party||1);
   const mins = t=>{const [h,m]=t.split(':').map(Number);return h*60+m;};
   const options = d=>{
-    if(!d || !st.svc) return [];
+    if(!d || !st.svc || d.bookable===false) return [];
     const n=party();
     if(st.svc.noTime) return d.times.length>=n ? [d.times.slice(0,n)] : [];
     return d.times.map((t,i)=>d.times.slice(i,i+n)).filter(xs=>xs.length===n && xs.every((t,i)=>!i||mins(t)-mins(xs[i-1])===st.svc.minutes));
   };
   function go(n){
-    stage=n;
-    servicePanel.hidden=n!==1;
-    $('date-block').hidden=n!==2;
-    $('time-block').hidden=n!==2||!st.date||!!st.svc?.noTime||!options(st.days.find(d=>d.date===st.date)).length;
-    $('form-block').hidden=n!==3;
-    navigation.hidden=n!==2||!!st.moving;
+    stage=n;revealed=Math.max(revealed,n);
+    servicePanel.hidden=!!st.moving;
+    $('date-block').hidden=revealed<2;
+    const selectedDay=st.days.find(d=>d.date===st.date);
+    $('time-block').hidden=revealed<2||!st.date||(selectedDay?.bookable!==false&&(!!st.svc?.noTime||!options(selectedDay).length));
+    $('form-block').hidden=revealed<3;
+    navigation.hidden=revealed<2||!!st.moving;
     continueButton.disabled=!st.time||!consecutiveFree(party());continueButton.hidden=!$('wait-block').hidden;
     $('date-block').querySelector('h2').lastChild.textContent='เลือกวันและคิว';
-    if(n!==2) $('wait-block').hidden=true;
+    if(revealed<2||revealed>=3) $('wait-block').hidden=true;
     $('view-book').dataset.stage=String(n);
     if(n!==1&&st.svc) dateSummary.replaceChildren(
       el('span',{},`${st.svc.name} · ${party()} คน`),
-      el('button',{type:'button',class:'booking-edit',onclick:()=>go(1)},'แก้ไข'));
+      el('button',{type:'button',class:'booking-edit',onclick:()=>{go(1);servicePanel.scrollIntoView({behavior:'smooth',block:'start'});}},'แก้ไข'));
     [steps[0],steps[1],steps[3]].forEach((li,i)=>{
       li.classList.toggle('current',i+1===n);li.classList.toggle('complete',i+1<n);
       li.querySelector('.step-number').textContent=i+1<n?'✓':String(i+1);
@@ -1431,14 +1449,14 @@ init();
   const oldMark=markSteps;
   markSteps=function(){oldMark();go(stage);};
   pickService=async function(s){
-    const token=++request;
+    const token=++request;rememberNames();revealed=1;
     Object.assign(st,{svc:s,date:null,time:null,days:[],party:st.moving?1:st.party||1});
-    st.treats=[];renderServices();renderParty();go(st.moving?2:1);
+    st.treats=(st.treats||[]).map(t=>(s.treatments||[]).includes(t)?t:'');renderServices();renderParty();go(st.moving?2:1);
     fetching=true;next.disabled=true;serviceError.textContent='';
     try{
       const days=await withLoading(()=>api('slots',{service:s.id}));
       if(token!==request)return;
-      st.days=days;next.disabled=false;renderDates();go(st.moving?2:1);
+      st.days=days;next.disabled=false;renderDates();go(st.moving?2:1);if(!st.moving)$('count-block').scrollIntoView({behavior:'smooth',block:'start'});
     }catch(e){if(token===request){serviceError.textContent=e.message;go(1);}}
     finally{if(token===request)fetching=false;}
   };
@@ -1446,7 +1464,14 @@ init();
     $('count-block').hidden=maxParty<2||!!st.moving;partyHint.hidden=maxParty<2;
     $('counts').replaceChildren(...Array.from({length:Math.min(2,maxParty)},(_,i)=>i+1).map(n=>el('button',{
       type:'button',class:'chip','aria-pressed':String(party()===n),onclick:()=>{
-        st.party=n;st.time=null;st.date=null;renderParty();renderDates();go(1);
+        rememberNames();st.party=n;renderParty();
+        if(st.svc && !fetching){
+          const valid=st.time&&consecutiveFree(n);
+          if(!valid){st.time=null;revealed=2;}
+          renderDates();renderTimes();go(2);
+          if(valid&&revealed>=3)openForm(st.time);
+          $('date-block').scrollIntoView({behavior:'smooth',block:'start'});
+        }else go(1);
       }
     },`${n} คน`)));
   };
@@ -1457,7 +1482,7 @@ init();
     const when=st.svc.noTime?`มาถึงก่อน ${st.svc.startText||'09.00'} น.`:`${xs.join(' และ ')} น.`;
     $('fast-btn').replaceChildren(
       el('span',{class:'fb-bolt','aria-hidden':'true'},'ϟ'),
-      el('span',{class:'fb-txt'},el('b',{},'คิวว่างเร็วที่สุด'),el('small',{},`${p.d} ${MON[p.m-1]} · ${when}`)),
+      el('span',{class:'fb-txt'},el('b',{},'คิวว่างเร็วที่สุด'),el('small',{},`${p.d} ${MON[p.m-1]} ${p.y+543} · ${when}`)),
       el('span',{class:'fb-action','aria-hidden':'true'},'เลือกคิวนี้ →'));
     $('fast-btn').setAttribute('aria-label',`เลือกคิวว่างเร็วที่สุด ${fullDate(d.date)} ${when} สำหรับ ${party()} คน`);
   };
@@ -1470,33 +1495,42 @@ init();
     document.querySelectorAll('#date-block .full-hint').forEach(n=>n.remove());
     if(!st.days.length){$('dates').replaceChildren(el('p',{class:'empty'},'ช่วงนี้ยังไม่เปิดรับคิว ทักแชทสอบถามคลินิกได้'));return;}
     $('dates').replaceChildren(...st.days.map(d=>{
-      const p=parts(d.date),full=!options(d).length;
-      return el('button',{type:'button',class:'day'+(full?' full':''),disabled:full&&!!st.moving,
-        'aria-pressed':String(st.date===d.date),'aria-label':`${fullDate(d.date)} ${full?'ไม่มีคิวสำหรับจำนวนคนที่เลือก':`ว่าง ${d.times.length} คิว`}`,
-        onclick:()=>full?pickFull(d.date):pickDate(d.date)},el('small',{},WD_SHORT[p.w]),el('b',{},String(p.d)),el('small',{},MON[p.m-1]),el('i',{},full?(party()>1&&d.times.length?'ไม่มีคู่คิว':'เต็ม'):`ว่าง ${d.times.length}`));
+      const p=parts(d.date),preview=d.bookable===false,full=!preview&&!options(d).length;
+      return el('button',{type:'button',class:'day'+(full?' full':'')+(preview?' preview':''),disabled:(full||preview)&&!!st.moving,
+        'aria-pressed':String(st.date===d.date),'aria-label':`${fullDate(d.date)} ${preview?'ดูคิวล่วงหน้า ยังไม่เปิดรับจอง':full?'ไม่มีคิวสำหรับจำนวนคนที่เลือก':`ว่าง ${d.times.length} คิว`}`,
+        onclick:()=>full?pickFull(d.date):pickDate(d.date)},el('small',{},WD_SHORT[p.w]),el('b',{},String(p.d)),el('small',{},`${MON[p.m-1]} ${p.y+543}`),el('i',{},full?(party()>1&&d.times.length?'ไม่มีคู่คิว':'เต็ม'):`ว่าง ${d.times.length}`));
     }));
-    if(!st.moving&&st.days.some(d=>!options(d).length))$('dates').after(el('p',{class:'full-hint'},'วันที่คิวไม่พอ กดเพื่อลงชื่อรอคิวได้'));
+    if(!st.moving&&st.days.some(d=>d.bookable!==false&&!options(d).length))$('dates').after(el('p',{class:'full-hint'},'วันที่คิวไม่พอ กดเพื่อลงชื่อรอคิวได้'));
     const active=$('dates').querySelector('[aria-pressed="true"]');if(active)active.scrollIntoView({block:'nearest',inline:'center'});
   };
   const oldFull=pickFull;
-  pickFull=function(ds){go(2);oldFull(ds);$('date-block').hidden=false;$('wait-block').hidden=false;continueButton.hidden=true;
+  pickFull=function(ds){rememberNames();revealed=2;go(2);oldFull(ds);$('date-block').hidden=false;$('wait-block').hidden=false;continueButton.hidden=true;
     if(party()>1&&st.days.find(d=>d.date===ds)?.times.length)$('wait-lead').textContent=`${fullDate(ds)} ไม่มีคิวติดกันสำหรับ 2 คน ลงชื่อรอคิวได้`;
   };
   pickDate=function(ds){
-    st.date=ds;st.time=null;$('wait-block').hidden=true;renderDates();renderTimes();go(2);
+    rememberNames();
+    if(ds!==st.date){st.time=null;revealed=2;}
+    st.date=ds;$('wait-block').hidden=true;renderDates();renderTimes();go(2);
     const d=st.days.find(d=>d.date===ds);
-    if(st.svc.noTime&&options(d).length)pickTime(options(d)[0][0]);
+    if(d?.bookable===false){$('time-block').scrollIntoView({behavior:'smooth',block:'start'});return;}
+    if(st.svc.noTime&&options(d).length)pickTime(options(d)[0][0]);else $('time-block').scrollIntoView({behavior:'smooth',block:'start'});
   };
   renderTimes=function(){
     const d=st.days.find(d=>d.date===st.date),xs=options(d);
-    $('time-block').hidden=stage!==2||!!st.svc?.noTime||!d;
+    if(d?.bookable===false){
+      $('time-block').hidden=revealed<2;
+      $('times').replaceChildren(el('p',{class:'period'},`คิวว่างล่วงหน้า · ${d.times.length} คิว`),el('p',{class:'booking-preview-notice'},'ดูคิวได้ล่วงหน้า 1 ปี เปิดรับจองก่อนวันนัด 90 วัน'),
+        ...(st.svc.noTime?[]:[el('div',{class:'times'},d.times.map(t=>el('span',{class:'time booking-preview-time'},t)))]));
+      return;
+    }
+    $('time-block').hidden=revealed<2||!!st.svc?.noTime||!d;
     $('times').replaceChildren(...(xs.length?[el('p',{class:'period'},party()>1?'คิวว่างสำหรับ 2 คน':'เวลานัดที่ว่าง'),el('div',{class:'times'},xs.map(pair=>el('button',{
       type:'button',class:'time','aria-pressed':String(st.time===pair[0]),onclick:()=>pickTime(pair[0])
     },...pair.flatMap((t,i)=>i?[el('span',{class:'pair-and'},'และ'),el('span',{class:'pair-time'},t+' น.')]:[el('span',{class:'pair-time'},t)]))))]:[el('p',{class:'empty'},'วันนี้ไม่มีคิวสำหรับจำนวนคนที่เลือก'),el('button',{class:'secondary',type:'button',onclick:()=>pickFastest()},'หาคิวว่างเร็วที่สุด')]));
   };
   consecutiveFree=function(n){
     if(!st.date||!st.time)return false;
-    const d=st.days.find(d=>d.date===st.date);if(!d)return false;
+    const d=st.days.find(d=>d.date===st.date);if(!d||d.bookable===false)return false;
     if(st.svc.noTime)return d.times.length>=n?d.times.slice(0,n):false;
     const at=d.times.indexOf(st.time),xs=at<0?[]:d.times.slice(at,at+n);
     return xs.length===n&&xs.every((t,i)=>!i||mins(t)-mins(xs[i-1])===st.svc.minutes)?xs:false;
@@ -1513,8 +1547,11 @@ init();
     if(st.moving){doMove(t);return;}
     st.time=t;
     if(st.svc.noTime){openForm(t);return;}
-    renderTimes();go(2);
+    renderTimes();go(2);if(revealed>=3)openForm(t);else continueButton.scrollIntoView({behavior:'smooth',block:'nearest'});
   };
+  function rememberNames(){document.querySelectorAll('#names input').forEach((input,i)=>savedNames[i]=input.value);}
+  const oldRenderNames=renderNames;
+  renderNames=function(){rememberNames();oldRenderNames();document.querySelectorAll('#names input').forEach((input,i)=>{if(savedNames[i]!==undefined)input.value=savedNames[i];});};
   const oldRenderServices=renderServices;
   renderServices=function(){
     oldRenderServices();
@@ -1526,7 +1563,7 @@ init();
   const oldRenderParty=renderParty;
   renderParty=function(){oldRenderParty();$('counts').querySelectorAll('.chip').forEach((button,i)=>button.prepend(el('span',{class:'party-symbol '+(i?'party-two':'party-one'),'aria-hidden':'true'})));};
   const oldReset=resetBooking;
-  resetBooking=function(){request++;fetching=false;oldReset();next.disabled=true;serviceError.textContent='';st.treats=[];renderParty();go(1);};
+  resetBooking=function(){request++;fetching=false;revealed=1;savedNames=[];oldReset();next.disabled=true;serviceError.textContent='';st.treats=[];renderParty();go(1);};
   const oldSubmit=submit;
   submit=async function(){
     const err=m=>$('form-error').textContent=m;err('');
@@ -1542,7 +1579,7 @@ init();
     try{const list=await withLoading(()=>api('book',{service:st.svc.id,date:st.date,time:st.time,names,treats,phone,note,consent:true}));showDone([].concat(list));}
     catch(e){err(e.message);
       if(/ถูกจอง|คิวเต็ม|คิวต่อเนื่อง|ไม่เปิดให้จอง|เหลือ.*คิว/.test(e.message)){
-        try{st.days=await withLoading(()=>api('slots',{service:st.svc.id}));st.time=null;renderDates();renderTimes();go(2);dateSummary.append(el('p',{class:'error',role:'alert'},'คิวเปลี่ยนแล้ว กรุณาเลือกใหม่ ข้อมูลที่กรอกยังอยู่'));}
+        try{st.days=await withLoading(()=>api('slots',{service:st.svc.id}));st.time=null;revealed=2;renderDates();renderTimes();go(2);dateSummary.append(el('p',{class:'error',role:'alert'},'คิวเปลี่ยนแล้ว กรุณาเลือกใหม่ ข้อมูลที่กรอกยังอยู่'));}
         catch(refreshError){err(`${e.message} โหลดคิวล่าสุดไม่สำเร็จ กรุณาลองยืนยันอีกครั้ง`);}
       }
     }finally{$('submit').disabled=false;}
