@@ -667,6 +667,9 @@ main{max-width:560px!important;padding:18px 20px 30px!important}
   .cancelled-record-label{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;background:#f8eaf0;color:#98526e;font-size:.86rem}
 }
 </style>
+<style>
+.past-record-label{background:#eee6f8;color:#765693}
+</style>
 </head>
 <body>
 <header class="top">
@@ -1665,10 +1668,10 @@ init();
   loadMine=async function(){
     const token=++revision,box=$('mine');
     box.replaceChildren(el('p',{class:'empty',role:'status'},'กำลังโหลดรายการของคุณ…'));
-    const results=await Promise.allSettled([api('mine'),api('waits'),api('myCancelled')]);
+    const results=await Promise.allSettled([api('mine'),api('waits'),api('myBookingHistory')]);
     if(token!==revision)return;
     box.replaceChildren();
-    const titles=['นัดที่จะถึง','กำลังรอคิว','รายการที่เคยยกเลิก'];
+    const titles=['นัดที่จะถึง','กำลังรอคิว','ประวัติการนัดหมาย'];
     results.forEach((r,i)=>{
       if(r.status==='rejected'){box.append(el('p',{class:'error',role:'alert'},`${titles[i]}: ${r.reason?.message || 'โหลดไม่สำเร็จ'}`));return;}
       const list=Array.isArray(r.value)?r.value:[];
@@ -1681,7 +1684,7 @@ init();
           return;
         }
         const card=el('div',{class:'item'},ticket(b));
-        if(i===2){card.append(el('span',{class:'cancelled-record-label'},'ยกเลิกแล้ว'));section.append(card);return;}
+        if(i===2){card.append(el('span',{class:'cancelled-record-label'+(b.cancelled?'':' past-record-label')},b.cancelled?'ยกเลิกแล้ว':b.attendance==='attended'?'มารับบริการแล้ว':b.attendance==='no_show'?'ไม่มาตามนัด':'ยังไม่ได้ยืนยัน'));section.append(card);return;}
         if(!b.treat&&(svcOf(b.service).treatments||[]).length){
           card.append(el('div',{class:'treat-ask'},el('span',{},'นัดนี้มาทำอะไร?'),el('div',{class:'chips'},svcOf(b.service).treatments.map(t=>
             el('button',{class:'chip',type:'button',onclick:()=>setTreat(b,t)},t)))));

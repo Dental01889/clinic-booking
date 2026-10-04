@@ -2390,5 +2390,55 @@ init();
   };
 })();
 </script>
+
+<style>
+.attendance-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.attendance-tools button,.attendance-select{font:inherit;padding:7px 10px;border:1px solid #d9cde7;border-radius:10px;background:#faf7fd;color:#51415e}.attendance-status{display:block;font-size:13px;margin-top:6px;color:#765693}.attendance-check{width:20px;height:20px;accent-color:#9777b8;margin-right:8px}
+@media print{.attendance-tools,.attendance-select,.attendance-check{display:none!important}}
+</style>
+<script>
+(()=>{
+  let savingAttendance=false;
+  const labels={'attended':'มารับบริการแล้ว','no_show':'ไม่มาตามนัด','':'ยังไม่ได้ยืนยัน'};
+  const eligible=b=>b&&!b.cancelled&&new Date(dayData.date+'T'+b.time+':00+07:00').getTime()<=Date.now();
+  async function saveAttendance(ids,state){
+    if(savingAttendance)return;
+    if(!ids.length){toast('กรุณาเลือกคนไข้');return;}
+    const result=await ask({title:labels[state],text:'ยืนยันสถานะ '+ids.length+' คน?',confirm:'ยืนยัน',safe:true});
+    if(!result)return;
+    savingAttendance=true;
+    document.querySelectorAll('.attendance-tools button,.attendance-select,.attendance-check').forEach(e=>e.disabled=true);
+    try{await api('adminAttendance',{ids,attendance:state});toast('บันทึกสถานะแล้ว');await openDay(current);}
+    catch(e){toast(e.message);await openDay(current);}
+    finally{savingAttendance=false;document.querySelectorAll('.attendance-tools button,.attendance-select,.attendance-check').forEach(e=>e.disabled=false);}
+  }
+  const originalRow=slotRow;
+  slotRow=function(t,b,free){
+    const row=originalRow(t,b,free);
+    if(b&&!b.cancelled){
+      const name=row.querySelector('.n');
+      if(name)name.append(el('small',{class:'attendance-status'},labels[b.attendance||'']||labels['']));
+      if(eligible(b)){
+        const check=el('input',{type:'checkbox',class:'attendance-check','aria-label':'เลือก '+b.name});check.dataset.bookingId=b.id;
+        if(name)name.prepend(check);
+        const select=el('select',{class:'attendance-select','aria-label':'สถานะการมารับบริการของ '+b.name,onchange:async e=>{const state=e.target.value;e.target.value=b.attendance||'';await saveAttendance([b.id],state);}},
+          Object.entries(labels).map(([v,label])=>el('option',{value:v},label)));
+        select.value=b.attendance||'';row.querySelector('.side').append(select);
+      }
+    }
+    return row;
+  };
+  const originalSlots=renderSlots;
+  renderSlots=function(){
+    document.querySelectorAll('.attendance-tools').forEach(e=>e.remove());
+    originalSlots();
+    const target=document.querySelector('#main .slot');
+    if(!target)return;
+    const toolbar=el('div',{class:'attendance-tools'},
+      el('button',{type:'button',onclick:()=>document.querySelectorAll('.attendance-check').forEach(e=>e.checked=true)},'เลือกทั้งหมด'),
+      ...['attended','no_show',''].map(state=>el('button',{type:'button',onclick:()=>saveAttendance(Array.from(document.querySelectorAll('.attendance-check:checked')).map(e=>e.dataset.bookingId),state)},state?labels[state]:'ล้างการยืนยัน')));
+    target.parentElement.before(toolbar);
+  };
+})();
+</script>
 </body>
 </html>
