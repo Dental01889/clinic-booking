@@ -2422,7 +2422,7 @@ init();
         if(name)name.prepend(check);
         const select=el('select',{class:'attendance-select','aria-label':'สถานะการมารับบริการของ '+b.name,onchange:async e=>{const state=e.target.value;e.target.value=b.attendance||'';await saveAttendance([b.id],state);}},
           Object.entries(labels).map(([v,label])=>el('option',{value:v},label)));
-        select.value=b.attendance||'';row.querySelector('.side').append(select);
+        select.value=b.attendance||'';if(name)name.append(select);
       }
     }
     return row;
@@ -2440,5 +2440,15 @@ init();
   };
 })();
 </script>
+
+<style>
+@media screen{
+  .layout .slots .slot .n{min-width:0}
+  .layout .slots .slot .side{display:flex;flex-wrap:wrap;gap:6px;min-width:0;align-content:center}
+  .layout .slots .slot .side .mv,.layout .slots .slot .side .drop{flex:1 1 52px;min-width:0;max-width:100%;padding:7px 8px;white-space:nowrap}
+  .layout .slots .slot .n .attendance-select{display:block;box-sizing:border-box;width:100%;max-width:205px;min-width:0;margin-top:6px;min-height:38px;padding:6px 28px 6px 10px;font-size:14px;line-height:1.5;border-color:var(--theme-border,#d9cde7);background:#fff;color:var(--theme-deep,#51415e)}
+  .attendance-tools button{min-height:40px;font-size:14px;padding:7px 12px;border-color:var(--theme-border,#d9cde7);color:var(--theme-deep,#51415e);cursor:pointer}
+}
+</style>
 </body>
 </html>
