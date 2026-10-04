@@ -634,6 +634,8 @@ main{max-width:560px!important;padding:18px 20px 30px!important}
 #time-block .booking-preview-time{min-height:50px!important;color:#725d87!important}
 #date-block .day.preview{border-style:dashed!important}
 
+#booking-next{display:none!important}
+
 </style>
 </head>
 <body>
@@ -1397,7 +1399,7 @@ init();
   $('time-block').querySelector('h2').lastChild.textContent = 'เลือกคิว';
   const next = el('button',{class:'primary',type:'button',id:'booking-next',disabled:true},'เลือกวันนัด →');
   const serviceError = el('p',{class:'error',role:'alert',id:'booking-service-error'});
-  servicePanel.append(serviceError,next);
+  servicePanel.append(serviceError,next);next.hidden=true;
   servicePanel.querySelector('h2').lastChild.textContent='เลือกบริการและจำนวนคน';
   $('services').before(el('p',{class:'service-choice-label'},'เลือกบริการที่ต้องการ'));
   const partyHint=el('p',{class:'booking-party-hint'},'จองได้สูงสุด 2 คน');
@@ -1456,7 +1458,7 @@ init();
     try{
       const days=await withLoading(()=>api('slots',{service:s.id}));
       if(token!==request)return;
-      st.days=days;next.disabled=false;renderDates();go(st.moving?2:1);if(!st.moving)$('count-block').scrollIntoView({behavior:'smooth',block:'start'});
+      st.days=days;next.disabled=false;renderDates();go(2);if(!st.moving)$('count-block').scrollIntoView({behavior:'smooth',block:'start'});
     }catch(e){if(token===request){serviceError.textContent=e.message;go(1);}}
     finally{if(token===request)fetching=false;}
   };
@@ -1512,17 +1514,11 @@ init();
     if(ds!==st.date){st.time=null;revealed=2;}
     st.date=ds;$('wait-block').hidden=true;renderDates();renderTimes();go(2);
     const d=st.days.find(d=>d.date===ds);
-    if(d?.bookable===false){$('time-block').scrollIntoView({behavior:'smooth',block:'start'});return;}
+    if(d?.bookable===false){$('times').replaceChildren(el('p',{class:'error'},'ระบบยังไม่เปิดรับจองวันนี้ กรุณาเลือกวันอื่น'));$('time-block').hidden=false;return;}
     if(st.svc.noTime&&options(d).length)pickTime(options(d)[0][0]);else $('time-block').scrollIntoView({behavior:'smooth',block:'start'});
   };
   renderTimes=function(){
     const d=st.days.find(d=>d.date===st.date),xs=options(d);
-    if(d?.bookable===false){
-      $('time-block').hidden=revealed<2;
-      $('times').replaceChildren(el('p',{class:'period'},`คิวว่างล่วงหน้า · ${d.times.length} คิว`),el('p',{class:'booking-preview-notice'},'ดูคิวได้ล่วงหน้า 1 ปี เปิดรับจองก่อนวันนัด 90 วัน'),
-        ...(st.svc.noTime?[]:[el('div',{class:'times'},d.times.map(t=>el('span',{class:'time booking-preview-time'},t)))]));
-      return;
-    }
     $('time-block').hidden=revealed<2||!!st.svc?.noTime||!d;
     $('times').replaceChildren(...(xs.length?[el('p',{class:'period'},party()>1?'คิวว่างสำหรับ 2 คน':'เวลานัดที่ว่าง'),el('div',{class:'times'},xs.map(pair=>el('button',{
       type:'button',class:'time','aria-pressed':String(st.time===pair[0]),onclick:()=>pickTime(pair[0])
