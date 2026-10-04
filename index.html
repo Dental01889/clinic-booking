@@ -1535,7 +1535,7 @@ init();
         'aria-pressed':String(st.date===d.date),'aria-label':`${fullDate(d.date)} ${preview?'ดูคิวล่วงหน้า ยังไม่เปิดรับจอง':full?'ไม่มีคิวสำหรับจำนวนคนที่เลือก':`ว่าง ${d.times.length} คิว`}`,
         onclick:()=>full?pickFull(d.date):pickDate(d.date)},el('small',{},WD_SHORT[p.w]),el('b',{},String(p.d)),el('small',{},`${MON[p.m-1]} ${p.y+543}`),el('i',{},full?(party()>1&&d.times.length?'ไม่มีคู่คิว':'เต็ม'):`ว่าง ${d.times.length}`));
     }));
-    if(!st.moving&&st.days.some(d=>d.bookable!==false&&!options(d).length))$('dates').after(el('p',{class:'full-hint'},'วันที่คิวไม่พอ กดเพื่อลงชื่อรอคิวได้'));
+    if(!st.moving&&st.days.some(d=>d.bookable!==false&&!options(d).length))$('dates').after(el('p',{class:'full-hint'},'วันที่คิวเต็มกดเพื่อลงชื่อรอคิวได้'));
     const active=$('dates').querySelector('[aria-pressed="true"]');if(active)active.scrollIntoView({block:'nearest',inline:'center'});
   };
   const oldFull=pickFull;
