@@ -637,6 +637,20 @@ main{max-width:560px!important;padding:18px 20px 30px!important}
 #booking-next{display:none!important}
 
 </style>
+<style>
+/* ซ่อนแถบสรุปย่อยและปุ่มแก้ไขที่ไม่ต้องใช้ในหน้าจอง */
+@media screen {
+  #booking-context,#form-block > .booking-edit{display:none!important}
+}
+</style>
+<style>
+/* ให้ hidden ของแท็บมีลำดับเหนือกฎจัดวางหน้าจอง */
+#view-book[hidden]{display:none!important}
+@media screen{
+  body:has(#view-mine:not([hidden])) #foot{display:none!important}
+  #mine > button.primary{display:none!important}
+}
+</style>
 </head>
 <body>
 <header class="top">
