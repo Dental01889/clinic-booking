@@ -2403,7 +2403,7 @@ init();
   async function saveAttendance(ids,state){
     if(savingAttendance)return;
     if(!ids.length){toast('กรุณาเลือกคนไข้');return;}
-    const result=await ask({title:labels[state],text:'ยืนยันสถานะ '+ids.length+' คน?',confirm:'ยืนยัน',safe:true});
+    const result=await ask({title:labels[state],text:'ยืนยันสถานะของ '+((dayData?.bookings||[]).find(b=>b.id===ids[0])?.name||'คนไข้')+'?',confirm:'ยืนยัน',safe:true});
     if(!result)return;
     savingAttendance=true;
     document.querySelectorAll('.attendance-tools button,.attendance-select,.attendance-check').forEach(e=>e.disabled=true);
@@ -2418,25 +2418,13 @@ init();
       const name=row.querySelector('.n');
       if(name)name.append(el('small',{class:'attendance-status'},labels[b.attendance||'']||labels['']));
       if(eligible(b)){
-        const check=el('input',{type:'checkbox',class:'attendance-check','aria-label':'เลือก '+b.name});check.dataset.bookingId=b.id;
-        if(name)name.prepend(check);
+
         const select=el('select',{class:'attendance-select','aria-label':'สถานะการมารับบริการของ '+b.name,onchange:async e=>{const state=e.target.value;e.target.value=b.attendance||'';await saveAttendance([b.id],state);}},
-          Object.entries(labels).map(([v,label])=>el('option',{value:v},label)));
-        select.value=b.attendance||'';if(name)name.append(select);
+          ['','attended','no_show'].map(v=>el('option',{value:v},labels[v])));
+        select.value=b.attendance||'';if(name)name.append(el('div',{class:'attendance-control'},select));
       }
     }
     return row;
-  };
-  const originalSlots=renderSlots;
-  renderSlots=function(){
-    document.querySelectorAll('.attendance-tools').forEach(e=>e.remove());
-    originalSlots();
-    const target=document.querySelector('#main .slot');
-    if(!target)return;
-    const toolbar=el('div',{class:'attendance-tools'},
-      el('button',{type:'button',onclick:()=>document.querySelectorAll('.attendance-check').forEach(e=>e.checked=true)},'เลือกทั้งหมด'),
-      ...['attended','no_show',''].map(state=>el('button',{type:'button',onclick:()=>saveAttendance(Array.from(document.querySelectorAll('.attendance-check:checked')).map(e=>e.dataset.bookingId),state)},state?labels[state]:'ล้างการยืนยัน')));
-    target.parentElement.before(toolbar);
   };
 })();
 </script>
@@ -2498,5 +2486,31 @@ init();
   addEventListener('afterprint',()=>document.getElementById('main')?.style.removeProperty('--a4-print-scale'));
 })();
 </script>
+
+<style>
+@media screen{
+  .slot .n .attendance-status{display:none!important}
+  .attendance-control{display:flex;align-items:center;gap:10px;margin-top:7px;min-width:0}
+  .attendance-control .attendance-check{flex:0 0 20px;width:20px;height:20px;margin:0;cursor:pointer}
+  .layout .slots .slot .n .attendance-control .attendance-select{flex:1 1 0;width:auto;max-width:205px;min-width:0;margin:0;cursor:pointer}
+}
+@media print{.attendance-control{display:none!important}}
+</style>
+
+<style>
+@media screen{
+  .attendance-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;margin:12px 0;background:var(--theme-soft,#f4edf9);border:1px solid var(--theme-border,#ded1eb);border-radius:12px}
+  .attendance-selection,.attendance-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .attendance-selected-count{font-size:14px;font-weight:600;color:var(--theme-deep,#51415e);white-space:nowrap}
+  .attendance-tools button{font:inherit;font-size:14px;font-weight:600;min-height:40px;border-radius:9px;padding:8px 13px;line-height:1.4;white-space:nowrap}
+  .attendance-tools .attendance-all{background:#fff;color:var(--theme-deep,#51415e);border:1px solid var(--theme-border,#d9cde7)}
+  .attendance-tools .attendance-arrived{background:#28734d;color:#fff;border:1px solid #28734d}
+  .attendance-tools .attendance-absent{background:#fff4e7;color:#8c4b12;border:1px solid #deb58b}
+  .attendance-tools .attendance-reset{background:transparent;color:#62616b;border:1px solid transparent}
+  .attendance-tools button:disabled{opacity:.45;cursor:default}
+  .attendance-tools button:focus-visible{outline:3px solid #8b70af;outline-offset:3px}
+  @media(max-width:639px){.attendance-tools{align-items:stretch;flex-direction:column;padding:10px}.attendance-actions{display:grid;grid-template-columns:1fr 1fr}.attendance-actions .attendance-reset{grid-column:1/-1;justify-self:end;min-height:34px;padding:5px 8px}.attendance-selection{justify-content:space-between}}
+}
+</style>
 </body>
 </html>
