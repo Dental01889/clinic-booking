@@ -789,6 +789,40 @@ main{max-width:560px!important;padding:18px 20px 30px!important}
 
 <div id="loading" class="loading">กำลังโหลด…</div>
 
+<style>
+.line-enroll{width:min(450px,calc(100vw - 24px));box-sizing:border-box;border:1px solid #dfd1ee;border-radius:18px;padding:22px;color:#44364f}.line-enroll::backdrop{background:#30233970}.line-enroll h2{font-size:1.3rem;margin:0 0 12px}.line-enroll p{line-height:1.6}.line-enroll label{display:flex;align-items:flex-start;gap:10px;margin:14px 0;line-height:1.6}.line-enroll input{flex:none;width:20px;height:20px;accent-color:#9474b5}.line-enroll button{font:inherit;padding:11px 14px;border-radius:11px;border:1px solid #d9cce6;background:#f6effc;color:#554064;cursor:pointer}.line-enroll button.primary{background:#9372b5;color:#fff;display:block;width:100%;margin-top:18px}.line-enroll button:disabled{opacity:.55}.line-enroll select{font:inherit;width:100%;padding:12px;border:1px solid #d9cce6;border-radius:10px;background:#fff}.line-enroll a{display:block;margin:12px 0;color:#765493}.line-enroll small{font-size:14px;color:#6b6074}
+</style>
+<script>
+async function beginLineLink(){
+  let params=new URLSearchParams(location.search), token=params.get('linkToken');
+  if(!token){const state=params.get('liff.state')||'';token=new URLSearchParams(state.includes('?')?state.slice(state.indexOf('?')+1):state.replace(/^\?/, '')).get('linkToken');}
+  if(!token){const url=liff.getContext()?.liffUrl||'';token=new URLSearchParams(url.split('?')[1]||'').get('linkToken');}
+  if(!token)return false;
+  const dlg=el('dialog',{class:'line-enroll','aria-label':'ยืนยันเชื่อม LINE'});document.body.append(dlg);
+  let timer=null,working=false;
+  function stop(){clearInterval(timer);timer=null;}
+  function finish(){stop();dlg.replaceChildren(el('h2',{},'เชื่อม LINE สำเร็จ'),el('p',{},'นัดที่เจ้าหน้าที่เลือกเชื่อมกับ LINE นี้แล้ว'),el('button',{class:'primary',onclick:()=>{dlg.close();switchTab('mine');}},'ดูนัดของฉัน'),el('a',{href:CLINIC_CHAT,target:'_blank',rel:'noopener'},'เพิ่มเพื่อน / ทักแชทคลินิก'),el('small',{},'เพิ่มเพื่อน LINE คลินิกและไม่บล็อกบัญชี เพื่อรับข้อความแจ้งเตือน'));
+    try{const u=new URL(location.href);u.searchParams.delete('linkToken');u.searchParams.delete('liff.state');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(_){}
+  }
+  async function status(){if(working)return;working=true;try{const r=await api('myLineLinkStatus',{token});if(r.state==='approved')finish();}catch(e){stop();dlg.replaceChildren(el('h2',{},'เชื่อม LINE'),el('p',{},e.message),el('button',{onclick:()=>dlg.close()},'ปิด'));}finally{working=false;}}
+  const role=el('select',{'aria-label':'บัญชีนี้เป็นของใคร'},el('option',{value:'self'},'บัญชีของคนไข้เอง'),el('option',{value:'caregiver'},'บัญชีผู้ดูแล / ลูกจองให้พ่อแม่'));
+  const consent=el('input',{type:'checkbox'});
+  const submit=el('button',{class:'primary',disabled:true,onclick:async()=>{
+    if(working||!consent.checked)return;
+    working=true;submit.disabled=true;
+    try{const r=await api('requestLineLink',{token,role:role.value,consent:true});
+      if(r.state==='approved'){finish();return;}
+      dlg.replaceChildren(el('h2',{},'ส่งคำขอแล้ว'),el('p',{},'บัญชี LINE: '+r.lineName),el('p',{},'ให้เจ้าหน้าที่ตรวจสอบและยืนยันการเชื่อม'),el('button',{onclick:status},'ตรวจผลการยืนยัน'),el('button',{onclick:()=>dlg.close()},'ปิด'));
+      timer=setInterval(status,5000);
+    }catch(e){let error=dlg.querySelector('.line-enroll-error');if(!error){error=el('p',{class:'line-enroll-error',role:'alert'});dlg.append(error);}error.textContent=e.message;submit.disabled=!consent.checked;}
+    finally{working=false;}
+  }},'ยืนยันใช้ LINE นี้');
+  consent.addEventListener('change',()=>submit.disabled=!consent.checked||working);
+  dlg.append(el('h2',{},'เชื่อม LINE กับนัดเดิม'),el('p',{},'เลือกว่าบัญชีนี้เป็นของคนไข้หรือผู้ดูแล จากนั้นให้เจ้าหน้าที่ตรวจสอบก่อนเชื่อม'),role,el('label',{},consent,'อนุญาตให้คลินิกเชื่อมนัดที่เลือกกับ LINE นี้ เพื่อดูนัดและรับการแจ้งเตือน'),submit,el('button',{onclick:()=>dlg.close(),style:'margin-top:10px'},'ยกเลิก'));
+  dlg.addEventListener('close',stop);addEventListener('pagehide',stop);dlg.showModal();return true;
+}
+</script>
+
 <script>
 /* ============ ตั้งค่า ============ */
 const LIFF_ID     = '2011807177-FiexSlWR';
@@ -1392,6 +1426,7 @@ async function init(){
     try { localStorage.setItem(SVC_KEY, JSON.stringify(data)); } catch (_) {}
     apply(data);
     renderServices();
+    if (await beginLineLink()) return;
     await restoreDraft();
     // เปิดแท็บ "นัดของฉัน" ได้ตรงๆ ด้วยลิงก์ที่ลงท้าย ?tab=mine
     const wanted = new URLSearchParams(location.search).get('tab')
