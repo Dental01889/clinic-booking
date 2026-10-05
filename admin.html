@@ -4930,12 +4930,13 @@ async function printQueueReport(){
     style.textContent=`@page{size:A4 portrait;margin:10mm}
       *{box-sizing:border-box}html,body{margin:0;padding:0;background:white;color:black}
       body{font-family:"Noto Sans Thai Looped",sans-serif;font-size:11pt;line-height:1.35}
-      #report{width:190mm;zoom:var(--scale,1)}h1{font-size:15pt;margin:0 0 2mm}h2{font-size:12pt;margin:0 0 3mm}
-      .summary{border:1px solid black;padding:2mm 3mm;margin:0 0 3mm;display:flex;flex-wrap:wrap;gap:2mm 6mm;font-size:10pt}
-      table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid black;padding:2mm 3mm;vertical-align:middle;overflow-wrap:anywhere}
-      th{font-size:10pt;text-align:left}th:first-child,td:first-child{width:22mm;text-align:center;font-weight:700}
-      tr{break-inside:avoid}td strong{font-size:11pt}.detail{font-size:9pt;margin-top:1mm}.vacant{color:#666}
-      .tag{font-size:9pt;margin-left:3mm}.ruler{position:absolute;visibility:hidden;height:272mm;width:1px}
+      #report{width:190mm;zoom:var(--scale,1)}h1{font-size:16pt;margin:0 0 1mm;text-align:center}h2{font-size:12.5pt;margin:0 0 4mm;text-align:center;font-weight:600}
+      .summary{border:1px solid black;padding:2.5mm 3mm;margin:0 0 4mm;display:flex;flex-wrap:wrap;justify-content:center;gap:2mm 10mm;font-size:10.5pt}.summary b{font-size:12pt}
+      table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid black;padding:2.6mm 3mm;vertical-align:middle;overflow-wrap:anywhere}
+      th{font-size:10pt;text-align:center;background:#f2f2f2;white-space:nowrap}col.time{width:24mm}col.treat{width:30mm}col.phone{width:38mm}
+      td.time,td.treat,td.phone{text-align:center}td.time{font-weight:700;font-size:11pt}td.phone{font-size:10.5pt;letter-spacing:.2px}
+      tr{break-inside:avoid}td strong{font-size:11.5pt}.detail{font-size:9pt;margin-top:1mm;color:#333}.vacant{color:#666;font-weight:400}
+      .ruler{position:absolute;visibility:hidden;height:272mm;width:1px}
       @media print{.ruler{display:none}}`;
     doc.head.append(style);
     const add=(tag,parent,text,className)=>{const n=doc.createElement(tag);if(text!=null)n.textContent=text;if(className)n.className=className;parent.append(n);return n;};
@@ -4946,11 +4947,11 @@ async function printQueueReport(){
     const summary=add('div',report,null,'summary');
     const totals=[['ผู้มีนัดทั้งหมด',booked.length],['อุดฟัน',fill],['ขูดหินปูน',scale]];
     if(extraction)totals.push(['ถอนฟัน',extraction]);if(unknown)totals.push(['ยังไม่ระบุงาน',unknown]);
-    totals.forEach(([label,count])=>add('span',summary,`${label} ${count} คน`));
-    const table=add('table',report),head=add('tr',add('thead',table));add('th',head,'เวลา / คิว');add('th',head,'ชื่อคนไข้ / งานที่ทำ / เบอร์โทร');
+    totals.forEach(([label,count])=>{const sp=add('span',summary,label+' ');add('b',sp,String(count));sp.append(' คน');});
+    const table=add('table',report),cg=add('colgroup',table);['time','name','treat','phone'].forEach(c=>add('col',cg,null,c));const head=add('tr',add('thead',table));['เวลา / คิว','ชื่อคนไข้','งานที่ทำ','เบอร์โทร'].forEach(h=>add('th',head,h));
     const tbody=add('tbody',table);
-    items.forEach(item=>{const row=add('tr',tbody);add('td',row,item.time);const cell=add('td',row);add('strong',cell,item.name,item.booked?'':'vacant');if(item.treat)add('span',cell,item.treat,'tag');if(item.phone)add('div',cell,item.phone,'detail');if(item.note)add('div',cell,item.note,'detail');});
-    if(!items.length){const row=add('tr',tbody);const cell=add('td',row,'ไม่มีคิวในตารางนี้');cell.colSpan=2;}
+    items.forEach(item=>{const row=add('tr',tbody);add('td',row,item.time,'time');const cell=add('td',row);add('strong',cell,item.name,item.booked?'':'vacant');if(item.note)add('div',cell,item.note,'detail');add('td',row,item.treat||'','treat');add('td',row,item.phone||'','phone');});
+    if(!items.length){const row=add('tr',tbody);const cell=add('td',row,'ไม่มีคิวในตารางนี้');cell.colSpan=4;}
     if(doc.fonts)await Promise.race([doc.fonts.ready,new Promise(resolve=>setTimeout(resolve,2500))]);
     const ruler=add('div',doc.body,null,'ruler'),available=ruler.getBoundingClientRect().height;
     let fit=1;
