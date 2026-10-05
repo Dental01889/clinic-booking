@@ -1932,7 +1932,7 @@ async function init(){
   $('ad-yes').addEventListener('click', submitAdd);
   $('ad-no').addEventListener('click', () => $('adlg').close());
   $('lg-go').addEventListener('click', doLogin);
-  $('print').addEventListener('click', () => window.print());
+  $('print').addEventListener('click', () => printQueueReport());
   $('refresh').addEventListener('click', refreshAll);
   $('rs-date').addEventListener('change', loadTarget);
   $('mv-date').addEventListener('change', loadMoveTimes);
@@ -4901,6 +4901,75 @@ var qrcode = function() {
   const original=slotRow;
   slotRow=function(t,b,free){const row=original(t,b,free);if(b&&!b.cancelled){const n=row.querySelector('.n');if(n)n.append(el('div',{class:'line-link-control'},b.hasLine?el('span',{class:'line-linked-label'},'✓ เชื่อม LINE แล้ว'+(b.lineRole==='บัญชีผู้ดูแล'?' · ผู้ดูแล':'')):el('button',{type:'button',class:'line-link-button',onclick:()=>showLink(b)},'เชื่อม LINE')));}return row;};
 })();
+</script>
+<script>
+/* Print a standalone report: dashboard and login are never copied. */
+let queuePrintBusy=false;
+async function printQueueReport(){
+  if(queuePrintBusy||!dayData||$('main').hidden)return;
+  queuePrintBusy=true;
+  const button=$('print');button.disabled=true;
+  let frame;
+  try{
+    const visible=[...$('list').querySelectorAll('.slot')];
+    const records=new Map(dayData.bookings.map(b=>[String(b.id),b]));
+    const items=visible.map(row=>{
+      const b=records.get(String(row.dataset.bookingId));
+      const name=row.querySelector('.n b')?.cloneNode(true);
+      name?.querySelectorAll('.treat').forEach(x=>x.remove());
+      return {time:row.querySelector('.t')?.textContent.trim()||'',name:b?b.name:(name?.textContent.trim()||'ว่าง'),phone:b?b.phone:'',treat:b?b.treat:'',note:b?b.note:'',booked:row.classList.contains('taken'),extraction:b&&(b.service==='ถอนฟัน'||dayData.capacity.some(c=>c.name===b.service&&c.noTime))};
+    });
+    frame=document.createElement('iframe');
+    frame.title='รายงานตารางคิวสำหรับพิมพ์';
+    frame.style.cssText='position:fixed;left:-20000px;top:0;width:210mm;height:297mm;border:0;';
+    document.body.append(frame);
+    const doc=frame.contentDocument;
+    doc.open();doc.write('<!doctype html><html lang="th"><head><meta charset="utf-8"><title>ตารางคิว</title></head><body></body></html>');doc.close();
+    document.querySelectorAll('link[rel="stylesheet"]').forEach(link=>{if(link.href.includes('fonts.googleapis.com'))doc.head.append(doc.importNode(link,true));});
+    const style=doc.createElement('style');
+    style.textContent=`@page{size:A4 portrait;margin:10mm}
+      *{box-sizing:border-box}html,body{margin:0;padding:0;background:white;color:black}
+      body{font-family:"Noto Sans Thai Looped",sans-serif;font-size:11pt;line-height:1.35}
+      #report{width:190mm;zoom:var(--scale,1)}h1{font-size:15pt;margin:0 0 2mm}h2{font-size:12pt;margin:0 0 3mm}
+      .summary{border:1px solid black;padding:2mm 3mm;margin:0 0 3mm;display:flex;flex-wrap:wrap;gap:2mm 6mm;font-size:10pt}
+      table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid black;padding:2mm 3mm;vertical-align:middle;overflow-wrap:anywhere}
+      th{font-size:10pt;text-align:left}th:first-child,td:first-child{width:22mm;text-align:center;font-weight:700}
+      tr{break-inside:avoid}td strong{font-size:11pt}.detail{font-size:9pt;margin-top:1mm}.vacant{color:#666}
+      .tag{font-size:9pt;margin-left:3mm}.ruler{position:absolute;visibility:hidden;height:272mm;width:1px}
+      @media print{.ruler{display:none}}`;
+    doc.head.append(style);
+    const add=(tag,parent,text,className)=>{const n=doc.createElement(tag);if(text!=null)n.textContent=text;if(className)n.className=className;parent.append(n);return n;};
+    const report=add('main',doc.body);report.id='report';
+    add('h1',report,$('pclinic').textContent||$('clinic').textContent);
+    add('h2',report,$('dayname').textContent);
+    const booked=items.filter(x=>x.booked),fill=booked.filter(x=>!x.extraction&&x.treat==='อุดฟัน').length,scale=booked.filter(x=>!x.extraction&&['ขูด','ขูดหินปูน'].includes(x.treat)).length,extraction=booked.filter(x=>x.extraction).length,unknown=booked.length-fill-scale-extraction;
+    const summary=add('div',report,null,'summary');
+    const totals=[['ผู้มีนัดทั้งหมด',booked.length],['อุดฟัน',fill],['ขูดหินปูน',scale]];
+    if(extraction)totals.push(['ถอนฟัน',extraction]);if(unknown)totals.push(['ยังไม่ระบุงาน',unknown]);
+    totals.forEach(([label,count])=>add('span',summary,`${label} ${count} คน`));
+    const table=add('table',report),head=add('tr',add('thead',table));add('th',head,'เวลา / คิว');add('th',head,'ชื่อคนไข้ / งานที่ทำ / เบอร์โทร');
+    const tbody=add('tbody',table);
+    items.forEach(item=>{const row=add('tr',tbody);add('td',row,item.time);const cell=add('td',row);add('strong',cell,item.name,item.booked?'':'vacant');if(item.treat)add('span',cell,item.treat,'tag');if(item.phone)add('div',cell,item.phone,'detail');if(item.note)add('div',cell,item.note,'detail');});
+    if(!items.length){const row=add('tr',tbody);const cell=add('td',row,'ไม่มีคิวในตารางนี้');cell.colSpan=2;}
+    if(doc.fonts)await Promise.race([doc.fonts.ready,new Promise(resolve=>setTimeout(resolve,2500))]);
+    const ruler=add('div',doc.body,null,'ruler'),available=ruler.getBoundingClientRect().height;
+    let fit=1;
+    for(let i=0;i<5;i++){
+      report.style.zoom='1';report.style.width=(190/fit)+'mm';
+      const height=report.getBoundingClientRect().height;
+      if(!height||height*fit<=available)break;
+      fit=Math.min(fit,available/height);
+    }
+    ruler.remove();report.style.setProperty('--scale',String(fit));report.style.zoom=String(fit);
+    const cleanup=()=>{frame?.remove();frame=null;};
+    frame.contentWindow.addEventListener('afterprint',cleanup,{once:true});
+    frame.contentWindow.focus();frame.contentWindow.print();
+    // Fallback cleanup when the browser does not dispatch afterprint.
+    setTimeout(cleanup,60000);
+  }catch(error){frame?.remove();toast('เตรียมหน้าพิมพ์ไม่สำเร็จ: '+error.message);}
+  finally{queuePrintBusy=false;button.disabled=false;}
+}
+
 </script>
 </body>
 </html>
