@@ -4971,5 +4971,23 @@ async function printQueueReport(){
 }
 
 </script>
+<style>
+/* Print fallback when the browser's own Print (menu / Ctrl+P) is used. */
+@media print{
+  html body #login,html body #gate,html body .top,html body .calendar-panel{display:none!important}
+  html body .layout{display:block!important;grid-template-columns:none!important;max-width:none!important;margin:0!important;padding:0!important}
+  html body #main{box-sizing:border-box!important;width:190mm!important;max-width:100%!important;zoom:1!important}
+}
+</style>
+<script>
+/* Ctrl+P / Cmd+P uses the same clean report as the print button. */
+addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey&&(e.key==='p'||e.key==='P'||e.code==='KeyP')){
+    if(typeof dayData!=='undefined'&&dayData&&!document.getElementById('main').hidden){
+      e.preventDefault();printQueueReport();
+    }
+  }
+},true);
+</script>
 </body>
 </html>
