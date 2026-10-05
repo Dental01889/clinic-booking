@@ -2450,5 +2450,53 @@ init();
   .attendance-tools button{min-height:40px;font-size:14px;padding:7px 12px;border-color:var(--theme-border,#d9cde7);color:var(--theme-deep,#51415e);cursor:pointer}
 }
 </style>
+
+<style>
+/* A4 compact report; screen layout stays unchanged. */
+@media print{
+  @page{size:A4 portrait;margin:10mm}
+  html,body{margin:0!important;padding:0!important;font-size:10pt!important;line-height:1.3!important}
+  .calendar-panel,#foot,.attendance-tools{display:none!important}
+  .layout,.wrap{margin:0!important;padding:0!important;display:block!important}
+  #main{box-sizing:border-box!important;width:190mm!important;max-width:none!important;margin:0!important;padding:0!important;zoom:var(--a4-print-scale,1)!important}
+  #pclinic{font-size:11pt!important;margin:0 0 2mm!important}
+  .dayhead{margin:0 0 2mm!important}
+  .dayhead h2{font-size:14pt!important;line-height:1.25!important}
+  .print-report-summary:not(:empty){margin:0 0 2mm!important;padding:1.5mm 2mm!important}
+  .print-report-summary h3{font-size:9pt!important;margin:0 0 1mm!important}
+  .print-report-values{gap:1mm 4mm!important}
+  .print-report-values span{font-size:9pt!important}
+  .print-report-values strong{font-size:11pt!important}
+  .print-table-heading{font-size:10pt!important}
+  .print-table-heading span{padding:1.5mm 2mm!important}
+  .layout .slots .slot{min-height:9mm!important}
+  .slot .t{padding:1mm!important;font-size:10pt!important}
+  .slot .n{padding:1mm 2mm!important;gap:.3mm!important}
+  .slot .n b{font-size:10.5pt!important;line-height:1.3!important}
+  .slot .n small,.slot .n small a{font-size:8.5pt!important;line-height:1.25!important}
+  .slot .treat{font-size:8.5pt!important;padding:0 1mm!important;line-height:1.3!important}
+  .extra-head{font-size:9pt!important;margin:2mm 0 1mm!important}
+  .slot,.slots,.extra-head{box-shadow:none!important}
+}
+</style>
+<script>
+/* Fit the complete displayed report without dropping patient rows. */
+(()=>{
+  function fitA4(){
+    const main=document.getElementById('main');
+    if(!main||main.hidden)return;
+    main.style.setProperty('--a4-print-scale','1');
+    const probe=document.createElement('div');
+    probe.style.cssText='position:absolute;visibility:hidden;width:1mm;height:275mm;pointer-events:none';
+    document.body.append(probe);
+    const available=probe.getBoundingClientRect().height;
+    const height=Math.max(main.scrollHeight,main.getBoundingClientRect().height);
+    probe.remove();
+    if(height>0&&available>0)main.style.setProperty('--a4-print-scale',String(Math.min(1,available/height)));
+  }
+  addEventListener('beforeprint',fitA4);
+  addEventListener('afterprint',()=>document.getElementById('main')?.style.removeProperty('--a4-print-scale'));
+})();
+</script>
 </body>
 </html>
