@@ -1648,6 +1648,8 @@ async function toggleHoliday(data){
 
 /* ---------- เลื่อนคิวทั้งวันไปวันพฤหัส ---------- */
 let rs = null;   // { from, bookings, target, resolve }
+let rsLoadSeq=0;
+let rsSaving=false;
 
 function openReschedule(data){
   const targets = days.filter(d => d.extra && !d.holiday && d.date > data.date && d.date >= today).slice(0, 4);
@@ -1666,49 +1668,57 @@ function openReschedule(data){
 }
 
 async function loadTarget(){
-  const to = $('rs-date').value;
-  $('rs-err').textContent = '';
-  try { rs.target = await api('adminDay', { date: to }); }
-  catch (e) { $('rs-err').textContent = e.message; return; }
-  if ($('rs-date').value !== to) return;
-
-  const taken = new Set();
-  $('rs-list').replaceChildren(...rs.bookings.map(b => {
-    const cap = rs.target.capacity.find(c => c.name === b.service);
-    const free = cap ? cap.free : [];
-    const pick = free.includes(b.time) && !taken.has(b.time) ? b.time : (free.find(t => !taken.has(t)) || '');
-    if (pick) taken.add(pick);
-    return el('div', { class: 'rs-row' },
-      el('div', {}, el('b', {}, b.name || '—'),
-        el('small', {}, (cap && cap.noTime ? (pick ? 'ระบบลงคิวให้เอง · ' : 'วันนี้คิวเต็ม · ') : `เดิม ${b.time} · `) + b.service + (b.hasLine ? '' : ' · ไม่มี LINE'))),
-      el('select', { 'data-id': b.id, 'aria-label': `เวลาใหม่ของ ${b.name || 'คนไข้'}`, hidden: !!(cap && cap.noTime && pick) },
-        el('option', { value: '' }, cap ? '— เลือกเวลา —' : 'ไม่มีรอบนี้'),
-        free.map(t => el('option', { value: t, selected: t === pick }, capLabel(cap, t)))));
+  if(!rs||rsSaving)return;
+  const session=rs,seq=++rsLoadSeq,to=$('rs-date').value;
+  session.target=null;$('rs-yes').disabled=true;$('rs-err').textContent='';
+  $('rs-list').replaceChildren(el('p',{class:'empty'},'กำลังโหลดคิวว่าง…'));
+  let target;
+  try{target=await api('adminDay',{date:to});}
+  catch(e){if(rs===session&&seq===rsLoadSeq){$('rs-err').textContent=e.message;$('rs-list').replaceChildren(el('p',{class:'empty'},'โหลดคิวไม่สำเร็จ กรุณาเลือกวันอีกครั้ง'));}return;}
+  if(rs!==session||seq!==rsLoadSeq||$('rs-date').value!==to)return;
+  session.target=target;
+  const taken=new Set();
+  $('rs-list').replaceChildren(...session.bookings.map(b=>{
+    const cap=target.capacity.find(c=>c.name===b.service),free=cap?cap.free:[];
+    const pick=free.includes(b.time)&&!taken.has(b.time)?b.time:(free.find(t=>!taken.has(t))||'');
+    if(pick)taken.add(pick);
+    return el('div',{class:'rs-row'},
+      el('div',{},el('b',{},b.name||'—'),el('small',{},(cap&&cap.noTime?(pick?'ระบบลงคิวให้เอง · ':'วันนี้คิวเต็ม · '):`เดิม ${b.time} · `)+b.service+(b.hasLine?'':' · ไม่มี LINE'))),
+      el('select',{'data-id':b.id,'aria-label':`เวลาใหม่ของ ${b.name||'คนไข้'}`,hidden:!!(cap&&cap.noTime&&pick)},el('option',{value:''},cap?'— เลือกเวลา —':'ไม่มีรอบนี้'),free.map(t=>el('option',{value:t,selected:t===pick},capLabel(cap,t)))));
   }));
+  $('rs-yes').disabled=false;
 }
 
 function closeReschedule(result){
   if (!rs) return;
-  const r = rs; rs = null;
+  const r = rs; rs = null; rsLoadSeq++;
   $('rdlg').close();
   r.resolve(result);
 }
 
 async function submitReschedule(){
+  if(rsSaving)return;
   const err = m => { $('rs-err').textContent = m; };
+  if(!rs||!rs.target||rs.target.date!==$('rs-date').value)return err('รอโหลดคิววันใหม่ให้สำเร็จก่อน');
   const sel = [...$('rs-list').querySelectorAll('select')];
-  const moves = sel.map(x => ({ id: x.dataset.id, time: x.value }));
+  if(sel.length!==rs.bookings.length)return err('รายชื่อไม่ครบ กรุณาเปิดหน้าต่างใหม่');
+  const moves = sel.map((x,i) => {
+    const b=rs.bookings[i];
+    return {id:x.dataset.id,time:x.value,original:{name:b.name,phone:b.phone,time:b.time,service:b.service}};
+  });
+  if(moves.some((m,i)=>m.id!==rs.bookings[i].id)||new Set(moves.map(m=>m.id)).size!==moves.length)return err('รหัสนัดซ้ำหรือรายชื่อไม่ตรง กรุณารีเฟรชวันเดิม');
   if (!moves.length || moves.some(m => !m.time)) return err('เลือกเวลาใหม่ให้ครบทุกคน');
   if (new Set(moves.map(m => m.time)).size !== moves.length) return err('มีคนไข้ได้เวลาซ้ำกัน');
 
   const to = $('rs-date').value, from = rs.from;
+  rsSaving=true; $('rs-date').disabled=true;
   $('rs-yes').disabled = true;
   try {
     loading(true);
     const r = await api('adminReschedule', { from, to, moves, close: true, note: $('rs-note').value.trim() });
     closeReschedule(true);
-    days = await api('adminDays');
-    await openDay(r.to);
+    try{days = await api('adminDays'); await openDay(r.to);}
+    catch(refreshError){toast('บันทึกการเลื่อนคิวแล้ว แต่โหลดตารางล่าสุดไม่สำเร็จ กรุณารีเฟรชคิว');}
     loading(false);
     if (r.callList.length){
       await ask({
@@ -1722,7 +1732,8 @@ async function submitReschedule(){
   } catch (e) {
     err(e.message);
   } finally {
-    $('rs-yes').disabled = false;
+    rsSaving=false; $('rs-date').disabled=false;
+    $('rs-yes').disabled = !(rs&&rs.target);
     loading(false);
   }
 }
@@ -1730,6 +1741,7 @@ async function submitReschedule(){
 
 /* ---------- หมอเลื่อนนัดทีละคิว ---------- */
 let mv = null;   // { b, from }
+let mvLoadSeq=0, mvSaving=false;
 
 function openMove(b){
   mv = { b, from: dayData.date };
@@ -1747,7 +1759,10 @@ function openMove(b){
 }
 
 async function loadMoveTimes(){
-  const to = $('mv-date').value, b = mv.b;
+  if(!mv||mvSaving)return;
+  const session=mv,seq=++mvLoadSeq;
+  session.loadedDate='';
+  const to = $('mv-date').value, b = session.b;
   $('mv-err').textContent = '';
   $('mv-time').replaceChildren(el('option', { value: '' }, 'กำลังโหลด…'));
   $('mv-auto').hidden = true;
@@ -1755,8 +1770,9 @@ async function loadMoveTimes(){
   $('mv-yes').disabled = true;
   let d;
   try { d = to === dayData.date ? dayData : await api('adminDay', { date: to }); }
-  catch (e) { $('mv-err').textContent = e.message; return; }
-  if (!mv || $('mv-date').value !== to) return;
+  catch (e) { if(mv===session&&seq===mvLoadSeq)$('mv-err').textContent = e.message; return; }
+  if (mv!==session || seq!==mvLoadSeq || $('mv-date').value !== to) return;
+  session.loadedDate=to;
   const cap = d.capacity.find(c => c.name === b.service);
   const free = cap ? cap.free.filter(t => !(to === mv.from && t === b.time)) : [];
   if (!free.length){
@@ -1778,17 +1794,20 @@ async function loadMoveTimes(){
 }
 
 async function submitMove(){
+  if(!mv||mvSaving)return;
+  if(mv.loadedDate!==$('mv-date').value){$('mv-err').textContent='รอโหลดคิววันใหม่ให้สำเร็จก่อน';return;}
   const to = $('mv-date').value, time = $('mv-time').value, b = mv.b;
   if (!time) { $('mv-err').textContent = 'เลือกเวลาใหม่ก่อน'; return; }
   const capNow = dayData.capacity.find(c => c.name === b.service);
+  mvSaving=true; $('mv-date').disabled=true;
   $('mv-yes').disabled = true;
   try {
     loading(true);
-    const r = await api('adminReschedule', { from: mv.from, to, moves: [{ id: b.id, time }], close: false,
+    const r = await api('adminReschedule', { from: mv.from, to, moves: [{ id: b.id, time, original:{name:b.name,phone:b.phone,time:b.time,service:b.service} }], close: false,
                                              note: $('mv-note').value.trim() });
     $('mdlg').close(); mv = null;
-    days = await api('adminDays');
-    await openDay(current);
+    try{days = await api('adminDays'); await openDay(current);}
+    catch(refreshError){toast('บันทึกการเลื่อนคิวแล้ว แต่โหลดตารางล่าสุดไม่สำเร็จ กรุณารีเฟรชคิว');}
     loading(false);
     if (r.callList.length){
       const c = r.callList[0];
@@ -1801,7 +1820,8 @@ async function submitMove(){
   } catch (e) {
     $('mv-err').textContent = e.message;
   } finally {
-    $('mv-yes').disabled = false;
+    mvSaving=false; $('mv-date').disabled=false;
+    $('mv-yes').disabled = !(mv&&mv.loadedDate===$('mv-date').value);
     loading(false);
   }
 }
@@ -2444,9 +2464,9 @@ init();
 @media print{
   @page{size:A4 portrait;margin:10mm}
   html,body{margin:0!important;padding:0!important;font-size:10pt!important;line-height:1.3!important}
-  .calendar-panel,#foot,.attendance-tools{display:none!important}
+  [hidden],#login,.calendar-panel,#foot,.attendance-tools{display:none!important}
   .layout,.wrap{margin:0!important;padding:0!important;display:block!important}
-  #main{box-sizing:border-box!important;width:190mm!important;max-width:none!important;margin:0!important;padding:0!important;zoom:var(--a4-print-scale,1)!important}
+  #main{box-sizing:border-box!important;width:calc(190mm / var(--a4-print-scale,1))!important;max-width:none!important;margin:0!important;padding:0!important;zoom:var(--a4-print-scale,1)!important}
   #pclinic{font-size:11pt!important;margin:0 0 2mm!important}
   .dayhead{margin:0 0 2mm!important}
   .dayhead h2{font-size:14pt!important;line-height:1.25!important}
@@ -2474,13 +2494,29 @@ init();
     const main=document.getElementById('main');
     if(!main||main.hidden)return;
     main.style.setProperty('--a4-print-scale','1');
-    const probe=document.createElement('div');
-    probe.style.cssText='position:absolute;visibility:hidden;width:1mm;height:275mm;pointer-events:none';
-    document.body.append(probe);
-    const available=probe.getBoundingClientRect().height;
-    const height=Math.max(main.scrollHeight,main.getBoundingClientRect().height);
-    probe.remove();
-    if(height>0&&available>0)main.style.setProperty('--a4-print-scale',String(Math.min(1,available/height)));
+    // Measure the print layout, not the taller dashboard layout on screen.
+    const host=document.createElement('div');
+    host.style.cssText='position:fixed;left:-20000px;top:0;visibility:hidden;pointer-events:none';
+    const root=host.attachShadow({mode:'open'}),style=document.createElement('style');
+    style.textContent=Array.from(document.querySelectorAll('style'),x=>x.textContent)
+      .join('\n').replace(/@media\s+screen\b/g,'@media not all').replace(/@media\s+print\b/g,'@media all')
+      +'\n#main{zoom:1!important}';
+    const layout=document.createElement('div');layout.className='layout';
+    const report=main.cloneNode(true);report.hidden=false;report.style.setProperty('--a4-print-scale','1');
+    layout.append(report);root.append(style,layout);
+    const ruler=document.createElement('div');ruler.style.height='273mm';root.append(ruler);
+    document.body.append(host);
+    try{
+      const available=ruler.getBoundingClientRect().height;
+      let scale=1;
+      for(let i=0;i<4;i++){
+        report.style.setProperty('--a4-print-scale',String(scale));
+        const height=Math.max(report.scrollHeight,report.getBoundingClientRect().height);
+        if(!height||height*scale<=available)break;
+        scale=Math.min(scale,available/height);
+      }
+      main.style.setProperty('--a4-print-scale',String(scale));
+    }finally{host.remove();}
   }
   addEventListener('beforeprint',fitA4);
   addEventListener('afterprint',()=>document.getElementById('main')?.style.removeProperty('--a4-print-scale'));
