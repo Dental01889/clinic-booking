@@ -1112,6 +1112,9 @@ html[data-admin-theme="slate"]{--theme-page:#F4F6F8;--theme-soft:#E6EBF1;--theme
 <dialog id="rdlg">
   <h3>เลื่อนคิวก่อนปิดวัน</h3>
   <p id="rs-sub"></p>
+  <label>เลือกเดือน
+    <select id="rs-month" aria-label="เดือนที่ต้องการย้ายคิว"></select>
+  </label>
   <label>ย้ายไปวัน
     <select id="rs-date"></select>
   </label>
@@ -1652,19 +1655,28 @@ let rsLoadSeq=0;
 let rsSaving=false;
 
 function openReschedule(data){
-  const targets = days.filter(d => d.extra && !d.holiday && d.date > data.date && d.date >= today).slice(0, 4);
+  const targets = days.filter(d => d.extra && !d.holiday && d.date > data.date && d.date >= today).sort((a,b)=>a.date.localeCompare(b.date));
   if (!targets.length) return Promise.resolve(false);       // ไม่มีวันชดเชยให้เลือก → ปิดแบบเดิม
   return new Promise(resolve => {
-    rs = { from: data.date, bookings: data.bookings.filter(b => !b.cancelled), target: null, resolve };
+    rs = { from: data.date, bookings: data.bookings.filter(b => !b.cancelled), target: null, targets, resolve };
     $('rs-sub').textContent = `${longDate(data.date)} มี ${rs.bookings.length} คิว — เลือกเวลาใหม่ให้คนไข้ แล้วระบบจะส่ง LINE แจ้งให้`;
-    $('rs-date').replaceChildren(...targets.map(d =>
-      el('option', { value: d.date }, longDate(d.date) + (d.count ? ` (มีนัดแล้ว ${d.count})` : ''))));
+    const months=[...new Set(targets.map(d=>d.date.slice(0,7)))];
+    $('rs-month').replaceChildren(...months.map(month=>el('option',{value:month},
+      new Intl.DateTimeFormat('th-TH',{month:'long',year:'numeric',timeZone:'Asia/Bangkok'}).format(new Date(month+'-01T12:00:00+07:00')))));
+    renderRescheduleDates();
     $('rs-note').value = '';
     $('rs-err').textContent = '';
     $('rs-list').replaceChildren(el('p', { class: 'empty' }, 'กำลังโหลดคิวว่าง…'));
     openDialog($('rdlg'));
     loadTarget();
   });
+}
+
+function renderRescheduleDates(){
+  if(!rs||rsSaving)return;
+  const month=$('rs-month').value;
+  const targets=rs.targets.filter(d=>d.date.slice(0,7)===month);
+  $('rs-date').replaceChildren(...targets.map(d=>el('option',{value:d.date},longDate(d.date)+(d.count?` (มีนัดแล้ว ${d.count})`:''))));
 }
 
 async function loadTarget(){
@@ -1711,7 +1723,7 @@ async function submitReschedule(){
   if (new Set(moves.map(m => m.time)).size !== moves.length) return err('มีคนไข้ได้เวลาซ้ำกัน');
 
   const to = $('rs-date').value, from = rs.from;
-  rsSaving=true; $('rs-date').disabled=true;
+  rsSaving=true; $('rs-date').disabled=true; $('rs-month').disabled=true;
   $('rs-yes').disabled = true;
   try {
     loading(true);
@@ -1732,7 +1744,7 @@ async function submitReschedule(){
   } catch (e) {
     err(e.message);
   } finally {
-    rsSaving=false; $('rs-date').disabled=false;
+    rsSaving=false; $('rs-date').disabled=false; $('rs-month').disabled=false;
     $('rs-yes').disabled = !(rs&&rs.target);
     loading(false);
   }
@@ -1935,6 +1947,7 @@ async function init(){
   $('print').addEventListener('click', () => printQueueReport());
   $('refresh').addEventListener('click', refreshAll);
   $('rs-date').addEventListener('change', loadTarget);
+  $('rs-month').addEventListener('change',()=>{if(rsSaving)return;renderRescheduleDates();loadTarget();});
   $('mv-date').addEventListener('change', loadMoveTimes);
   $('mv-yes').addEventListener('click', submitMove);
   $('mv-no').addEventListener('click', () => { $('mdlg').close(); mv = null; });
@@ -2415,39 +2428,7 @@ init();
 .attendance-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.attendance-tools button,.attendance-select{font:inherit;padding:7px 10px;border:1px solid #d9cde7;border-radius:10px;background:#faf7fd;color:#51415e}.attendance-status{display:block;font-size:13px;margin-top:6px;color:#765693}.attendance-check{width:20px;height:20px;accent-color:#9777b8;margin-right:8px}
 @media print{.attendance-tools,.attendance-select,.attendance-check{display:none!important}}
 </style>
-<script>
-(()=>{
-  let savingAttendance=false;
-  const labels={'attended':'มารับบริการแล้ว','no_show':'ไม่มาตามนัด','':'ยังไม่ได้ยืนยัน'};
-  const eligible=b=>b&&!b.cancelled&&new Date(dayData.date+'T'+b.time+':00+07:00').getTime()<=Date.now();
-  async function saveAttendance(ids,state){
-    if(savingAttendance)return;
-    if(!ids.length){toast('กรุณาเลือกคนไข้');return;}
-    const result=await ask({title:labels[state],text:'ยืนยันสถานะของ '+((dayData?.bookings||[]).find(b=>b.id===ids[0])?.name||'คนไข้')+'?',confirm:'ยืนยัน',safe:true});
-    if(!result)return;
-    savingAttendance=true;
-    document.querySelectorAll('.attendance-tools button,.attendance-select,.attendance-check').forEach(e=>e.disabled=true);
-    try{await api('adminAttendance',{ids,attendance:state});toast('บันทึกสถานะแล้ว');await openDay(current);}
-    catch(e){toast(e.message);await openDay(current);}
-    finally{savingAttendance=false;document.querySelectorAll('.attendance-tools button,.attendance-select,.attendance-check').forEach(e=>e.disabled=false);}
-  }
-  const originalRow=slotRow;
-  slotRow=function(t,b,free){
-    const row=originalRow(t,b,free);
-    if(b&&!b.cancelled){
-      const name=row.querySelector('.n');
-      if(name)name.append(el('small',{class:'attendance-status'},labels[b.attendance||'']||labels['']));
-      if(eligible(b)){
 
-        const select=el('select',{class:'attendance-select','aria-label':'สถานะการมารับบริการของ '+b.name,onchange:async e=>{const state=e.target.value;e.target.value=b.attendance||'';await saveAttendance([b.id],state);}},
-          ['','attended','no_show'].map(v=>el('option',{value:v},labels[v])));
-        select.value=b.attendance||'';if(name)name.append(el('div',{class:'attendance-control'},select));
-      }
-    }
-    return row;
-  };
-})();
-</script>
 
 <style>
 @media screen{
