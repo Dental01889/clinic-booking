@@ -1076,11 +1076,11 @@ html[data-admin-theme="slate"]{--theme-page:#F4F6F8;--theme-soft:#E6EBF1;--theme
 <section id="login" class="wrap" hidden>
   <div class="loginbox">
     <h2>เข้าสู่ระบบผู้ดูแล</h2>
-    <p>ใช้บัญชี LINE ที่มีสิทธิ์ผู้ดูแลเพื่อดูตารางคิว</p>
-    <input id="lg-pw" type="password" autocomplete="current-password" hidden>
+    <p>ใส่รหัสผ่านของคลินิกเพื่อดูตารางคิว</p>
+    <input id="lg-pw" type="password" autocomplete="current-password" placeholder="รหัสผ่าน">
     <p id="lg-err" class="err" role="alert"></p>
-    <button id="lg-go" class="primary">ลองเข้าสู่ระบบด้วย LINE อีกครั้ง</button>
-    <p class="small">ใช้บัญชี LINE ของผู้ดูแลที่ตั้งค่าไว้ในระบบ</p>
+    <button id="lg-go" class="primary">เข้าสู่ระบบ</button>
+    <p class="small">เครื่องนี้จะจำการเข้าสู่ระบบไว้ 14 วัน</p>
   </div>
 </section>
 
@@ -1221,13 +1221,13 @@ async function api(action, data = {}){
   if (!json.ok) {
     // บัตรผ่านของ LINE หมดอายุเพราะเปิดหน้าค้างไว้นาน — ต่ออายุให้เอง
     if (/หมดเวลาเข้าสู่ระบบ/.test(json.error || '')) {
-      adminToken = null; clearToken(); showLogin('กรุณาเข้าสู่ระบบด้วย LINE อีกครั้ง');
+      adminToken = null; clearToken(); showLogin('หมดเวลาเข้าสู่ระบบ กรุณาใส่รหัสผ่านใหม่');
       throw new Error(json.error);
     }
     if (/หมดเวลาใช้งาน/.test(json.error || '')) {
       try {
         if (!liff.isLoggedIn()) liff.login({ redirectUri: location.href }); else location.reload();
-      } catch (_) { showLogin('เปิดหน้านี้ผ่าน LINE ไม่ได้ กรุณาลองอีกครั้ง'); }
+      } catch (_) { showLogin('เปิดหน้านี้ผ่าน LINE ไม่ได้ กรุณาใส่รหัสผ่าน'); }
       throw new Error('กำลังต่ออายุการใช้งาน กรุณารอสักครู่…');
     }
     throw new Error(json.error);
@@ -1905,6 +1905,7 @@ function showLogin(msg){
   $('searchbox').hidden = true; clearSearch();
   $('login').hidden = false;
   $('lg-err').textContent = msg || '';
+  $('lg-pw').focus();
   loading(false);
 }
 
@@ -1921,7 +1922,23 @@ async function start(info){
     : (days.find(d => d.date >= today) || days[0] || {}).date || today);
 }
 
-async function doLogin(){ location.reload(); }
+async function doLogin(){
+  const pw = $('lg-pw').value;
+  if (!pw) { $('lg-err').textContent = 'ใส่รหัสผ่านก่อน'; return; }
+  $('lg-go').disabled = true;
+  try {
+    loading(true);
+    const r = await api('adminLogin', { password: pw });
+    adminToken = r.token; saveToken(r.token);
+    $('lg-pw').value = '';
+    await start(r);
+  } catch (e) {
+    $('lg-err').textContent = e.message;
+  } finally {
+    $('lg-go').disabled = false;
+    loading(false);
+  }
+}
 
 async function init(){
   $('ad-yes').addEventListener('click', submitAdd);
@@ -1953,20 +1970,17 @@ async function init(){
     $('gate').hidden = false; loading(false); return;
   }
 
-  // ใช้ LINE ยืนยันตัวตนแทนการใส่รหัสผ่าน
+  // เปิดหน้าแอดมินโดยตรงตามการตั้งค่าระบบ
   adminToken = null;
+  idToken = null;
   clearToken();
-  try {
-    if (LIFF_ID.startsWith('ใส่')) throw new Error('ยังไม่ได้ตั้งค่า LINE สำหรับผู้ดูแล');
-    await liff.init({ liffId: LIFF_ID });
-    if (!liff.isLoggedIn()) { liff.login({ redirectUri: location.href }); return; }
-    idToken = liff.getIDToken();
-    if (!idToken) throw new Error('เข้าสู่ระบบ LINE ไม่สำเร็จ กรุณาลองอีกครั้ง');
-    return await start(await api('adminInit'));
-  } catch (e) {
-    idToken = null;
-    showLogin(e.message || 'เข้าสู่ระบบ LINE ไม่สำเร็จ กรุณาลองอีกครั้ง');
+  try { return await start(await api('adminInit')); }
+  catch(e) {
+    $('gate').textContent = e.message || 'เชื่อมต่อระบบไม่ได้ กรุณาลองใหม่';
+    $('gate').hidden = false;
+    loading(false);
   }
+
 }
 /* ---------- ติดตั้งเป็นแอปบนมือถือ ---------- */
 (function(){
