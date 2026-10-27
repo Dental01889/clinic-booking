@@ -4971,5 +4971,23 @@ addEventListener('keydown',e=>{
   }
 },true);
 </script>
+
+<style>@media screen{.other-appointments{margin-top:7px;padding:8px 10px;border-radius:8px;background:#fff6e4;color:#704e13;font-size:13px;line-height:1.5}.other-appointments b{display:block}.other-appointments ul{margin:4px 0 0;padding-left:20px}}@media print{.other-appointments{display:none!important}}</style>
+<script>
+(()=>{
+  const original=slotRow;
+  slotRow=function(t,b,free){
+    const row=original(t,b,free);
+    if(b&&!b.cancelled&&Array.isArray(b.otherAppointments)&&b.otherAppointments.length){
+      const name=row.querySelector('.n');
+      if(name){
+        const items=b.otherAppointments.map(a=>el('li',{},`${a.name||'คนไข้'} · ${longDate(a.date)} · ${a.service||''}`+(a.noTime?'':` · ${a.time||''}`)+` (${a.match})`));
+        name.append(el('div',{class:'other-appointments'},el('b',{},`พบนัดอื่นที่อาจเกี่ยวข้อง ${items.length} รายการ`),el('ul',{},items)));
+      }
+    }
+    return row;
+  };
+})();
+</script>
 </body>
 </html>
