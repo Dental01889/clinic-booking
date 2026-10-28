@@ -9,6 +9,7 @@
 <link rel="icon" href="app-icon-192.png">
 <link rel="apple-touch-icon" href="app-apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="แอดมินคลินิก">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="คิวทันตกรรม">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1970,30 +1971,43 @@ async function init(){
     $('gate').hidden = false; loading(false); return;
   }
 
-  // เปิดหน้าแอดมินโดยตรงตามการตั้งค่าระบบ
-  adminToken = null;
   idToken = null;
-  clearToken();
-  try { return await start(await api('adminInit')); }
-  catch(e) {
-    $('gate').textContent = e.message || 'เชื่อมต่อระบบไม่ได้ กรุณาลองใหม่';
-    $('gate').hidden = false;
-    loading(false);
+  adminToken = readToken();
+  if(adminToken){
+    try{return await start(await api('adminInit'));}
+    catch(_){adminToken=null;clearToken();}
   }
+  showLogin('');
 
 }
-/* ---------- ติดตั้งเป็นแอปบนมือถือ ---------- */
+/* ติดตั้งเฉพาะหน้าแอดมิน: Android / iPhone / standalone */
 (function(){
-  if ('serviceWorker' in navigator && window.isSecureContext)
-    navigator.serviceWorker.register('admin-sw.js', { scope: './admin.html' }).catch(() => {});
-  let prompt = null;
-  addEventListener('beforeinstallprompt', e => { e.preventDefault(); prompt = e; $('install').hidden = false; });
-  addEventListener('appinstalled', () => { $('install').hidden = true; toast('ติดตั้งแอปแล้ว ดูไอคอนที่หน้าจอหลัก'); });
-  $('install').addEventListener('click', async () => {
-    if (!prompt) return;
-    prompt.prompt();
-    await prompt.userChoice.catch(() => {});
-    prompt = null; $('install').hidden = true;
+  const button=$('install');
+  const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+  let deferred=null;
+  function updateButton(){button.hidden=standalone();button.textContent='ติดตั้งแอปแอดมิน';}
+  addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferred=event;updateButton();});
+  addEventListener('appinstalled',()=>{deferred=null;button.hidden=true;toast('ติดตั้งแอปแอดมินแล้ว เปิดจากไอคอนบนหน้าจอได้เลย');});
+  matchMedia('(display-mode: standalone)').addEventListener?.('change',updateButton);
+  updateButton();
+  if('serviceWorker' in navigator&&window.isSecureContext){
+    navigator.serviceWorker.register('admin-sw.js',{scope:'./admin.html',updateViaCache:'none'})
+      .then(registration=>registration.update().catch(()=>{})).catch(()=>{});
+  }
+  button.addEventListener('click',async()=>{
+    if(standalone())return;
+    if(deferred){
+      const event=deferred;deferred=null;
+      try{await event.prompt();await event.userChoice;}catch(_){}
+      return;
+    }
+    const ios=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    const local=location.protocol==='file:';
+    await ask({title:'ติดตั้งแอปแอดมิน',text:local
+      ?'ให้อัปโหลดไฟล์ขึ้นเว็บไซต์ก่อน แล้วเปิดลิงก์หน้า Admin ในโทรศัพท์เพื่อเพิ่มแอปลงหน้าจอหลัก'
+      :ios
+        ?'เปิดหน้านี้ใน Safari → กดแชร์ → เพิ่มไปยังหน้าจอโฮม → เปิดเป็นเว็บแอป (หากมี) → เพิ่ม'
+        :'เปิดหน้านี้ใน Chrome → เมนู ⋮ → เพิ่มลงในหน้าจอหลัก หรือ ติดตั้งแอป\nหากเปิดจากแชต LINE ให้เปิดลิงก์ด้วย Chrome ก่อน',confirm:'รับทราบ',safe:true});
   });
 })();
 
