@@ -5106,9 +5106,10 @@ addEventListener('keydown',e=>{
   function findPatient(history){$('q').placeholder=history?'ค้นหาชื่อ หรือเบอร์โทร เพื่อดูประวัตินัด':'ค้นหาชื่อ หรือเบอร์โทรคนไข้';$('searchbox').scrollIntoView({behavior:'smooth',block:'center'});$('q').focus();}
   const actions=[['ตารางนัดหมาย',()=>{$('main').scrollIntoView({behavior:'smooth',block:'start'});}],['ค้นหาประวัตินัด',()=>findPatient(true)],['รายงานคิว',()=>{$('print').click();}]];
   actions.forEach(([title,action],i)=>{const icon=document.createElementNS('http://www.w3.org/2000/svg','svg');icon.setAttribute('viewBox','0 0 24 24');icon.setAttribute('aria-hidden','true');icon.innerHTML=shapes[[0,2,3][i]];const button=el('button',{type:'button',onclick:action},icon,title);if(i===0)button.setAttribute('aria-current','page');nav.append(button);});calendar.prepend(nav);
-  const heading=document.querySelector('.schedule-heading');heading.children[1].textContent='ชื่อคนไข้ / ติดต่อ';heading.children[2].textContent='นัดต่างวัน';
+  const heading=document.querySelector('.schedule-heading');heading.children[1].textContent='ชื่อคนไข้ / ติดต่อ';heading.children[2].textContent='มีนัดวันอื่น';
+  heading.append(el('span',{class:'line-column-heading'},'บัญชี LINE'));
   const cards=[...panel.querySelectorAll('.stat-card')];
-  ['จองแล้ว','คิวว่าง','นัดต่างวัน'].forEach((label,i)=>cards[i].querySelector('.stat-label').textContent=label);
+  ['จองแล้ว','คิวว่าง','มีนัดวันอื่น'].forEach((label,i)=>cards[i].querySelector('.stat-label').textContent=label);
   const clean=x=>String(x||'').trim().replace(/\s+/g,' ');
   function relevant(b){return (b.otherAppointments||[]).filter(a=>a.date&&a.date!==dayData?.date);}
   function repaint(){
@@ -5205,6 +5206,38 @@ addEventListener('keydown',e=>{
  html[data-admin-theme] body .layout .slots .slot.taken:hover{background:var(--theme-row,var(--theme-soft,#eaf2fb))!important}
  html[data-admin-theme] body .layout .slots .slot.vacant,
  html[data-admin-theme] body .layout .slots .slot.vacant:hover{background:#fff!important}
+}
+</style>
+
+<style>
+@media screen and (min-width:960px){
+ .schedule-heading span:nth-child(2){grid-column:2 / 3!important}
+ .schedule-heading .line-column-heading{grid-column:3!important;grid-row:1!important;padding-left:0!important;text-align:left!important}
+ .schedule-heading span{grid-row:1}
+ .layout .slots .slot .n > b{font-size:1.06rem!important;line-height:1.5!important}
+ .layout .slots .slot .n > small{font-size:.9rem!important;line-height:1.5!important}
+ .layout .slots .slot{min-height:72px!important}
+}
+</style>
+
+<style>
+/* Final dashboard polish: soft summaries and clear appointment columns. */
+@media screen{
+ .layout .day-statistics .stat-card:nth-child(1){background:var(--theme-soft,#fbedf3)!important}
+ .layout .day-statistics .stat-card:nth-child(2){background:#eff8f3!important;border-color:#d9ece1!important}
+ .layout .day-statistics .stat-card:nth-child(3){background:#f4effb!important;border-color:#e5ddf1!important}
+ .layout .day-statistics .stat-card:nth-child(2) .stat-icon{background:#dbefe3!important;color:#387b57!important}
+ .layout .day-statistics .stat-card:nth-child(3) .stat-icon{background:#e8def8!important;color:#7956a3!important}
+ .layout .schedule-heading{background:var(--theme-soft,#f9e7ef)!important;font-weight:600}
+ .layout .slots{border-radius:0 0 10px 10px!important}
+ .layout .slots .slot .side .mv{color:var(--theme-deep)!important}
+ .layout .slots .slot .side .mv::before{content:none!important}
+}
+@media screen and (min-width:960px){
+ .layout .day-statistics .stat-card{border-radius:12px!important;box-shadow:0 2px 9px #40304b06!important}
+ .layout .schedule-heading{min-height:48px;align-items:center}
+ .layout .slots .slot .n > b{font-weight:600!important}
+ .layout .slots .slot .side .mv,.layout .slots .slot .side .drop{min-height:38px!important;height:38px!important}
 }
 </style>
 </body>
