@@ -4839,7 +4839,7 @@ var qrcode = function() {
 </style>
 <script>
 (()=>{
-  const dlg=el('dialog',{class:'line-link-dialog','aria-label':'เชื่อม LINE กับนัดเดิม'});document.body.append(dlg);
+  const dlg=el('dialog',{class:'line-link-dialog','aria-label':'ผูก LINE กับนัดเดิม'});document.body.append(dlg);
   let token='',timer=null,busy=false,active=false,generation=0;
   function stop(){clearInterval(timer);timer=null;}
   async function inspect(seq){
@@ -4849,14 +4849,14 @@ var qrcode = function() {
       const s=await api('adminLineLinkStatus',{token});
       if(seq!==generation||!dlg.open)return;
       const review=dlg.querySelector('.line-link-review');
-      if(s.state==='approved'){active=false;stop();review.replaceChildren(el('p',{},'เชื่อม LINE แล้ว'));toast('เชื่อม LINE แล้ว');await openDay(current);return;}
+      if(s.state==='approved'){active=false;stop();review.replaceChildren(el('p',{},'ผูก LINE แล้ว'));toast('ผูก LINE แล้ว');await openDay(current);return;}
       if(s.state==='pending'){
-        review.replaceChildren(el('strong',{},'มีคำขอเชื่อม LINE'),el('p',{},'ชื่อบัญชี LINE: '+s.lineName),el('p',{},s.role==='caregiver'?'ประเภท: บัญชีผู้ดูแล':'ประเภท: บัญชีคนไข้'),el('p',{class:'line-link-note'},'ตรวจสอบว่าผู้สแกนเป็นคนไข้หรือผู้ดูแลของ '+s.name+' ก่อนยืนยัน'),
+        review.replaceChildren(el('strong',{},'มีคำขอผูก LINE'),el('p',{},'ชื่อบัญชี LINE: '+s.lineName),el('p',{},s.role==='caregiver'?'ประเภท: บัญชีผู้ดูแล':'ประเภท: บัญชีคนไข้'),el('p',{class:'line-link-note'},'ตรวจสอบว่าผู้สแกนเป็นคนไข้หรือผู้ดูแลของ '+s.name+' ก่อนยืนยัน'),
           el('button',{type:'button',class:'line-link-approve',onclick:async()=>{
-            const yes=await ask({title:'ยืนยันเชื่อม LINE?',text:s.name+'\nบัญชี LINE: '+s.lineName+'\n'+(s.role==='caregiver'?'บัญชีผู้ดูแล':'บัญชีคนไข้')+'\nยืนยันว่าตรวจสอบบุคคลแล้ว',confirm:'ยืนยันเชื่อม',safe:true});
+            const yes=await ask({title:'ยืนยันผูก LINE?',text:s.name+'\nบัญชี LINE: '+s.lineName+'\n'+(s.role==='caregiver'?'บัญชีผู้ดูแล':'บัญชีคนไข้')+'\nยืนยันว่าตรวจสอบบุคคลแล้ว',confirm:'ยืนยันเชื่อม',safe:true});
             if(!yes||seq!==generation||!dlg.open)return;
             stop();
-            try{await api('adminLineLinkApprove',{token,confirm:true,role:s.role,lineName:s.lineName});active=false;review.replaceChildren(el('p',{},'เชื่อม LINE แล้ว'));toast('เชื่อม LINE แล้ว');await openDay(current);}
+            try{await api('adminLineLinkApprove',{token,confirm:true,role:s.role,lineName:s.lineName});active=false;review.replaceChildren(el('p',{},'ผูก LINE แล้ว'));toast('ผูก LINE แล้ว');await openDay(current);}
             catch(e){toast(e.message);timer=setInterval(()=>inspect(seq),5000);}
           }},'ตรวจสอบแล้ว · ยืนยันเชื่อม'));
       }else review.replaceChildren(el('p',{},'รอคนไข้สแกน QR และกดยืนยัน'));
@@ -4866,25 +4866,25 @@ var qrcode = function() {
   async function showLink(b){
     if(dlg.open)return;
     const seq=++generation;busy=false;active=false;token='';stop();
-    dlg.replaceChildren(el('h2',{},'เชื่อม LINE'),el('p',{},'คนไข้: '+b.name),el('p',{class:'line-link-note'},'เชื่อมเฉพาะนัดนี้ · '+b.time),el('p',{},'กำลังสร้าง QR…'),el('button',{type:'button',onclick:()=>dlg.close()},'ปิด'));
+    dlg.replaceChildren(el('h2',{},'ผูก LINE'),el('p',{},'คนไข้: '+b.name),el('p',{class:'line-link-note'},'เชื่อมเฉพาะนัดนี้ · '+b.time),el('p',{},'กำลังสร้าง QR…'),el('button',{type:'button',onclick:()=>dlg.close()},'ปิด'));
     openDialog(dlg);
     try{
       const r=await api('adminLineLinkCreate',{id:b.id});
       if(seq!==generation||!dlg.open){await api('adminLineLinkReject',{token:r.token});return;}
       token=r.token;active=true;
       const code=qrcode(0,'M');code.addData(r.url);code.make();
-      dlg.replaceChildren(el('h2',{},'เชื่อม LINE'),el('p',{},'คนไข้: '+r.name),el('p',{class:'line-link-note'},'เชื่อมเฉพาะนัดนี้ · '+r.service+' · '+r.date+' '+r.time),el('div',{class:'line-link-qr'},el('img',{src:code.createDataURL(5,20),alt:'QR สำหรับเชื่อม LINE กับนัดนี้'})),
+      dlg.replaceChildren(el('h2',{},'ผูก LINE'),el('p',{},'คนไข้: '+r.name),el('p',{class:'line-link-note'},'เชื่อมเฉพาะนัดนี้ · '+r.service+' · '+r.date+' '+r.time),el('div',{class:'line-link-qr'},el('img',{src:code.createDataURL(5,20),alt:'QR สำหรับผูก LINE กับนัดนี้'})),
         el('p',{class:'line-link-time'},'QR หมดอายุเวลา '+new Date(r.expires).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Bangkok'})+' น.'),
         el('div',{class:'line-link-review','aria-live':'polite'},el('p',{},'รอคนไข้สแกน QR และกดยืนยัน')),
         el('div',{class:'line-link-actions'},el('button',{type:'button',onclick:()=>inspect(seq)},'ตรวจคำขออีกครั้ง'),el('button',{type:'button',onclick:async()=>{try{await navigator.clipboard.writeText(r.url);toast('คัดลอกลิงก์แล้ว');}catch(_){toast('คัดลอกไม่ได้ เลือกลิงก์ด้านล่างเพื่อคัดลอกเอง');}}},'คัดลอกลิงก์'),el('button',{type:'button',onclick:()=>dlg.close()},'ปิด')),
-        el('a',{href:r.url,target:'_blank',rel:'noopener noreferrer'},'เปิดลิงก์เชื่อม LINE'),el('p',{class:'line-link-note'},'ปิดหน้าต่างนี้เพื่อยกเลิก QR ที่ยังไม่ได้อนุมัติ'));
+        el('a',{href:r.url,target:'_blank',rel:'noopener noreferrer'},'เปิดลิงก์ผูก LINE'),el('p',{class:'line-link-note'},'ปิดหน้าต่างนี้เพื่อยกเลิก QR ที่ยังไม่ได้อนุมัติ'));
       timer=setInterval(()=>inspect(seq),5000);
-    }catch(e){if(seq===generation&&dlg.open)dlg.replaceChildren(el('h2',{},'เชื่อม LINE'),el('p',{},e.message),el('button',{type:'button',onclick:()=>dlg.close()},'ปิด'));}
+    }catch(e){if(seq===generation&&dlg.open)dlg.replaceChildren(el('h2',{},'ผูก LINE'),el('p',{},e.message),el('button',{type:'button',onclick:()=>dlg.close()},'ปิด'));}
   }
   dlg.addEventListener('close',()=>{stop();generation++;if(active&&token)api('adminLineLinkReject',{token}).catch(()=>{});active=false;token='';});
   addEventListener('pagehide',stop);
   const original=slotRow;
-  slotRow=function(t,b,free){const row=original(t,b,free);if(b&&!b.cancelled){const n=row.querySelector('.n');if(n)n.append(el('div',{class:'line-link-control'},b.hasLine?el('span',{class:'line-linked-label'},'✓ เชื่อม LINE แล้ว'+(b.lineRole==='บัญชีผู้ดูแล'?' · ผู้ดูแล':'')):el('button',{type:'button',class:'line-link-button',onclick:()=>showLink(b)},'เชื่อม LINE')));}return row;};
+  slotRow=function(t,b,free){const row=original(t,b,free);if(b&&!b.cancelled){const n=row.querySelector('.n');if(n)n.append(el('div',{class:'line-link-control'},b.hasLine?el('span',{class:'line-linked-label'},'✓ ผูก LINE แล้ว'+(b.lineRole==='บัญชีผู้ดูแล'?' · ผู้ดูแล':'')):el('button',{type:'button',class:'line-link-button',onclick:()=>showLink(b)},'ผูกบัญชี LINE')));}return row;};
 })();
 </script>
 <script>
@@ -5175,6 +5175,28 @@ addEventListener('keydown',e=>{
  .layout .slots .slot .n > small{padding-bottom:0!important}
  .layout .slots .slot .side{justify-content:center!important}
  .layout .slots .slot .n > .other-appointments{margin:0 10px!important}
+}
+</style>
+
+<style>
+@media screen and (max-width:959px){
+ .layout .slots .slot{grid-template-columns:44px minmax(0,1fr) auto!important;grid-template-rows:auto auto auto auto!important;padding:12px 8px!important;gap:5px 8px!important;min-height:112px!important}
+ .layout .slots .slot .t{grid-column:1!important;grid-row:1 / 5!important;align-self:center!important;padding:4px 0!important;font-size:.85rem!important}
+ .layout .slots .slot .n{display:contents!important;padding:0!important}
+ .layout .slots .slot .n > b{grid-column:2!important;grid-row:1!important;padding:0!important;align-self:center!important;white-space:normal!important;overflow-wrap:anywhere;font-size:1rem!important;line-height:1.5!important}
+ .layout .slots .slot .n > small{grid-column:2 / 4!important;grid-row:2!important;padding:0!important;font-size:.82rem!important;white-space:normal!important;line-height:1.5!important}
+ .layout .slots .slot .n > .line-link-control{grid-column:3!important;grid-row:1!important;align-self:center!important;justify-self:end!important;width:auto!important;max-width:120px;margin:0!important;min-width:0}
+ .layout .slots .slot .line-link-button,.layout .slots .slot .line-linked-label{box-sizing:border-box;min-height:36px!important;display:flex!important;align-items:center;justify-content:center;padding:5px 7px!important;font-size:.73rem!important;white-space:normal}
+ .layout .slots .slot .line-link-button::before{content:none!important}
+ .layout .slots .slot .side{grid-column:2 / 4!important;grid-row:4!important;align-self:center!important;justify-self:stretch!important;width:100%!important;box-sizing:border-box;display:flex!important;gap:8px!important;padding:4px 0 0!important;margin:0!important}
+ .layout .slots .slot .side .mv,.layout .slots .slot .side .drop{flex:1 1 0;min-width:0;min-height:42px!important;height:42px!important;padding:6px!important;font-size:.85rem!important}
+ .layout .slots .slot .side .mv::before{content:none!important}
+ .layout .slots .slot .side .drop{font-size:0!important}
+ .layout .slots .slot .side .drop::before{font-size:.85rem!important}
+ .layout .slots .slot .n > .other-appointments{grid-column:2 / 4!important;grid-row:3!important;margin:2px 0!important}
+ .layout .slots .slot.vacant,.layout .slots .slot.blocked,.layout .slots .slot.off{min-height:65px!important}
+ .layout .slots .slot.vacant .n > b,.layout .slots .slot.blocked .n > b,.layout .slots .slot.off .n > b{grid-column:2!important;grid-row:1 / 3!important;align-self:center!important}
+ .layout .slots .slot.vacant .side{grid-column:3!important;grid-row:1 / 3!important;width:auto!important;min-width:95px}
 }
 </style>
 </body>
