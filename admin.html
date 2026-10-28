@@ -2083,7 +2083,7 @@ init();
     const chosen=applyTheme(theme);
     try{localStorage.setItem(key,chosen);}catch(_){}
   }
-  let chosen='lavender';
+  let chosen='sky';
   try{chosen=localStorage.getItem(key)||chosen;}catch(_){}
   applyTheme(chosen);
   select.addEventListener('change',()=>choose(select.value));
@@ -5011,5 +5011,148 @@ addEventListener('keydown',e=>{
   .layout .slots .slot .side{padding-left:10px;padding-right:10px}
 }
 </style>
+<style>
+@media screen{
+  html body{background:#f4f8fd}
+  .layout .eyebrow{border:0!important;border-radius:0!important;background:linear-gradient(100deg,#fff,#f0f7ff)!important;box-shadow:0 1px 0 #dce7f3!important;padding:14px 20px!important}
+  .layout .eyebrow::before{background:transparent!important;color:var(--theme-accent,#367cb9);font-size:32px}
+  .layout .eyebrow .brand-text h1{font-size:1.18rem!important;color:var(--theme-deep,#234c76)!important}
+  .layout .eyebrow .header-subtitle{font-size:.8rem;color:#6b8199!important}
+  .dashboard-nav{display:grid;gap:6px;margin:0 0 22px}
+  .dashboard-nav button{display:flex;align-items:center;gap:12px;width:100%;min-height:43px;padding:10px 14px;background:transparent;border:0;border-radius:8px;text-align:left;font:inherit;font-size:.94rem;color:var(--theme-deep,#355e85);cursor:pointer}
+  .dashboard-nav button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;flex:none}
+  .dashboard-nav button:hover,.dashboard-nav button:focus-visible{background:var(--theme-soft,#e4f0fc);outline:2px solid transparent}
+  .dashboard-nav button[aria-current="page"]{background:var(--theme-circle,#d9eafa);font-weight:700}
+  .layout #main{border:0!important;box-shadow:none!important;background:transparent!important;padding:4px 0!important}
+  .dayhead{align-items:center;gap:8px;margin-bottom:10px!important}
+  .layout #main .dayhead h2{font-size:1.5rem!important;line-height:1.4;flex:1 1 280px!important;margin:0!important}
+  .dayhead .shutbtn,.dayhead .addbtn{min-height:40px;padding:8px 12px;font-size:.85rem}
+  .day-service{font-size:.88rem;margin:0 0 14px!important;color:var(--theme-muted,#607b96)}
+  #svcpick{margin:0 0 12px}
+  #svcpick:empty{display:none}
+  .day-statistics{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:12px 0!important}
+  .day-statistics[hidden]{display:none!important}
+  .day-statistics .stat-card{display:flex;justify-content:flex-start;align-items:center;gap:14px;padding:18px!important;min-height:110px!important;background:#fff;border:1px solid var(--theme-border,#d7e4f2);border-radius:12px;box-shadow:0 3px 14px #365b8010}
+  .day-statistics .stat-icon{position:static!important;transform:none!important;flex:0 0 49px;width:49px;height:49px;margin:0!important}
+  .day-statistics .stat-text{display:flex;flex-direction:column-reverse;align-items:flex-start;text-align:left;min-width:0}
+  .day-statistics .stat-label{font-size:.86rem;color:var(--theme-muted,#607b96)}
+  .day-statistics .stat-value{font-size:1.9rem;line-height:1.4;text-align:left;white-space:nowrap;color:var(--theme-ink,#243f60)}
+  #updated{font-size:.78rem;margin:2px 0 12px}
+  .slots{border-color:var(--theme-border,#d7e4f2)!important;background:#fff!important;overflow:hidden}
+  html[data-admin-theme] .slot.taken{background:#fff!important}
+  html[data-admin-theme] .slot.taken:hover{background:var(--theme-row,#f7faff)!important}
+  .slot.taken .t{box-shadow:none!important;background:transparent!important;border-right:0!important}
+  .layout .slots .slot{min-height:76px!important;row-gap:2px;border-color:var(--theme-border,#d7e4f2)}
+  .layout .slots .slot .n b{font-size:1rem}
+  .layout .slots .slot .side .mv,.layout .slots .slot .side .drop{height:36px;min-height:36px;border-radius:8px;padding:6px 10px;font-size:.84rem}
+  .layout .slots .slot .side .drop{font-size:0}
+  .line-link-control .line-link-button{min-height:30px;font-size:.8rem;padding:5px 9px;border-radius:7px}
+  .line-link-control .line-linked-label{display:inline-block;background:#edfaf2;color:#28764a;border:1px solid #c3e8d0;padding:5px 9px;border-radius:7px;font-size:.78rem;line-height:1.5}
+  .other-appointments{border:0!important;background:transparent!important;padding:0!important;font-size:.8rem;line-height:1.5}
+  .related-badge{padding:8px 10px;background:#fff7e8;border:1px solid #f0dfbb;border-radius:8px;color:#7d541c;margin:3px 0}
+  .related-badge.family{background:#f4efff;border-color:#dfd4f2;color:#73539d}
+  .related-badge b{font-size:.8rem!important;font-weight:600!important;color:inherit!important;white-space:normal!important}
+  .related-badge small{display:block;font-size:.77rem!important;color:inherit!important;white-space:normal!important;line-height:1.5!important}
+}
+@media screen and (min-width:960px){
+  .layout{display:grid!important;grid-template-columns:250px minmax(0,1fr)!important;gap:20px 24px!important;max-width:1600px!important;margin:0 auto;padding:0 24px 36px!important}
+  .layout .eyebrow{grid-column:1/-1;min-height:75px;margin:0 -24px!important}
+  .calendar-panel{position:sticky;top:18px;grid-column:1;grid-row:2;padding:4px 0;align-self:start;width:100%;max-width:none}
+  .layout #main{grid-column:2;grid-row:2}
+  .layout:has(#main[hidden]) .calendar-panel{display:none!important}
+  .layout:has(#main[hidden]) .eyebrow{grid-column:1/-1}
+  .schedule-heading,.layout .slots .slot{grid-template-columns:66px minmax(160px,1.05fr) minmax(100px,.65fr) minmax(150px,1fr) 150px!important}
+  .schedule-heading{padding:12px 0!important;border-color:var(--theme-border,#d7e4f2);border-radius:10px 10px 0 0}
+  .schedule-heading span:nth-child(1){grid-column:1}
+  .schedule-heading span:nth-child(2){grid-column:2 / 4}
+  .schedule-heading span:nth-child(3){grid-column:4;text-align:left!important;padding-left:12px!important}
+  .schedule-heading span:nth-child(4){grid-column:5}
+  .layout .slots .slot{grid-template-rows:auto auto!important;padding:10px 0}
+  .layout .slots .slot .t{grid-column:1!important;grid-row:1 / 3!important;align-self:center;font-size:1.02rem;padding:7px 4px!important}
+  .layout .slots .slot .n{display:contents!important}
+  .layout .slots .slot .n > b{grid-column:2;grid-row:1;align-self:end;margin:0;padding:0 12px 1px 0;min-width:0;line-height:1.5;white-space:normal}
+  .layout .slots .slot .n > small{grid-column:2;grid-row:2;align-self:start;padding:0 12px 0 0;min-width:0;font-size:.8rem;white-space:normal;overflow-wrap:anywhere}
+  .layout .slots .slot .n > .line-link-control{grid-column:3;grid-row:1 / 3;align-self:center;justify-self:start;margin:0 10px 0 0;min-width:0}
+  .layout .slots .slot .n > .other-appointments{grid-column:4;grid-row:1 / 3;align-self:center;margin:0 12px!important;min-width:0}
+  .layout .slots .slot .side{grid-column:5!important;grid-row:1 / 3!important;align-self:center;padding:0 8px!important;display:flex;flex-wrap:nowrap;gap:6px}
+  .layout .slots .slot::after{display:none!important}
+  .layout .slots .slot:not(:has(.other-appointments))::before{content:'—';grid-column:4;grid-row:1 / 3;align-self:center;margin-left:16px;color:#94a6bb}
+  .slot.vacant .n > b,.slot.off .n > b,.slot.blocked .n > b{grid-row:1 / 3!important;align-self:center!important}
+  .slot.vacant .side::after{padding:7px 10px!important;font-size:.82rem!important;width:100%;text-align:center}
+}
+@media screen and (min-width:960px) and (max-width:1230px){
+  .layout{grid-template-columns:220px minmax(0,1fr)!important;gap:16px!important}
+  .schedule-heading,.layout .slots .slot{grid-template-columns:56px minmax(120px,1fr) minmax(90px,.65fr) minmax(125px,.9fr) 126px!important}
+  .day-statistics .stat-card{padding:12px!important;gap:9px;min-height:95px!important}
+  .day-statistics .stat-icon{flex-basis:38px;width:38px;height:38px}
+  .day-statistics .stat-value{font-size:1.55rem}
+}
+@media screen and (max-width:959px){
+  .layout{padding:0 12px 24px!important;gap:15px!important;max-width:760px!important}
+  .layout .eyebrow{margin:0 -12px!important;padding:14px!important}
+  .calendar-panel{max-width:none!important;width:100%;position:static}
+  .dashboard-nav{display:flex;overflow-x:auto;gap:6px;margin-bottom:12px;scrollbar-width:thin}
+  .dashboard-nav button{flex:0 0 auto;width:auto;min-height:40px;padding:8px 10px;white-space:nowrap;font-size:.8rem}
+  .dashboard-nav button svg{width:17px;height:17px}
+  .day-statistics{gap:8px}
+  .day-statistics .stat-card{display:block;min-height:95px!important;padding:12px 9px!important}
+  .day-statistics .stat-icon{display:none}
+  .day-statistics .stat-value{font-size:1.35rem}
+  .day-statistics .stat-label{font-size:.77rem}
+  .layout #main .dayhead h2{font-size:1.15rem!important}
+  .schedule-heading{display:none!important}
+  .layout .slots .slot{grid-template-columns:64px minmax(0,1fr)!important;grid-template-rows:auto auto!important;padding:8px 0}
+  .layout .slots .slot .t{grid-column:1!important;grid-row:1 / 3!important;align-self:center}
+  .layout .slots .slot .n{grid-column:2!important;grid-row:1!important;display:flex!important;padding:8px 12px!important}
+  .layout .slots .slot .n::after,.layout .slots .slot::after{display:none!important}
+  .layout .slots .slot .side{grid-column:2!important;grid-row:2!important;justify-content:flex-start!important;padding:0 12px 8px!important}
+  .layout .slots .slot .side .mv,.layout .slots .slot .side .drop{min-height:42px;height:42px}
+  .layout .slots .slot .n > .other-appointments{margin-top:7px!important}
+}
+</style>
+
+<script>
+/* Dashboard presentation: all navigation reuses working clinic controls. */
+(()=>{
+  const panel=document.querySelector('.day-statistics'),calendar=document.querySelector('.calendar-panel');
+  const nav=el('nav',{class:'dashboard-nav','aria-label':'เมนูผู้ดูแล'});
+  const shapes=['<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6m10-6v6M3 11h18"/>','<circle cx="12" cy="7" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/>','<path d="M6 3h12v18H6zM9 8h6M9 12h6M9 16h4"/>','<path d="M3 21h18M6 18V9m6 9V3m6 15v-6"/>','<circle cx="12" cy="12" r="4"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/>'];
+  function findPatient(history){$('q').placeholder=history?'ค้นหาชื่อ หรือเบอร์โทร เพื่อดูประวัตินัด':'ค้นหาชื่อ หรือเบอร์โทรคนไข้';$('searchbox').scrollIntoView({behavior:'smooth',block:'center'});$('q').focus();}
+  const actions=[['ตารางนัดหมาย',()=>{$('main').scrollIntoView({behavior:'smooth',block:'start'});}],['คนไข้',()=>findPatient(false)],['ค้นหาประวัตินัด',()=>findPatient(true)],['รายงานคิว',()=>{$('print').click();}],['ตั้งค่าโทนสี',()=>openDialog($('theme-color-dialog'))]];
+  actions.forEach(([title,action],i)=>{const icon=document.createElementNS('http://www.w3.org/2000/svg','svg');icon.setAttribute('viewBox','0 0 24 24');icon.setAttribute('aria-hidden','true');icon.innerHTML=shapes[i];const button=el('button',{type:'button',onclick:action},icon,title);if(i===0)button.setAttribute('aria-current','page');nav.append(button);});calendar.prepend(nav);
+  const heading=document.querySelector('.schedule-heading');heading.children[1].textContent='ชื่อคนไข้ / ติดต่อ';heading.children[2].textContent='นัดต่างวัน';
+  const cards=[...panel.querySelectorAll('.stat-card')];
+  ['จองแล้ว','คิวว่าง','นัดต่างวัน'].forEach((label,i)=>cards[i].querySelector('.stat-label').textContent=label);
+  const clean=x=>String(x||'').trim().replace(/\s+/g,' ');
+  function relevant(b){return (b.otherAppointments||[]).filter(a=>a.date&&a.date!==dayData?.date);}
+  function repaint(){
+    if(!dayData||$('main').hidden)return;
+    const cap=dayData.capacity.find(c=>c.id===svcId),bookings=dayData.bookings.filter(b=>!b.cancelled&&(!cap||b.service===cap.name));
+    const related=new Set(bookings.flatMap(b=>relevant(b).map(a=>JSON.stringify([a.name,a.date,a.time,a.service]))));
+    cards[0].querySelector('.stat-value').textContent=cap?`${bookings.length}/${cap.total} คน`:`${bookings.length} คน`;
+    cards[1].querySelector('.stat-value').textContent=cap?`${dayData.holiday?0:cap.free.length} คน`:'—';
+    cards[2].querySelector('.stat-value').textContent=`${related.size} รายการ`;
+    heading.children[0].textContent=cap?.noTime?'คิว':'เวลา';
+  }
+  const oldRow=slotRow;
+  slotRow=function(t,b,free){
+    const row=oldRow(t,b,free);
+    if(b&&!b.cancelled){
+      const alert=row.querySelector('.other-appointments');
+      if(alert){const items=relevant(b);if(!items.length)alert.remove();else alert.replaceChildren(...items.map(a=>{
+        const family=a.match==='LINE เดียวกัน'&&clean(a.name)!==clean(b.name);
+        const title=family?'LINE เดียวกัน · คนละชื่อ':a.match==='LINE เดียวกัน'?'LINE เดียวกัน':'ชื่อและเบอร์ตรงกัน';
+        return el('div',{class:'related-badge'+(family?' family':'')},el('b',{},title),el('small',{},(family?`${a.name} · `:'')+`${a.service} · ${shortDate(a.date)}`+(a.noTime?'':` · ${a.time}`)));
+      }));}
+    }
+    return row;
+  };
+  const oldSlots=renderSlots;renderSlots=function(){oldSlots();repaint();};
+  const oldDay=renderDay;renderDay=function(data){oldDay(data);repaint();};
+  const oldUpdated=markUpdated;markUpdated=function(){oldUpdated();repaint();};
+  repaint();
+})();
+
+</script>
 </body>
 </html>
