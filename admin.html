@@ -5199,5 +5199,13 @@ addEventListener('keydown',e=>{
  .layout .slots .slot.vacant .side{grid-column:3!important;grid-row:1 / 3!important;width:auto!important;min-width:95px}
 }
 </style>
+<style>
+@media screen{
+ html[data-admin-theme] body .layout .slots .slot.taken{background:var(--theme-soft,#eaf2fb)!important}
+ html[data-admin-theme] body .layout .slots .slot.taken:hover{background:var(--theme-row,var(--theme-soft,#eaf2fb))!important}
+ html[data-admin-theme] body .layout .slots .slot.vacant,
+ html[data-admin-theme] body .layout .slots .slot.vacant:hover{background:#fff!important}
+}
+</style>
 </body>
 </html>
