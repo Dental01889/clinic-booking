@@ -5240,5 +5240,63 @@ addEventListener('keydown',e=>{
  .layout .slots .slot .side .mv,.layout .slots .slot .side .drop{min-height:38px!important;height:38px!important}
 }
 </style>
+<style>
+.visit-dialog{width:min(780px,calc(100vw - 24px));max-height:90dvh;box-sizing:border-box;padding:24px;border:1px solid var(--theme-border,#ded5eb);border-radius:18px;color:var(--theme-ink,#30283a);background:#fff;overflow:auto}
+.visit-dialog::backdrop{background:#24203688}.visit-dialog h2{margin:0;font-size:1.35rem}.visit-head{display:flex;justify-content:space-between;align-items:center;gap:16px}.visit-dialog button,.visit-dialog input,.visit-dialog textarea{font:inherit}.visit-dialog button{cursor:pointer;border:1px solid var(--theme-border,#ded5eb);border-radius:8px;padding:9px 14px;background:#fff;color:inherit;min-height:42px}.visit-dialog button:disabled{opacity:.55;cursor:wait}.visit-dialog .visit-primary{background:var(--theme-accent,#8865ad);color:#fff}.visit-person{padding:14px 16px;background:var(--theme-soft,#f6effa);border-radius:10px;margin:16px 0}.visit-person strong{display:block;font-size:1.1rem}.visit-person span{display:block;color:var(--theme-muted,#6d6375)}.visit-table-wrap{overflow-x:auto}.visit-table{width:100%;border-collapse:collapse;font-size:.94rem}.visit-table th,.visit-table td{padding:12px 10px;border-bottom:1px solid var(--theme-border,#e3dbe9);text-align:left;vertical-align:top}.visit-table th{background:var(--theme-soft,#f6effa)}.visit-table td:last-child{white-space:pre-wrap;overflow-wrap:anywhere}.visit-upcoming{margin-top:16px;background:var(--theme-soft,#f6effa);border-radius:10px;padding:12px}.visit-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.visit-form{border-top:1px solid var(--theme-border,#ded5eb);margin-top:18px;padding-top:16px}.visit-form label{display:block;margin:10px 0}.visit-form input[type=date],.visit-form textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--theme-border,#ded5eb);border-radius:8px;background:#fff;color:inherit}.visit-form fieldset{border:1px solid var(--theme-border,#ded5eb);border-radius:8px;padding:10px;display:flex;flex-wrap:wrap;gap:12px}.visit-form fieldset label{display:flex;align-items:center;gap:6px;margin:0}.visit-form input[type=checkbox]{width:19px;height:19px}.visit-help{font-size:.82rem;color:var(--theme-muted,#6d6375);margin:12px 0}.visit-message{white-space:pre-wrap}.visit-message.error{color:#b62d43}.layout .slots .slot .n > b .patient-history-button{font:inherit;font-weight:inherit;text-align:left;color:inherit;background:transparent;border:0;border-radius:3px;padding:0;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px;white-space:normal}.patient-history-button:focus-visible{outline:2px solid var(--theme-accent,#8865ad);outline-offset:3px}
+@media screen and (max-width:600px){.visit-dialog{padding:16px}.visit-table th,.visit-table td{padding:9px 6px;font-size:.84rem}.visit-actions{flex-wrap:wrap}.visit-actions button{flex:1}.visit-table th:first-child{min-width:80px}}
+@media print{.visit-dialog{display:none!important}}
+</style>
+<script>
+/* Patient service log: modal stays on the current queue and requires admin API. */
+(()=>{
+ const dlg=el('dialog',{class:'visit-dialog','aria-label':'ประวัติรับบริการ'});document.body.append(dlg);
+ let generation=0,busy=false;
+ dlg.addEventListener('cancel',e=>{if(busy)e.preventDefault();});
+ dlg.addEventListener('close',()=>{generation++;});
+ const friendly=e=>/คำสั่งไม่ถูกต้อง/.test(e.message)?'กรุณาอัปเดต Code.gs และการทำให้ใช้งานได้เป็นเวอร์ชันใหม่ก่อนใช้ประวัติรับบริการ':e.message;
+ function close(){if(!busy)dlg.close();}
+ async function show(b){
+  if(busy)return;
+  const seq=++generation;
+  const msg=el('p',{class:'visit-message',role:'status'},'กำลังโหลดประวัติ…');
+  dlg.replaceChildren(el('div',{class:'visit-head'},el('h2',{},'ประวัติรับบริการ'),el('button',{type:'button','aria-label':'ปิดประวัติ',onclick:close},'×')),msg);
+  if(!dlg.open)openDialog(dlg);
+  try{const data=await api('adminVisitHistory',{bookingId:b.id});if(seq!==generation||!dlg.open)return;render(b,data);}
+  catch(e){if(seq!==generation||!dlg.open)return;msg.classList.add('error');msg.textContent=friendly(e);dlg.append(el('button',{type:'button',onclick:()=>show(b)},'ลองใหม่'));}
+ }
+ function render(b,data){
+  const heading=dlg.firstElementChild;dlg.replaceChildren(heading);
+  dlg.append(el('div',{class:'visit-person'},el('strong',{},data.patient.name),el('span',{},data.patient.phone||'ไม่ได้ระบุเบอร์โทร')));
+  const body=el('tbody',{});
+  data.visits.forEach(v=>body.append(el('tr',{},el('td',{},shortDate(v.date)),el('td',{},v.treat),el('td',{},v.note||'—'))));
+  dlg.append(el('h3',{},'รายการรับบริการที่ผ่านมา'));
+  if(data.visits.length)dlg.append(el('div',{class:'visit-table-wrap'},el('table',{class:'visit-table'},el('thead',{},el('tr',{},...['วันที่รับบริการ','บริการที่ทำจริง','หมายเหตุ'].map(t=>el('th',{scope:'col'},t)))),body)));
+  else dlg.append(el('p',{},'ยังไม่มีบันทึกการรับบริการ'));
+  dlg.append(el('p',{class:'visit-help'},'รวมประวัติเมื่อชื่อและเบอร์โทรตรงกันเท่านั้น ไม่รวมจากเบอร์หรือ LINE เดียวกันอย่างเดียว และไม่นับวันนัดที่ผ่านมาเป็นการรับบริการอัตโนมัติ'));
+  if(data.upcoming.length)dlg.append(el('div',{class:'visit-upcoming'},el('strong',{},'นัดที่กำลังจะถึง'),...data.upcoming.map(a=>el('div',{},shortDate(a.date)+' · '+a.service+(a.noTime?'':' · '+a.time)))));
+  const actions=el('div',{class:'visit-actions'}),add=el('button',{type:'button',class:'visit-primary',onclick:()=>openForm(b,data,add)},'+ บันทึกรับบริการ');
+  actions.append(el('button',{type:'button',onclick:close},'ปิด'),add);dlg.append(actions);
+ }
+ function openForm(b,data,add){
+  add.disabled=true;
+  const requestId=globalThis.crypto?.randomUUID?crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)+'-'+Math.random().toString(36).slice(2);
+  const form=el('form',{class:'visit-form'}),date=el('input',{type:'date',required:true,max:data.today,value:(dayData?.date&&dayData.date<=data.today?dayData.date:data.today)}),note=el('textarea',{rows:3,maxLength:1000,placeholder:'เช่น ซี่ฟัน หรือนัดติดตาม (ถ้ามี)'});
+  const checks=['อุดฟัน','ขูดหินปูน','ถอนฟัน'].map(t=>el('input',{type:'checkbox',value:t}));
+  const message=el('p',{class:'visit-message',role:'status'}),save=el('button',{type:'submit',class:'visit-primary'},'บันทึก'),cancel=el('button',{type:'button',onclick:()=>{form.remove();add.disabled=false;add.focus();}},'ยกเลิก');
+  form.append(el('h3',{},'บันทึกการรับบริการจริง'),el('label',{},'วันที่รับบริการ',date),el('fieldset',{},el('legend',{},'บริการที่ทำจริง (เลือกได้มากกว่า 1)'),...checks.map(c=>el('label',{},c,c.value))),el('label',{},'หมายเหตุ',note),message,el('div',{class:'visit-actions'},cancel,save));dlg.append(form);date.focus();
+  form.addEventListener('submit',async e=>{
+   e.preventDefault();if(busy)return;
+   const treatments=checks.filter(c=>c.checked).map(c=>c.value);if(!treatments.length){message.className='visit-message error';message.textContent='กรุณาเลือกบริการที่ทำจริง';return;}
+   busy=true;const seq=generation;dlg.querySelectorAll('button,input,textarea').forEach(x=>x.disabled=true);message.className='visit-message';message.textContent='กำลังบันทึก…';
+   try{await api('adminVisitSave',{bookingId:b.id,requestId,date:date.value,treatments,note:note.value});if(seq!==generation||!dlg.open)return;message.textContent='บันทึกแล้ว';busy=false;toast('บันทึกการรับบริการแล้ว');await show(b);}
+   catch(e){if(seq===generation&&dlg.open){message.className='visit-message error';message.textContent=friendly(e);dlg.querySelectorAll('button,input,textarea').forEach(x=>x.disabled=false);add.disabled=true;}}
+   finally{busy=false;}
+  });
+ }
+ const original=slotRow;
+ slotRow=function(t,b,free){const row=original(t,b,free);if(b){const name=row.querySelector('.n > b');if(name){const chips=[...name.querySelectorAll('.treat')];name.replaceChildren(el('button',{type:'button',class:'patient-history-button','aria-label':'ดูประวัติรับบริการของ '+b.name,onclick:()=>show(b)},b.name||'—'),...chips);}}return row;};
+ if(dayData&&!$('main').hidden)renderSlots();
+})();
+</script>
 </body>
 </html>
