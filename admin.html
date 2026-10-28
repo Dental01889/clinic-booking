@@ -5115,6 +5115,7 @@ addEventListener('keydown',e=>{
     if(!dayData||$('main').hidden)return;
     const cap=dayData.capacity.find(c=>c.id===svcId),bookings=dayData.bookings.filter(b=>!b.cancelled&&(!cap||b.service===cap.name));
     const related=new Set(bookings.flatMap(b=>relevant(b).map(a=>JSON.stringify([a.name,a.date,a.time,a.service]))));
+    $('list').classList.toggle('numbered-queue',!!cap?.noTime);
     cards[0].querySelector('.stat-value').textContent=cap?`${bookings.length}/${cap.total} คน`:`${bookings.length} คน`;
     cards[1].querySelector('.stat-value').textContent=cap?`${dayData.holiday?0:cap.free.length} คน`:'—';
     cards[2].querySelector('.stat-value').textContent=`${related.size} รายการ`;
@@ -5140,5 +5141,40 @@ addEventListener('keydown',e=>{
 })();
 
 </script>
+
+<style>
+/* Compact appointment table, inspired by the approved reference. */
+@media screen {
+ html[data-admin-theme] .layout .slots .slot.taken{background:#fff!important}
+ .layout .slots .slot{min-height:64px!important;border-left:0!important;box-shadow:none!important}
+ .layout .slots .slot .n > b{font-size:.94rem!important;line-height:1.45!important}
+ .layout .slots .slot .n > small{font-size:.79rem!important;line-height:1.45!important}
+ .layout .slots .slot .n > small a{text-decoration:none}
+ .layout .slots .slot .n > small a::before{content:'☎ ';font-size:.85em}
+ .layout .slots .slot .t{font-weight:700;color:var(--theme-deep)!important}
+ #list.numbered-queue .slot .t{background:radial-gradient(circle at center,var(--theme-soft,#edf5ff) 0 17px,transparent 18px)!important}
+ .layout .slots .slot .side .mv,.layout .slots .slot .side .drop{border-radius:6px!important;min-height:34px!important;height:34px!important;padding:5px 9px!important;font-size:.8rem!important;background:#fff!important}
+ .layout .slots .slot .side .mv::before{content:'▣ ';font-size:1em}
+ .layout .slots .slot .side .drop{color:#d44352!important;border-color:#efb0b7!important}
+ .layout .slots .slot .side .drop::before{content:'× ';font-size:1.1em}
+ .layout .slots .slot .side .drop::after{content:none!important}
+ .line-link-control .line-link-button{background:#f0f7ff!important;border:1px solid #acd0f5!important;color:#2566a5!important;border-radius:6px!important;padding:5px 9px!important;font-size:.77rem!important;min-height:30px}
+ .line-link-control .line-link-button::before{content:'LINE';display:inline-block;font-size:8px;font-weight:700;background:#2580cf;color:white;padding:2px 3px;border-radius:6px;margin-right:5px;vertical-align:middle}
+ .line-link-control .line-linked-label{border-radius:6px!important;font-size:.74rem!important;padding:5px 8px!important;background:#eaf9ef!important;border-color:#c0e9ce!important;color:#218345!important}
+ .related-badge{border-radius:7px!important;padding:6px 9px!important}
+ .related-badge b{font-size:.76rem!important}
+ .related-badge small{font-size:.72rem!important}
+ .layout .slots .slot.vacant .n > b{font-weight:600;color:var(--theme-muted)}
+ .layout .slots .slot.vacant .side{font-size:0!important}
+ .layout .slots .slot.vacant .side::after{content:'+ เพิ่มนัด'!important;border:1px solid #a8c9ef!important;border-radius:6px!important;background:#f5faff!important;color:#2768a7!important;min-height:32px!important;box-sizing:border-box}
+}
+@media screen and (min-width:960px){
+ .layout .slots .slot{padding:7px 0!important}
+ .layout .slots .slot .n > b{padding-top:0!important}
+ .layout .slots .slot .n > small{padding-bottom:0!important}
+ .layout .slots .slot .side{justify-content:center!important}
+ .layout .slots .slot .n > .other-appointments{margin:0 10px!important}
+}
+</style>
 </body>
 </html>
